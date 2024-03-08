@@ -166,5 +166,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.checkoutSystem.coinStorage.unload();
 
 	}
+
+	// Hello there
 	
 }
