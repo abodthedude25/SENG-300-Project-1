@@ -167,6 +167,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 	}
 
-	// Hello there
+	// Hello there 
 	
 }
