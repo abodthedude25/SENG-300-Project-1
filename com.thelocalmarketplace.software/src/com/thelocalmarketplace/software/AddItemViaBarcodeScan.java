@@ -19,6 +19,7 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 	public AddItemViaBarcodeScan(Order order) {
 		this.order = order;
 	}
+	
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
 		// TODO Auto-generated method stub
@@ -45,19 +46,11 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 
 	@Override
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
-		// TODO Auto-generated method stub
-		// this is the method where we should call the method in Order.java addItemViaBarcodeScan()
-		// and do all the checks or whatever
-		
-		// detects barcode
-		if(!software.getStationBlock()) {
-			// block it?
+		if(!software.isBlocked()) {
 			software.setStationBlock(true);
-		};
-		
-		// do the other stuff
-		
-		if(software.getStationBlock()) {
+			
+			order.addItemViaBarcodeScan(barcode);
+			
 			software.setStationBlock(false);
 		}
 	}

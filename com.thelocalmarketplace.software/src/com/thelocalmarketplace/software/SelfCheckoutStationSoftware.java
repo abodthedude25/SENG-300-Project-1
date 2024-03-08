@@ -7,7 +7,7 @@ public class SelfCheckoutStationSoftware {
 		this.blocked = value;
 	}
 	
-	public boolean getStationBlock() {
-		return this.blocked;
+	public boolean isBlocked() {
+		return blocked;
 	}
 }
