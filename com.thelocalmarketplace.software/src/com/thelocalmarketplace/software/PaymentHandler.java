@@ -1,17 +1,24 @@
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Formatter.BigDecimalLayoutForm;
 
+import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
 import com.tdc.ComponentFailure;
 import com.tdc.DisabledException;
 import com.tdc.NoCashAvailableException;
 import com.tdc.coin.Coin;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.PLUCodedProduct;
+import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import ca.ucalgary.seng300.simulation.SimulationException;
@@ -26,11 +33,13 @@ public class PaymentHandler extends SelfCheckoutStation {
 	private BigDecimal changeRemaining = BigDecimal.ZERO;
 	private BigDecimal totalCost = BigDecimal.ZERO;
 	private SelfCheckoutStation checkoutSystem = null;
+	private ArrayList<Product> allProducts;
 
-	public PaymentHandler(SelfCheckoutStation station) {
+	public PaymentHandler(SelfCheckoutStation station, ArrayList<Product> allProducts) {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
+		this.allProducts = allProducts;
 	}
 
 	/**
@@ -103,7 +112,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 	}
 
 	/**
-	 * Dispenses the correct amount of change to the customer.
+	 * Dispenses the correct amount of change to the customer and gives them the choice to print a receipt.
 	 * 
 	 * Implements change dispensing logic using available coin denominations.
 	 * 
@@ -141,34 +150,72 @@ public class PaymentHandler extends SelfCheckoutStation {
 		}
 
 		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
-			Scanner receiptRequest = new Scanner(System.in);
-			System.out.println("Would you like a receipt?");
-
-			String receiptAnswer = receiptRequest.nextLine();
-
-			while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
-				System.out.println("Sorry, that input is not acceptable. Try again.");
+			try (Scanner receiptRequest = new Scanner(System.in)) {
 				System.out.println("Would you like a receipt?");
-				receiptAnswer = receiptRequest.nextLine();
-			}
-			if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
-				receiptPrinter();
-				System.out.println("Thank you for your time. We hope to see you again!");
-				return true;
 
-			}
+				String receiptAnswer = receiptRequest.nextLine();
 
-			if (receiptAnswer.compareToIgnoreCase("no") == 0) {
-				System.out.println("No worries. Thank you for your time. We hope to see you again!");
-				return true;
+				while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+					System.out.println("Sorry, that input is not acceptable. Try again.");
+					System.out.println("Would you like a receipt?");
+					receiptAnswer = receiptRequest.nextLine();
+				}
+				if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
+					receiptPrinter();
+					System.out.println("Thank you for your time. We hope to see you again!");
+					return true;
 
+				}
+
+				if (receiptAnswer.compareToIgnoreCase("no") == 0) {
+					System.out.println("No worries. Thank you for your time. We hope to see you again!");
+					return true;
+
+				}
 			}
 		}
 		return false;
 	}
 
+	/**
+	 * Prints a receipt for the customer, with all the products' info, price, the total cost, total amount paid, and change due.
+	 */
+
 	private void receiptPrinter() {
-		System.out.println("Joker");
+		
+		ArrayList<String> receiptItems = new ArrayList<String>();
+
+		for (int i = 0; i < allProducts.size(); i++){
+			String productDescription;
+			Product p = allProducts.get(i);
+
+			if (p instanceof BarcodedProduct){
+				productDescription = ((BarcodedProduct)p).getDescription();
+				long price = (allProducts.get(i).getPrice());
+				receiptItems.add(productDescription + "$" + String.valueOf(price));
+			}
+
+			if (p instanceof PLUCodedProduct){
+				productDescription = ((PLUCodedProduct)p).getDescription();
+				long price = (allProducts.get(i).getPrice());
+				receiptItems.add(productDescription + "$" + String.valueOf(price));
+			}
+
+		}
+
+		BigDecimal purchaseValue = totalCost;
+		BigDecimal amountPaid = amountSpent;
+		BigDecimal changeDue = changeRemaining;
+
+		receiptItems.add("Total: $" + purchaseValue.toString());
+		receiptItems.add("Paid: $" + amountSpent.toString());
+		receiptItems.add("Change: $" + changeRemaining.toString());
+
+		for (int i = 0; i < allProducts.size(); i++){
+			System.out.println("\n");
+			System.out.println(receiptItems.get(i));
+			System.out.println("\n");
+		}
 	}
 
 	/**
@@ -204,7 +251,5 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.checkoutSystem.coinStorage.unload();
 
 	}
-
-	// Hello there
 
 }
