@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import com.tdc.CashOverloadException;
 import com.tdc.ComponentFailure;
@@ -20,22 +21,24 @@ import ca.ucalgary.seng300.simulation.SimulationException;
  * Handles coin insertion, validation, and change dispensing.
  */
 public class PaymentHandler extends SelfCheckoutStation {
-	
+
 	public BigDecimal amountSpent;
 	private BigDecimal changeRemaining = BigDecimal.ZERO;
 	private BigDecimal totalCost = BigDecimal.ZERO;
 	private SelfCheckoutStation checkoutSystem = null;
-	
+
 	public PaymentHandler(SelfCheckoutStation station) {
-		if(station == null) throw new NullPointerException("No argument may be null.");
+		if (station == null)
+			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
 	}
-	
+
 	/**
-	 * will be used to help with Signaling to the Customer the updated amount 
+	 * will be used to help with Signaling to the Customer the updated amount
 	 * due after the insertion of each coin.
+	 * 
 	 * @return money left to pay
-	*/
+	 */
 	public BigDecimal getChangeRemaining() {
 		return this.changeRemaining;
 	}
@@ -45,49 +48,53 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * 
 	 * @param coinsList List of coins inserted by the customer.
 	 * @return true if payment is successful, false otherwise.
-	 * @throws DisabledException If the coin slot is disabled.
-	 * @throws CashOverloadException If the cash storage is overloaded.
-	 * @throws NoCashAvailableException If no cash is available for dispensing change.
+	 * @throws DisabledException        If the coin slot is disabled.
+	 * @throws CashOverloadException    If the cash storage is overloaded.
+	 * @throws NoCashAvailableException If no cash is available for dispensing
+	 *                                  change.
 	 */
-	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList) throws DisabledException, CashOverloadException, NoCashAvailableException {
-		if(coinsList == null) throw new NullPointerException("coinsList cannot be null."); // Check for null parameters.
+	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
+			throws DisabledException, CashOverloadException, NoCashAvailableException {
+		if (coinsList == null)
+			throw new NullPointerException("coinsList cannot be null."); // Check for null parameters.
 		BigDecimal value = new BigDecimal("0");
-		for(Coin coin : coinsList) { // Calculate the total value of coins inserted.
+		for (Coin coin : coinsList) { // Calculate the total value of coins inserted.
 			value = value.add(coin.getValue());
 		}
-		
+
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
 
-		
 		boolean isSuccess = false;
-		for(Coin coin : coinsList) { // Accept each coin inserted by the customer.
+		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
 			isSuccess = acceptInsertedCoin(coin);
-			if(!isSuccess) value = value.subtract(coin.getValue());
+			if (!isSuccess)
+				value = value.subtract(coin.getValue());
 		}
-		
-		if(value.compareTo(this.totalCost) < 0) return false; // Return false if the total value of valid coins is less than the total cost.
-		
+
+		if (value.compareTo(this.totalCost) < 0)
+			return false; // Return false if the total value of valid coins is less than the total cost.
+
 		this.amountSpent = this.totalCost;
 
 		// Return true if accurate change is dispensed.
-		if(value.compareTo(this.totalCost) > 0) {
+		if (value.compareTo(this.totalCost) > 0) {
 			BigDecimal changeValue = value.subtract(this.totalCost);
 			return dispenseAccurateChange(changeValue);
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Accepts a coin inserted by the customer into the coin slot.
 	 * 
 	 * @param coin The coin to be validated and accepted.
 	 * @return true if the coin is successfully accepted, false otherwise.
-	 * @throws DisabledException If the coin slot is disabled.
+	 * @throws DisabledException     If the coin slot is disabled.
 	 * @throws CashOverloadException If the cash storage is overloaded.
 	 */
-	private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException { 
-		if(this.checkoutSystem.coinStorage.hasSpace()) {
+	private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
+		if (this.checkoutSystem.coinStorage.hasSpace()) {
 			this.checkoutSystem.coinSlot.receive(coin);
 		} else {
 			this.checkoutSystem.coinSlot.disable();
@@ -102,27 +109,29 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * 
 	 * @param changeValue The amount of change to be dispensed.
 	 * @return true if correct change is dispensed, false otherwise.
-	 * @throws DisabledException If the coin slot is disabled.
-	 * @throws CashOverloadException If the cash storage is overloaded.
-	 * @throws NoCashAvailableException If no cash is available for dispensing change.
+	 * @throws DisabledException        If the coin slot is disabled.
+	 * @throws CashOverloadException    If the cash storage is overloaded.
+	 * @throws NoCashAvailableException If no cash is available for dispensing
+	 *                                  change.
 	 */
-	public boolean dispenseAccurateChange(BigDecimal changeValue) throws DisabledException, CashOverloadException, NoCashAvailableException {
+	public boolean dispenseAccurateChange(BigDecimal changeValue)
+			throws DisabledException, CashOverloadException, NoCashAvailableException {
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
 		Collections.sort(coinDenominations);
 		Collections.reverse(coinDenominations);
 
-		if(remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 			BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
-			if(remainingAmount.compareTo(lowestCoin) < 0) {
+			if (remainingAmount.compareTo(lowestCoin) < 0) {
 				this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
 				amountDispensed = changeValue;
 				remainingAmount = BigDecimal.ZERO;
 			}
-			for(int i = 0; i < coinDenominations.size(); i++) {
+			for (int i = 0; i < coinDenominations.size(); i++) {
 				BigDecimal val = coinDenominations.get(i);
-				while(remainingAmount.compareTo(val) >= 0 && this.checkoutSystem.coinDispensers.get(val).size() > 0) {
+				while (remainingAmount.compareTo(val) >= 0 && this.checkoutSystem.coinDispensers.get(val).size() > 0) {
 					this.checkoutSystem.coinDispensers.get(val).emit();
 					amountDispensed = amountDispensed.add(val);
 					remainingAmount = remainingAmount.subtract(val);
@@ -130,21 +139,50 @@ public class PaymentHandler extends SelfCheckoutStation {
 				}
 			}
 		}
-		return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
+
+		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+			Scanner receiptRequest = new Scanner(System.in);
+			System.out.println("Would you like a receipt?");
+
+			String receiptAnswer = receiptRequest.nextLine();
+
+			while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+				System.out.println("Sorry, that input is not acceptable. Try again.");
+				System.out.println("Would you like a receipt?");
+				receiptAnswer = receiptRequest.nextLine();
+			}
+			if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
+				receiptPrinter();
+				System.out.println("Thank you for your time. We hope to see you again!");
+				return true;
+
+			}
+
+			if (receiptAnswer.compareToIgnoreCase("no") == 0) {
+				System.out.println("No worries. Thank you for your time. We hope to see you again!");
+				return true;
+
+			}
+		}
+		return false;
 	}
 
-	
+	private void receiptPrinter() {
+		System.out.println("Joker");
+	}
+
 	/**
 	 * Loads coins into the coin dispensers for change.
 	 * 
 	 * @param coins Coins to be loaded into the dispensers.
-	 * @throws CashOverloadException If the coin dispensers are overloaded with coins.
+	 * @throws CashOverloadException If the coin dispensers are overloaded with
+	 *                               coins.
 	 */
 	public void loadCoinDispenser(Coin... coins) throws CashOverloadException {
 		if (coins == null) {
 			throw new NullPointerSimulationException("coins instance cannot be null.");
 		}
-		for (Coin c: coins) {
+		for (Coin c : coins) {
 			if (c == null) {
 				throw new NullPointerSimulationException("coin instance cannot be null.");
 			}
@@ -158,7 +196,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 			}
 		}
 	}
-	
+
 	/**
 	 * Empties the coin storage unit.
 	 */
@@ -167,6 +205,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 	}
 
-	// Hello there 
-	
+	// Hello there
+
 }
