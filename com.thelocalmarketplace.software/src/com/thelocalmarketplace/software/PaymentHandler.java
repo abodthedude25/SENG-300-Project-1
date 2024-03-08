@@ -112,7 +112,8 @@ public class PaymentHandler extends SelfCheckoutStation {
 	}
 
 	/**
-	 * Dispenses the correct amount of change to the customer and gives them the choice to print a receipt.
+	 * Dispenses the correct amount of change to the customer and gives them the
+	 * choice to print a receipt.
 	 * 
 	 * Implements change dispensing logic using available coin denominations.
 	 * 
@@ -178,27 +179,28 @@ public class PaymentHandler extends SelfCheckoutStation {
 	}
 
 	/**
-	 * Prints a receipt for the customer, with all the products' info, price, the total cost, total amount paid, and change due.
+	 * Prints a receipt for the customer, with all the products' info, price, the
+	 * total cost, total amount paid, and change due.
 	 */
 
 	private void receiptPrinter() {
-		
+
 		ArrayList<String> receiptItems = new ArrayList<String>();
 
-		for (int i = 0; i < allProducts.size(); i++){
+		for (int i = 0; i < allProducts.size(); i++) {
 			String productDescription;
 			Product p = allProducts.get(i);
 
-			if (p instanceof BarcodedProduct){
-				productDescription = ((BarcodedProduct)p).getDescription();
+			if (p instanceof BarcodedProduct) {
+				productDescription = ((BarcodedProduct) p).getDescription();
 				long price = (allProducts.get(i).getPrice());
-				receiptItems.add(productDescription + "$" + String.valueOf(price));
+				receiptItems.add(productDescription + "$" + String.format("%.2f", price));
 			}
 
-			if (p instanceof PLUCodedProduct){
-				productDescription = ((PLUCodedProduct)p).getDescription();
+			if (p instanceof PLUCodedProduct) {
+				productDescription = ((PLUCodedProduct) p).getDescription();
 				long price = (allProducts.get(i).getPrice());
-				receiptItems.add(productDescription + "$" + String.valueOf(price));
+				receiptItems.add(productDescription + "$" + String.format("%.2f", price));
 			}
 
 		}
@@ -207,11 +209,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 		BigDecimal amountPaid = amountSpent;
 		BigDecimal changeDue = changeRemaining;
 
-		receiptItems.add("Total: $" + purchaseValue.toString());
-		receiptItems.add("Paid: $" + amountSpent.toString());
-		receiptItems.add("Change: $" + changeRemaining.toString());
+		receiptItems.add("Total: $" + String.format("%.2f", purchaseValue));
+		receiptItems.add("Paid: $" + String.format("%.2f", amountPaid));
+		receiptItems.add("Change: $" + String.format("%.2f", changeDue));
 
-		for (int i = 0; i < allProducts.size(); i++){
+		for (int i = 0; i < receiptItems.size(); i++) {
 			System.out.println("\n");
 			System.out.println(receiptItems.get(i));
 			System.out.println("\n");
