@@ -183,9 +183,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * total cost, total amount paid, and change due.
 	 */
 
-	private void receiptPrinter() {
+	private void receiptPrinter() throws outOfPaperException, outOfInkException {
 
 		ArrayList<String> receiptItems = new ArrayList<String>();
+		int paperSpaceCounter = 100;
+		int inkCounter = 100;
 
 		for (int i = 0; i < allProducts.size(); i++) {
 			String productDescription;
@@ -213,10 +215,40 @@ public class PaymentHandler extends SelfCheckoutStation {
 		receiptItems.add("Paid: $" + String.format("%.2f", amountPaid));
 		receiptItems.add("Change: $" + String.format("%.2f", changeDue));
 
-		for (int i = 0; i < receiptItems.size(); i++){
+		for (int i = 0; i < receiptItems.size(); i++) {
 			System.out.println("\n");
+			paperSpaceCounter -= 5;
+
+			if (paperSpaceCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfPaperException("Duplicate receipt must be printed. This station needs maintenance.");
+				return;
+			}
+
 			System.out.println(receiptItems.get(i));
+			inkCounter -= 5;
+			paperSpaceCounter -= 5;
+
+			if (inkCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfInkException("Duplicate receipt must be printed. This station needs maintenance.");
+				return;
+			}
+
+			if (paperSpaceCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfPaperException("Duplicate receipt must be printed. This station needs maintenance.");
+				return;
+			}
+
 			System.out.println("\n");
+			paperSpaceCounter -= 5;
+
+			if (paperSpaceCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfPaperException("Duplicate receipt must be printed. This station needs maintenance.");
+				return;
+			}
 		}
 	}
 
