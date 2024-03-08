@@ -1,6 +1,7 @@
 package com.thelocalmarketplace.software;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 
@@ -14,10 +15,12 @@ public class CoinAdder extends SelfCheckoutStation{
 
 	private SelfCheckoutStation cStation;
 	private ArrayList<Coin> coinsList;
+	private PaymentHandler handler;
 	
-		public CoinAdder(SelfCheckoutStation cStation) {
+		public CoinAdder(SelfCheckoutStation cStation, PaymentHandler handler) {
 			if(cStation == null) throw new NullPointerException("No argument may be null.");
 			this.cStation = cStation;
+			this.handler = handler;
 		}
 		
 		/**
@@ -29,12 +32,18 @@ public class CoinAdder extends SelfCheckoutStation{
 		 * @throws CashOverloadException If the coin storage is overloaded
 		 */
 		public boolean insertCoin(Coin coin) throws DisabledException, CashOverloadException {
-			if(coin == null) 
-				throw new NullPointerException("coin cannot be null."); // Check for null parameters.
-			boolean successfulInsertion = acceptInsertedCoin(coin);
-			if (successfulInsertion) {
-				coinsList.add(coin);
-				return true;
+			BigDecimal zero = BigDecimal.ZERO;
+			BigDecimal amountLeft = handler.getChangeRemaining();
+			int compareResult = amountLeft.compareTo(zero);
+			if(compareResult == 1) {
+				if(coin == null) 
+					throw new NullPointerException("coin cannot be null."); // Check for null parameters.
+				boolean successfulInsertion = acceptInsertedCoin(coin);
+				if (successfulInsertion) {
+					coinsList.add(coin);
+					return true;
+				}
+				return false;
 			}
 			return false;
 		}
