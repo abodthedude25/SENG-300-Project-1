@@ -167,4 +167,4 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 	}
 	
-}
+}// I love anish test
