@@ -211,7 +211,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		receiptItems.add("Paid: $" + amountSpent.toString());
 		receiptItems.add("Change: $" + changeRemaining.toString());
 
-		for (int i = 0; i < allProducts.size(); i++){
+		for (int i = 0; i < receiptItems.size(); i++){
 			System.out.println("\n");
 			System.out.println(receiptItems.get(i));
 			System.out.println("\n");
