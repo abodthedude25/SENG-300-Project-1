@@ -17,7 +17,7 @@ public class WeightDiscrepancy {
      * 
      */
 	private void getWeightAtBlock() {
-		weightAtBlock = order.getWeight();
+		weightAtBlock = order.getCurrentMassOnTheScale();
 	}
 	
 	/**
