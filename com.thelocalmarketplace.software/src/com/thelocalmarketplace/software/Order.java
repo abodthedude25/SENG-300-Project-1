@@ -32,6 +32,28 @@ public class Order {
     	// Signals to the Customer to place the scanned item in the bagging area.
     	
     	// Signals to the System that the weight has changed.
+    	BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+    	
+    	//To make sure the barcode scanned is avaiaiable in the database 
+    	if (product != null) {
+    		double productWeight = product.getExpectedWeight(); // Gets products weight from barcode
+    		long productPrice = product.getPrice();
+    		
+    		// Products weight conversion from double (as it is in the
+    		// BarcodedProduct.java to bigInteger
+    		
+    		this.weight = this.weight.add(weightInGrams);
+    		this.price  += productPrice;
+    		
+    		
+    		// DO we want to add the item to the order? Or Will it be incorpated later??
+    		
+    		
+    		
+    		
+    	}
+    	
+    	
     }
     
     /**
