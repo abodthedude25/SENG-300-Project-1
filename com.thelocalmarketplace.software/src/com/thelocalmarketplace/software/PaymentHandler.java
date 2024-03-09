@@ -1,3 +1,7 @@
+/**
+ * Duncan McKay (UCID: 30177857)
+ */
+
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
@@ -74,11 +78,9 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
 
-		boolean isSuccess = false;
 		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
-			isSuccess = acceptInsertedCoin(coin);
-			if (!isSuccess)
-				value = value.subtract(coin.getValue());
+			// Assume coins have already been checked before adding to coin list
+			value = value.subtract(coin.getValue());
 		}
 
 		if (value.compareTo(this.totalCost) < 0)
