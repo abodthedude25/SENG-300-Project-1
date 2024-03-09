@@ -61,6 +61,9 @@ public class WeightDiscrepancy {
 		}
 	}
 	
+	/**
+	 * @return True if system is blocked, false otherwise
+	 * */
 	public boolean isBlocked() {
 		return blocked;
 	}
