@@ -13,12 +13,15 @@ public class WeightDiscrepancy {
 	private BigDecimal weightAtBlock;
 	
     /**
-     * Records weight at time of discrepancy before block
-     * 
-     */
+     // Records weight at time of discrepancy before block
+     // Added weightAtBlcok to constructor instead
+   
 	private void getWeightAtBlock() {
-		weightAtBlock = order.getCurrentMassOnTheScale();
+		weightAtBlock = scale.getCurrentMassOnTheScale();
 	}
+
+    */
+	
 	
 	/**
 	 * Constructor for order
@@ -27,7 +30,7 @@ public class WeightDiscrepancy {
 		this.order = order;
 		this.items = order.getOrder();
 		this.scale = (ElectronicScale) scale;
-		getWeightAtBlock();
+		weightAtBlock = getCurrentMassOnTheScale();
 	}
 	
 	/**
