@@ -1,3 +1,7 @@
+/**
+ * Duncan McKay (UCID: 30177857)
+ */
+
 package com.thelocalmarketplace.software;
 
 
@@ -24,6 +28,10 @@ public class CoinAdder extends SelfCheckoutStation{
 		}
 		
 		/**
+		 * TA confirmed that iteration 1 would not need user interaction and picking payment mode would come at a later time
+		 */
+		
+		/**
 		 * Inserts a machine into the coin slot and adds it to a list of accepted coins.
 		 * 
 		 * @param coin The coin to be inserted into the system
@@ -35,15 +43,12 @@ public class CoinAdder extends SelfCheckoutStation{
 			BigDecimal zero = BigDecimal.ZERO;
 			BigDecimal amountLeft = handler.getChangeRemaining();
 			int compareResult = amountLeft.compareTo(zero);
-			if(compareResult == 1) {
-				if(coin == null) 
-					throw new NullPointerException("coin cannot be null."); // Check for null parameters.
-				boolean successfulInsertion = acceptInsertedCoin(coin);
-				if (successfulInsertion) {
-					coinsList.add(coin);
-					return true;
-				}
-				return false;
+			if(coin == null) 
+				throw new NullPointerException("coin cannot be null."); // Check for null parameters.
+			boolean successfulInsertion = acceptInsertedCoin(coin);
+			if (successfulInsertion) {
+				coinsList.add(coin);
+				return true;
 			}
 			return false;
 		}
@@ -56,21 +61,21 @@ public class CoinAdder extends SelfCheckoutStation{
 			return coinsList;
 		}
 		
+		
 		/**
 		 * Accepts a coin inserted by the customer into the coin slot.
 		 * 
 		 * @param coin The coin to be validated and accepted.
 		 * @return true if the coin is successfully accepted, false otherwise.
-		 * @throws DisabledException If the coin slot is disabled.
-		 * @throws CashOverloadException If the coin storage is overloaded.
+		 * @throws DisabledException     If the coin slot is disabled.
+		 * @throws CashOverloadException If the cash storage is overloaded.
 		 */
-		private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException { 
-			if(this.cStation.coinStorage.hasSpace()) {
-				this.cStation.coinSlot.receive(coin);
+		private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
+			if (this.checkoutSystem.coinStorage.hasSpace()) {
+				this.checkoutSystem.coinSlot.receive(coin);
 			} else {
-				this.cStation.coinSlot.disable();
+				this.checkoutSystem.coinSlot.disable();
 			}
 			return false;
 		}
-		
 }
