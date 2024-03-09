@@ -1,3 +1,7 @@
+/**
+ * Duncan McKay (UCID: 30177857)
+ */
+
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
@@ -74,11 +78,9 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
 
-		boolean isSuccess = false;
 		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
-			isSuccess = acceptInsertedCoin(coin);
-			if (!isSuccess)
-				value = value.subtract(coin.getValue());
+			// Assume coins have already been checked before adding to coin list, done in CoinAdder insertCoin method
+			value = value.subtract(coin.getValue());
 		}
 
 		if (value.compareTo(this.totalCost) < 0)
@@ -94,22 +96,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		return true;
 	}
 
-	/**
-	 * Accepts a coin inserted by the customer into the coin slot.
-	 * 
-	 * @param coin The coin to be validated and accepted.
-	 * @return true if the coin is successfully accepted, false otherwise.
-	 * @throws DisabledException     If the coin slot is disabled.
-	 * @throws CashOverloadException If the cash storage is overloaded.
-	 */
-	private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
-		if (this.checkoutSystem.coinStorage.hasSpace()) {
-			this.checkoutSystem.coinSlot.receive(coin);
-		} else {
-			this.checkoutSystem.coinSlot.disable();
-		}
-		return false;
-	}
+
 
 	/**
 	 * Dispenses the correct amount of change to the customer and gives them the
