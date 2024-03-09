@@ -79,7 +79,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.changeRemaining = value.subtract(this.totalCost);
 
 		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
-			// Assume coins have already been checked before adding to coin list
+			// Assume coins have already been checked before adding to coin list, done in CoinAdder insertCoin method
 			value = value.subtract(coin.getValue());
 		}
 
@@ -96,22 +96,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		return true;
 	}
 
-	/**
-	 * Accepts a coin inserted by the customer into the coin slot.
-	 * 
-	 * @param coin The coin to be validated and accepted.
-	 * @return true if the coin is successfully accepted, false otherwise.
-	 * @throws DisabledException     If the coin slot is disabled.
-	 * @throws CashOverloadException If the cash storage is overloaded.
-	 */
-	private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
-		if (this.checkoutSystem.coinStorage.hasSpace()) {
-			this.checkoutSystem.coinSlot.receive(coin);
-		} else {
-			this.checkoutSystem.coinSlot.disable();
-		}
-		return false;
-	}
+
 
 	/**
 	 * Dispenses the correct amount of change to the customer and gives them the choice to print a receipt.
