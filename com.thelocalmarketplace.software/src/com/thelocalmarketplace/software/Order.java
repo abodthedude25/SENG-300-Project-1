@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.scanner.BarcodedItem;
 
+// hello secret message
 /**
  * Represents the Customer's order that different use cases can interact with.
  */
