@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.scanner.Barcode;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 /**
  * Represents the Customer's order that different use cases can interact with.
@@ -41,7 +43,7 @@ public class Order {
     		
     		// Products weight conversion from double (as it is in the
     		// BarcodedProduct.java to bigInteger
-    		
+
     		this.weight = this.weight.add(weightInGrams);
     		this.price  += productPrice;
     		

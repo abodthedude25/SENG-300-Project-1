@@ -44,14 +44,22 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 		
 	}
 
+	/**
+	 * When a barcode is scanned, the item is added to the order
+	 * @param barcodeScanner
+	 * @param barcode
+	 */
 	@Override
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
+		// if the software is not blocked, block it.
 		if(!software.isBlocked()) {
 			software.setStationBlock(true);
-			
-			order.addItemViaBarcodeScan(barcode);
-			
-			software.setStationBlock(false);
 		}
+
+		// add the item to the order, the software will be blocked at this point
+		order.addItemViaBarcodeScan(barcode);
+
+		// unblock the software
+		software.setStationBlock(false);
 	}
 }
