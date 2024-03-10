@@ -99,6 +99,10 @@ public class Order {
             addTotalPrice(productPrice); // Adds the price of the product to the total price of the order
 
             addItemToOrder(product); // Adds the product to the order
+            
+            System.out.println("Please place item in the bagging area.");
+            
+            weightDiscrepancy.setBlocked();
         }
     }
 }
