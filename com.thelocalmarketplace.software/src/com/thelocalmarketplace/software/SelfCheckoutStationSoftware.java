@@ -10,4 +10,11 @@ public class SelfCheckoutStationSoftware {
 	public boolean getStationBlock() {
 		return this.blocked;
 	}
+
+	public void startSession() {
+		if () {
+
+		}
+	}
+
 }
