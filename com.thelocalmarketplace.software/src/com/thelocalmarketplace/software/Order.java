@@ -1,42 +1,55 @@
 package com.thelocalmarketplace.software;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import com.jjjwelectronics.Item;
-import com.jjjwelectronics.scanner.BarcodedItem;
+import com.jjjwelectronics.scanner.Barcode;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 // hello secret message
 /**
  * Represents the Customer's order that different use cases can interact with.
  */
 public class Order {
-    private ArrayList<Item> order;
-    private BigDecimal weight;
-    private BigDecimal price;
+    private ArrayList<BarcodedProduct> order;
+    private double totalWeight;
+    private long totalPrice;
     
     /**
      * Constructs an empty order.
      */
     public Order() {
-        this.order = new ArrayList<Item>();
-        this.weight = BigDecimal.ZERO;
-        this.price = BigDecimal.ZERO;
+        this.order = new ArrayList<BarcodedProduct>();
+        this.totalWeight = 0;
+        this.totalPrice = 0;
     }
-    
+
     /**
-     * Adds an item to the order via barcode scan
+     * Adds an item to the order.
+     *
+     * @param item The item to add to the order.
      */
-    public void addItemViaBarcodeScan(BarcodedItem item) {
-        // TODO implement this (group 2)
+    public void addItemToOrder(BarcodedProduct item) {
+        this.order.add(item);
     }
-    
+
     /**
-     * Gets the total weight of the order.
+     * Gets the order.
+     *
+     * @return The order.
+     */
+    public ArrayList<BarcodedProduct> getOrder() {
+        return this.order;
+    }
+
+    /**
+     * Gets the total weight of the order (in grams).
      * 
-     * @return The total weight of order.
+     * @return The total weight of order (in grams).
      */
-    public BigDecimal getWeight() {
-        return this.weight;
+    public double getTotalWeightInGrams() {
+        return this.totalWeight;
     }
     
     /**
@@ -44,7 +57,48 @@ public class Order {
      * 
      * @return The total price of order.
      */
-    public BigDecimal getPrice() {
-        return this.price;
+    public long getTotalPrice() {
+        return this.totalPrice;
+    }
+    
+    /**
+     * Updates the total weight of the order (in grams)
+     */
+    public void addTotalWeightInGrams(double weight) {
+    	this.totalWeight += weight;
+    }
+    
+    /**
+     * Updates the total price of the order
+     */
+    public void addTotalPrice(long price) {
+    	this.totalPrice += price;
+    }
+
+    /**
+     * Adds an item to the order via barcode scan
+     */
+    public void addItemViaBarcodeScan(Barcode barcode) {
+        // Determines the characteristics (weight and cost) of the product associated with the barcode (ALEX)
+        // Updates the expected weight from the bagging area.(ALSO ALEX)
+
+        // Signals to the Customer to place the scanned item in the bagging area.
+
+        // Signals to the System that the weight has changed.
+        BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+
+        //To make sure the barcode scanned is avaiaiable in the database
+        if (product != null) {
+            double productWeight = product.getExpectedWeight(); // Gets products weight from barcode
+            long productPrice = product.getPrice();
+
+            // Products weight conversion from double (as it is in the
+            // BarcodedProduct.java to bigInteger
+
+            addTotalWeightInGrams(productWeight); // Adds the weight of the product to the total weight of the order
+            addTotalPrice(productPrice); // Adds the price of the product to the total price of the order
+
+            addItemToOrder(product); // Adds the product to the order
+        }
     }
 }
