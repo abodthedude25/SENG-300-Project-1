@@ -11,60 +11,44 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
  * Represents the Customer's order that different use cases can interact with.
  */
 public class Order {
-    private ArrayList<Item> order;
-    private BigInteger weight;
-    private long price;
+    private ArrayList<BarcodedProduct> order;
+    private double totalWeight;
+    private long totalPrice;
     
     /**
      * Constructs an empty order.
      */
     public Order() {
-        this.order = new ArrayList<Item>();
-        this.weight = BigInteger.ZERO;
-        this.price = 0;
+        this.order = new ArrayList<BarcodedProduct>();
+        this.totalWeight = 0;
+        this.totalPrice = 0;
     }
-    
-    /**
-     * Adds an item to the order via barcode scan
-     */
-    public void addItemViaBarcodeScan(Barcode barcode) {    	
-    	// Determines the characteristics (weight and cost) of the product associated with the barcode (ALEX)
-    	// Updates the expected weight from the bagging area.(ALSO ALEX)
-    	
-    	// Signals to the Customer to place the scanned item in the bagging area.
-    	
-    	// Signals to the System that the weight has changed.
-    	BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
-    	
-    	//To make sure the barcode scanned is avaiaiable in the database 
-    	if (product != null) {
-    		double productWeight = product.getExpectedWeight(); // Gets products weight from barcode
-    		long productPrice = product.getPrice();
-    		
-    		// Products weight conversion from double (as it is in the
-    		// BarcodedProduct.java to bigInteger
 
-    		this.weight = this.weight.add(weightInGrams);
-    		this.price  += productPrice;
-    		
-    		
-    		// DO we want to add the item to the order? Or Will it be incorpated later??
-    		
-    		
-    		
-    		
-    	}
-    	
-    	
+    /**
+     * Adds an item to the order.
+     *
+     * @param item The item to add to the order.
+     */
+    public void addItemToOrder(BarcodedProduct item) {
+        this.order.add(item);
     }
-    
+
+    /**
+     * Gets the order.
+     *
+     * @return The order.
+     */
+    public ArrayList<BarcodedProduct> getOrder() {
+        return this.order;
+    }
+
     /**
      * Gets the total weight of the order (in grams).
      * 
      * @return The total weight of order (in grams).
      */
-    public BigInteger getWeightInGrams() {
-        return this.weight;
+    public double getTotalWeightInGrams() {
+        return this.totalWeight;
     }
     
     /**
@@ -72,21 +56,48 @@ public class Order {
      * 
      * @return The total price of order.
      */
-    public long getPrice() {
-        return this.price;
+    public long getTotalPrice() {
+        return this.totalPrice;
     }
     
     /**
      * Updates the total weight of the order (in grams)
      */
-    public void setWeightInGrams(BigInteger weight) {
-    	this.weight = weight;
+    public void addTotalWeightInGrams(double weight) {
+    	this.totalWeight += weight;
     }
     
     /**
      * Updates the total price of the order
      */
-    public void setPrice(long price) {
-    	this.price = price;
+    public void addTotalPrice(long price) {
+    	this.totalPrice += price;
+    }
+
+    /**
+     * Adds an item to the order via barcode scan
+     */
+    public void addItemViaBarcodeScan(Barcode barcode) {
+        // Determines the characteristics (weight and cost) of the product associated with the barcode (ALEX)
+        // Updates the expected weight from the bagging area.(ALSO ALEX)
+
+        // Signals to the Customer to place the scanned item in the bagging area.
+
+        // Signals to the System that the weight has changed.
+        BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+
+        //To make sure the barcode scanned is avaiaiable in the database
+        if (product != null) {
+            double productWeight = product.getExpectedWeight(); // Gets products weight from barcode
+            long productPrice = product.getPrice();
+
+            // Products weight conversion from double (as it is in the
+            // BarcodedProduct.java to bigInteger
+
+            addTotalWeightInGrams(productWeight); // Adds the weight of the product to the total weight of the order
+            addTotalPrice(productPrice); // Adds the price of the product to the total price of the order
+
+            addItemToOrder(product); // Adds the product to the order
+        }
     }
 }
