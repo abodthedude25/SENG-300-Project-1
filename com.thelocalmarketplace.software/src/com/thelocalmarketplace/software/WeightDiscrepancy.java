@@ -9,7 +9,7 @@ import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.ElectronicScale; 
 
-public class WeightDiscrepancy {
+public class WeightDiscrepancy extends ElectronicScale{
 	
 	private List<Item> items;
 	private ElectronicScale scale;
@@ -118,6 +118,19 @@ public class WeightDiscrepancy {
 			return true;
 		} else {
 			return false; 
+		}
+	}
+	
+	/**
+	 * Called when the mass on the scale changes
+	 * If blocked, will check if correct item was added/removed using setBlocked
+	 * Will unblock if weight change fixes the weight discrepancy
+	 */
+	@Override
+	public void notifyMassChanged() {
+		super.notifyMassChanged();
+		if (isBlocked()) {
+			setBlocked();
 		}
 	}
 }
