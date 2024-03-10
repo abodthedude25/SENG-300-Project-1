@@ -5,6 +5,11 @@
 
 
 package com.thelocalmarketplace.software;
+
+import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
+import ca.ucalgary.seng300.simulation.SimulationException;
+
+
 public class SelfCheckoutStationSoftware {
 
 	/** Boolean variable that is used to track whether user interaction is blocked */
@@ -29,8 +34,12 @@ public class SelfCheckoutStationSoftware {
 
 	/** Function to start a session for self checkout machine*/
 	public void startSession() {
-		if () {
+		if (!enabled) {
+			throw new InvalidStateSimulationException("Station not enabled");
+		}
 
+		if (!active) {
+			throw new InvalidStateSimulationException("Session already started");
 		}
 	}
 
