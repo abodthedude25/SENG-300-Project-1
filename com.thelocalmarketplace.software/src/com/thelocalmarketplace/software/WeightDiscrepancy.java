@@ -2,7 +2,12 @@ package com.thelocalmarketplace.software;
 
 import java.awt.event.ItemEvent;
 import java.math.BigDecimal;
-import java.util.List; 
+import java.util.List;
+
+import com.jjjwelectronics.Item;
+import com.jjjwelectronics.Mass;
+import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.scale.ElectronicScale; 
 
 public class WeightDiscrepancy {
 	
@@ -94,6 +99,22 @@ public class WeightDiscrepancy {
 	public boolean checkBaggageAddition() {
 		BigDecimal currentWeight = order.getWeight(); 
 		if(currentWeight.compareTo(weightAtBlock) > 0) {
+			return true;
+		} else {
+			return false; 
+		}
+	}
+	
+	/**
+	 * If we decide to combine removal and addition for simplicity. Can remove if we decide. 
+	 * Compared the weight of bagging area to the weight at block time. If the current weight 
+	 * is not equal to the weight at block time this confirms the item has been added or removed. 
+	 * @return True if item has been added or removed 
+	 * @return False if the weight has not changed since block time 
+	 */
+	public boolean checkWeightChange() {
+		BigDecimal currentWeight = order.getWeight(); 
+		if(currentWeight != weightAtBlock) {
 			return true;
 		} else {
 			return false; 
