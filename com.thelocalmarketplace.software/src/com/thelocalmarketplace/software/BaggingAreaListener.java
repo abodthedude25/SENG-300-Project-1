@@ -31,7 +31,9 @@ public class BaggingAreaListener implements ElectronicScaleListener {
  @Override
  public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
      // This will be for the use case Add item by Barcode Scan
-     // Signals to the system that the weight has changed
+	 
+	 // Scenario:
+     // 6. Signals to the system that the weight has changed
      
      // temporary print statement, will later be made to signal to the system the weight has changed
      System.out.println("Weight changed in the bagging area: " + mass);
