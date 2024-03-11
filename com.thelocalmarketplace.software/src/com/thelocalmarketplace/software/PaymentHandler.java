@@ -1,6 +1,7 @@
 /**
  * Duncan McKay (UCID: 30177857)
  * Mahfuz Alam (UCID:30142265)
+ * Luis Trigueros Granillo (UCID: 30167989)
  */
 
 package com.thelocalmarketplace.software;
