@@ -83,11 +83,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
 
-		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
-			// Assume coins have already been checked before adding to coin list, done in
-			// CoinAdder insertCoin method
-			value = value.subtract(coin.getValue());
-		}
+		// for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
+		// 	// Assume coins have already been checked before adding to coin list, done in
+		// 	// CoinAdder insertCoin method
+		// 	value = value.subtract(coin.getValue());
+		// }
 
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
