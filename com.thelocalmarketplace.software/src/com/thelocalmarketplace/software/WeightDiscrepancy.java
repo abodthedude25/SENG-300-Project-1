@@ -61,7 +61,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 		BigDecimal expected;
 		try {
 			actual = scale.getCurrentMassOnTheScale();
-			expected = order.getWeight();
+			expected = order.getTotalWeightInGrams();
 			
 			blocked = !expected.equals(actual);
 		} catch (OverloadedDevice e) {
@@ -82,7 +82,7 @@ public class WeightDiscrepancy extends ElectronicScale{
      * @return True if item has been removed (new weight is less). False otherwise.
      */
 	public boolean checkRemoval() {
-		BigDecimal currentWeight = order.getWeight();
+		BigDecimal currentWeight = order.getTotalWeightInGrams();
 		if (currentWeight.compareTo(weightAtBlock) < 0) {
 			return true;
 		} else {
@@ -97,7 +97,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if a weight increase has not been detected, therefore item not added to bagging area. 
 	 */
 	public boolean checkBaggageAddition() {
-		BigDecimal currentWeight = order.getWeight(); 
+		BigDecimal currentWeight = order.getTotalWeightInGrams();
 		if(currentWeight.compareTo(weightAtBlock) > 0) {
 			return true;
 		} else {
@@ -113,7 +113,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if the weight has not changed since block time 
 	 */
 	public boolean checkWeightChange() {
-		BigDecimal currentWeight = order.getWeight(); 
+		BigDecimal currentWeight = order.getTotalWeightInGrams();
 		if(currentWeight != weightAtBlock) {
 			return true;
 		} else {

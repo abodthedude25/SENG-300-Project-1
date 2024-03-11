@@ -3,7 +3,9 @@ package com.thelocalmarketplace.software;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import com.jjjwelectronics.Item;
+import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.scanner.Barcode;
+import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
@@ -12,15 +14,18 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
  * Represents the Customer's order that different use cases can interact with.
  */
 public class Order {
-    private ArrayList<BarcodedProduct> order;
+    private ArrayList<Item> order;
     private double totalWeight;
     private long totalPrice;
+    private BarcodedItem barcodedItem;
+    private Mass mass;
+    private WeightDiscrepancy weightDiscrepancy;
     
     /**
      * Constructs an empty order.
      */
     public Order() {
-        this.order = new ArrayList<BarcodedProduct>();
+        this.order = new ArrayList<Item>();
         this.totalWeight = 0;
         this.totalPrice = 0;
     }
@@ -30,7 +35,7 @@ public class Order {
      *
      * @param item The item to add to the order.
      */
-    public void addItemToOrder(BarcodedProduct item) {
+    public void addItemToOrder(Item item) {
         this.order.add(item);
     }
 
@@ -39,7 +44,7 @@ public class Order {
      *
      * @return The order.
      */
-    public ArrayList<BarcodedProduct> getOrder() {
+    public ArrayList<Item> getOrder() {
         return this.order;
     }
 
@@ -98,7 +103,9 @@ public class Order {
             addTotalWeightInGrams(productWeight); // Adds the weight of the product to the total weight of the order
             addTotalPrice(productPrice); // Adds the price of the product to the total price of the order
 
-            addItemToOrder(product); // Adds the product to the order
+            mass = new Mass(productWeight); // Converts the weight of the product to a mass
+            barcodedItem = new BarcodedItem(barcode, mass); // Adds the product to the order
+            addItemToOrder(barcodedItem); // Adds the product to the order
             
             System.out.println("Please place item in the bagging area.");
             
