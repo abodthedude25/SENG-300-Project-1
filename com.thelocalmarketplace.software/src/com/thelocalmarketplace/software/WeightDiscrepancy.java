@@ -1,7 +1,5 @@
 package com.thelocalmarketplace.software;
 
-import java.awt.event.ItemEvent;
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.jjjwelectronics.Item;
@@ -13,9 +11,9 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	private List<Item> items;
 	private ElectronicScale scale;
-	private boolean blocked;
+	private static boolean blocked;
 	private Order order;
-	private BigDecimal weightAtBlock;
+	private Mass weightAtBlock;
 	
     /**
      // Records weight at time of discrepancy before block
@@ -30,12 +28,13 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	/**
 	 * Constructor for order
+	 * @throws OverloadedDevice 
 	 */
-	public WeightDiscrepancy(Order order, ElectronicScale scale) {
+	public WeightDiscrepancy(Order order, ElectronicScale scale) throws OverloadedDevice {
 		this.order = order;
 		this.items = order.getOrder();
-		this.scale = (ElectronicScale) scale;
-		weightAtBlock = getCurrentMassOnTheScale();
+		this.scale = scale;
+		weightAtBlock = scale.getCurrentMassOnTheScale();
 	}
 	
 	/**
@@ -58,10 +57,12 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	public void setBlocked() {
 		Mass actual;
-		BigDecimal expected;
+		double value;
+		Mass expected;
 		try {
 			actual = scale.getCurrentMassOnTheScale();
-			expected = order.getTotalWeightInGrams();
+			value = order.getTotalWeightInGrams();
+			expected = new Mass(value);
 			
 			blocked = !expected.equals(actual);
 		} catch (OverloadedDevice e) {
@@ -72,7 +73,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	/**
 	 * @return True if system is blocked, false otherwise
 	 * */
-	public boolean isBlocked() {
+	public static boolean isBlocked() {
 		return blocked;
 	}
 	
@@ -82,7 +83,8 @@ public class WeightDiscrepancy extends ElectronicScale{
      * @return True if item has been removed (new weight is less). False otherwise.
      */
 	public boolean checkRemoval() {
-		BigDecimal currentWeight = order.getTotalWeightInGrams();
+		double value = order.getTotalWeightInGrams();
+		Mass currentWeight = new Mass(value);
 		if (currentWeight.compareTo(weightAtBlock) < 0) {
 			return true;
 		} else {
@@ -97,7 +99,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if a weight increase has not been detected, therefore item not added to bagging area. 
 	 */
 	public boolean checkBaggageAddition() {
-		BigDecimal currentWeight = order.getTotalWeightInGrams();
+		double value = order.getTotalWeightInGrams();
+		Mass currentWeight = new Mass(value);
 		if(currentWeight.compareTo(weightAtBlock) > 0) {
 			return true;
 		} else {
@@ -113,7 +116,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if the weight has not changed since block time 
 	 */
 	public boolean checkWeightChange() {
-		BigDecimal currentWeight = order.getTotalWeightInGrams();
+		double value = order.getTotalWeightInGrams();
+		Mass currentWeight = new Mass(value);
 		if(currentWeight != weightAtBlock) {
 			return true;
 		} else {
