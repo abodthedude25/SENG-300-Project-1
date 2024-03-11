@@ -20,11 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
-
-
-
 
 
 
@@ -54,7 +52,7 @@ public class PaymentHandlerTest {
         // Create the Barcode object
         Barcode bananaBarcode = new Barcode(codeDigits);
     	
-    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12345,18.75);
+    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12,10.00);
     	
     	
     	ArrayList<Product> allProducts = new ArrayList<Product>();
@@ -62,8 +60,6 @@ public class PaymentHandlerTest {
 
     	
         paymentHandler = new PaymentHandler(checkoutStation, allProducts);
-        
-        
         
         
         
@@ -79,14 +75,70 @@ public class PaymentHandlerTest {
         // Simulate exact payment
         assertEquals(paymentHandler.getChangeRemaining(), BigDecimal.ZERO);
     }
-
     @Test
-    public void processPaymentWithCoins_InsufficientAmount_ReturnsFalse() throws Exception {
-        // Simulate insufficient payment
-        coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
-        assertFalse(paymentHandler.processPaymentWithCoins(coinsList));
+    public void processPaymentWithCoinsTestWithOverpayment() throws Exception {
+        // Simulate sufficient payment
+    	
+    	ArrayList<Coin> coinsList = new ArrayList<Coin>();
+    	Currency currency = Currency.getInstance("CAD");
+    	
+    	coin1 = new Coin(currency,new BigDecimal("10.00"));
+        coin2 = new Coin(currency,new BigDecimal("12.00"));
+
+        coinsList.add(coin1);
+        coinsList.add(coin2);
+    	
+        //coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
+        assertTrue(paymentHandler.processPaymentWithCoins(coinsList));
     }
 
+    
+    
+    @Test
+    public void processPaymentWithCoinsTestWithUnderpayment() throws Exception {
+        // Simulate insufficient payment
+    	
+    	ArrayList<Coin> coinsList = new ArrayList<Coin>();
+    	Currency currency = Currency.getInstance("CAD");
+    	
+    	coin1 = new Coin(currency,new BigDecimal("1.00"));
+        coin2 = new Coin(currency,new BigDecimal("2.00"));
+
+        coinsList.add(coin1);
+        coinsList.add(coin2);
+        
+        
+    	
+        //coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
+        assertFalse(paymentHandler.processPaymentWithCoins(coinsList));
+    }
+    
+    
+    @Test
+    public void testProcessPaymentWithExactAmount() throws Exception {
+        ArrayList<Coin> coinsList = new ArrayList<>();
+        coinsList.add(new Coin(new BigDecimal("10.00"))); // Adding a coin of $10
+        assertTrue("Payment should succeed with exact amount", paymentHandler.processPaymentWithCoins(coinsList));
+    }
+
+    @Test
+    public void testProcessPaymentWithOverpayment() throws Exception {
+        ArrayList<Coin> coinsList = new ArrayList<>();
+        coinsList.add(new Coin(new BigDecimal("15.00"))); // Overpaying by $5
+        assertTrue("Payment should succeed and dispense change", paymentHandler.processPaymentWithCoins(coinsList));
+    }
+
+    @Test
+    public void testProcessPaymentWithUnderpayment() throws Exception {
+        ArrayList<Coin> coinsList = new ArrayList<>();
+        coinsList.add(new Coin(new BigDecimal("5.00"))); // Underpaying by $5
+        assertFalse("Payment should fail with underpayment", paymentHandler.processPaymentWithCoins(coinsList));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testProcessPaymentWithNullCoinsList() throws Exception {
+        paymentHandler.processPaymentWithCoins(null); // This should throw NullPointerException
+    }
    // @Test
 //    public void dispenseAccurateChange_Overpayment_EmitsChange() throws Exception {
 //        // Overpay and expect change
@@ -111,4 +163,3 @@ public class PaymentHandlerTest {
 }
 
 /// tthis is a comment 
-
