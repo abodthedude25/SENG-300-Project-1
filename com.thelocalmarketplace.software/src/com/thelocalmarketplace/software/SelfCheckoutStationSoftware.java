@@ -7,9 +7,7 @@
 package com.thelocalmarketplace.software;
 
 import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
-import ca.ucalgary.seng300.simulation.SimulationException;
-import ca.ucalgary.seng300.powerutility.NoPowerException;
-
+import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 
 public class SelfCheckoutStationSoftware {
 
@@ -33,36 +31,19 @@ public class SelfCheckoutStationSoftware {
 		return this.blocked;
 	}
 
-	/** Function to start a session for self checkout machine*/
+	/** Function to start a session for self-checkout machine*/
 	public void startSession() {
+
+		// Check if there is a current active session.
 		if (this.active) {
-			throw new InvalidStateSimulationException("Session already started.");	// might add more exceptions after not sure yet
+			throw new InvalidStateSimulationException("Session already started.");
 		}
 
+		// Reset all self-checkout station configurations to default.
+		SelfCheckoutStation.resetConfigurationToDefaults();
+
+		// Set the current session to active.
 		this.active = true;
 
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Touch Anywhere to Start.");
-		scanner.nextLine();
 	}
-
-	/** This function handles the user choice once a session has been started.
-	 * User choice includes adding items and paying (ending a session) */
-	public void handleUserChoice() {
-		String input;
-		while (true) {
-			System.out.println("Enter '1' to add an item!");
-			System.out.println("Enter '2' to pay!");
-
-			switch (input = scanner.readLine()) {
-				case("1") {
-
-				}
-			}
-				case("2") {
-
-				}
-			}
-	}
-
 }
