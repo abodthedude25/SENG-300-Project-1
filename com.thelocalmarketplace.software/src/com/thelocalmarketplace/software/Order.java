@@ -9,7 +9,6 @@ import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
-// hello secret message
 /**
  * Represents the Customer's order that different use cases can interact with.
  */
@@ -84,21 +83,13 @@ public class Order {
      * Adds an item to the order via barcode scan
      */
     public void addItemViaBarcodeScan(Barcode barcode) {
-        // Determines the characteristics (weight and cost) of the product associated with the barcode (ALEX)
-        // Updates the expected weight from the bagging area.(ALSO ALEX)
-
-        // Signals to the Customer to place the scanned item in the bagging area.
-
-        // Signals to the System that the weight has changed.
+    	// Get the product from the database
         BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 
-        //To make sure the barcode scanned is avaiaiable in the database
+        //To make sure the barcode scanned is available in the database
         if (product != null) {
             double productWeight = product.getExpectedWeight(); // Gets products weight from barcode
             long productPrice = product.getPrice();
-
-            // Products weight conversion from double (as it is in the
-            // BarcodedProduct.java to bigInteger
 
             addTotalWeightInGrams(productWeight); // Adds the weight of the product to the total weight of the order
             addTotalPrice(productPrice); // Adds the price of the product to the total price of the order
@@ -107,6 +98,7 @@ public class Order {
             barcodedItem = new BarcodedItem(barcode, mass); // Adds the product to the order
             addItemToOrder(barcodedItem); // Adds the product to the order
             
+            // Signal to the customer to place the scanned item in the bagging area
             System.out.println("Please place item in the bagging area.");
             
             weightDiscrepancy.checkDiscrepancy(); // Checks for a weight discrepancy

@@ -6,10 +6,7 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 
-public class AddItemViaBarcodeScan implements BarcodeScannerListener {
-	// THIS IS A LISTENER, basically when the scan event happens, it calls the
-	// Order.java class' method to addItemViaBarcodeScan();
-	
+public class AddItemViaBarcodeScan implements BarcodeScannerListener {	
 	private Order order;
 	
 	/**
