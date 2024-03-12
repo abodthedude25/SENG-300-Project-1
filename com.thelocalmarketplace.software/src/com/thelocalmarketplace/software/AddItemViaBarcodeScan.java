@@ -11,7 +11,6 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 	// Order.java class' method to addItemViaBarcodeScan();
 	
 	private Order order;
-	private SelfCheckoutStationSoftware software;
 	
 	/**
 	 * Constructor for order
@@ -52,14 +51,14 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 	@Override
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 		// if the software is not blocked, block it.
-		if(!software.isBlocked()) {
-			software.setStationBlock(true);
+		if(!SelfCheckoutStationSoftware.isBlocked()) {
+			SelfCheckoutStationSoftware.setStationBlock(true);
 		}
 
 		// add the item to the order, the software will be blocked at this point
 		order.addItemViaBarcodeScan(barcode);
 
 		// unblock the software
-		software.setStationBlock(false);
+		SelfCheckoutStationSoftware.setStationBlock(false);
 	}
 }

@@ -109,7 +109,7 @@ public class Order {
             
             System.out.println("Please place item in the bagging area.");
             
-            weightDiscrepancy.setBlocked();
+            weightDiscrepancy.checkDiscrepancy(); // Checks for a weight discrepancy
         }
     }
 }
