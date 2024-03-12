@@ -9,6 +9,8 @@ package com.thelocalmarketplace.software;
 import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
 import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;
 
+import java.util.Scanner;
+
 public class SelfCheckoutStationSoftware {
 
 	/**
@@ -46,6 +48,13 @@ public class SelfCheckoutStationSoftware {
 
 		// Reset all self-checkout station configurations to default.
 		resetConfigurationToDefaults();
+		
+		// Create a scanner object to read user input.
+		Scanner scanner = new Scanner(System.in);
+		
+		// Prompt the user to touch anywhere to start and wait for an input.
+		System.out.println("Touch Anywhere to Start");
+		scanner.nextLine();
 
 		// Set the current session to active.
 		this.active = true;
