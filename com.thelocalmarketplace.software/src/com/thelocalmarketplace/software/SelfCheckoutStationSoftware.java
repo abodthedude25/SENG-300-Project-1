@@ -7,7 +7,7 @@
 package com.thelocalmarketplace.software;
 
 import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;;
 
 public class SelfCheckoutStationSoftware {
 
@@ -45,7 +45,7 @@ public class SelfCheckoutStationSoftware {
 		}
 
 		// Reset all self-checkout station configurations to default.
-		SelfCheckoutStation.resetConfigurationToDefaults();
+		resetConfigurationToDefaults();
 
 		// Set the current session to active.
 		this.active = true;
