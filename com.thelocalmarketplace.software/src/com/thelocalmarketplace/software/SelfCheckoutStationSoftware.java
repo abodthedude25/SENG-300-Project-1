@@ -1,13 +1,13 @@
 package com.thelocalmarketplace.software;
 
 public class SelfCheckoutStationSoftware {
-	private boolean blocked = false;
+	private static boolean blocked = false;
 	
-	public void setStationBlock(boolean value) {
-		this.blocked = value;
+	public static void setStationBlock(boolean value) {
+		blocked = value;
 	}
 	
-	public boolean isBlocked() {
+	public static boolean isBlocked() {
 		return blocked;
 	}
 }

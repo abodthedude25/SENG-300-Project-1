@@ -11,7 +11,6 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	private List<Item> items;
 	private ElectronicScale scale;
-	private static boolean blocked;
 	private Order order;
 	private Mass weightAtBlock;
 	
@@ -51,11 +50,16 @@ public class WeightDiscrepancy extends ElectronicScale{
 				scale.addAnItem(item);
 			}
 		} catch (OverloadedDevice e) {
-			blocked = true;
+			SelfCheckoutStationSoftware.setStationBlock(true);
 		}
 	}
 	
-	public void setBlocked() {
+	/**
+	 * Checks for a weight discrepancy 
+	 * Will change the value of blocked as needed
+	 */
+	public void checkDiscrepancy() {
+		boolean block;
 		Mass actual;
 		double value;
 		Mass expected;
@@ -64,17 +68,11 @@ public class WeightDiscrepancy extends ElectronicScale{
 			value = order.getTotalWeightInGrams();
 			expected = new Mass(value);
 			
-			blocked = !expected.equals(actual);
+			block = !expected.equals(actual);
+			SelfCheckoutStationSoftware.setStationBlock(block);
 		} catch (OverloadedDevice e) {
-			blocked = true;
+			SelfCheckoutStationSoftware.setStationBlock(true);
 		}
-	}
-	
-	/**
-	 * @return True if system is blocked, false otherwise
-	 * */
-	public static boolean isBlocked() {
-		return blocked;
 	}
 	
     /**
@@ -133,9 +131,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	@Override
 	public void notifyMassChanged() {
 		super.notifyMassChanged();
-		if (isBlocked()) {
-			setBlocked();
-		}
+		checkDiscrepancy();
 	}
 }
 
