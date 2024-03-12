@@ -7,7 +7,7 @@
 package com.thelocalmarketplace.software;
 
 import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
-import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;;
+import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;
 
 public class SelfCheckoutStationSoftware {
 
@@ -36,10 +36,10 @@ public class SelfCheckoutStationSoftware {
 
 	/**
 	 * Function to start a session for self-checkout machine
+	 * @throws InvalidStateSimulationException If a session is already active.
 	 */
 	public void startSession() {
 
-		// Check if there is a current active session.
 		if (this.active) {
 			throw new InvalidStateSimulationException("Session already started.");
 		}
