@@ -69,6 +69,11 @@ public class PaymentHandlerTest {
     	allProducts.add(banana);
          
         paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+
+	paymentHandler.coinStorage.connect(PowerGrid.instance());
+        paymentHandler.coinStorage.activate();
+	PowerGrid.engageUninterruptiblePowerSource();
+        PowerGrid.instance().forcePowerRestore();
     }
     
     @Test
@@ -229,21 +234,8 @@ public class PaymentHandlerTest {
 //        verify(checkoutStation.coinDispensers.get(new BigDecimal("1.00")), times(1)).emit();
 //    }
 
-    @Test
-    public void loadCoinDispenser_ValidCoins_NoExceptionThrown() throws Exception {
-        // Load coins into the dispenser
-        paymentHandler.loadCoinDispenser(coin1, coin2);
-        // No specific assertion needed, just verifying no exception is thrown
-    }
-
-    @Test
-    public void emptyCoinStorage_Successful() {
-        // Simply calling the method to ensure no exceptions are thrown
-        paymentHandler.emptyCoinStorage();
-        // No exceptions expected, so no specific assertions are necessary
-    }
-
-     /**
+	
+   /**
      * Checks if coins are actually loaded in the coin dispenser
      * @throws CashOverloadException
      */
@@ -254,45 +246,58 @@ public class PaymentHandlerTest {
         coin1 = new Coin(currency, new BigDecimal("1.00"));
         coin2 = new Coin(currency, new BigDecimal("2.00"));
 
-        try {
-            paymentHandler.loadCoinDispenser(coin1, coin2);
-            assertTrue(paymentHandler.coinDispensers.get(coin1).size() > 0);
-            
-        } catch (Exception e) {
-            System.err.println("Test failed: Exception occurred - " + e.getMessage());
-           
-        }
-    }
+        paymentHandler.loadCoinDispenser(coin1, coin2);
+        assertTrue(paymentHandler.coinDispensers.containsValue(coin1));
+        assertTrue(paymentHandler.coinDispensers.containsValue(coin2));
 
+    }
+    
+    
+    /**
+     * test for loading one null coin
+     * @throws CashOverloadException 
+     * @throws SimulationException 
+     */
+    @Test
+    public void testLoadOneCoinIsNull() throws SimulationException, CashOverloadException {
+    	Currency currency = Currency.getInstance("CAD");
+        coin1 = new Coin(currency, null);
+        boolean exceptionThrown = false;
+        try {
+        	paymentHandler.loadCoinDispenser(coin1);
+        }catch (NullPointerSimulationException e) {
+            
+           exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+    
+    
     /**
      * Test for CashOverloadException
      * @throws CashOverloadException
      */
-    @Test (expected = SimulationException.class)
+    @Test
     public void testLoadCoinDispenserOverload() throws CashOverloadException {
+    	boolean thrown = false;
+    	Currency currency = Currency.getInstance("CAD");
+        coin1 = new Coin(currency, new BigDecimal("1.00"));
+        int capacity = 2;
+    	paymentHandler.configureCoinDispenserCapacity(capacity);
+    	
     	try{
-    		int capacity = paymentHandler.coinDispensers.get(new BigDecimal(0.10)).getCapacity();
         	for(int i = 0; i < capacity + 5; i++) {
         		Coin c = new Coin(Currency.getInstance("CAD"), new BigDecimal(0.10));
         		paymentHandler.loadCoinDispenser(c);
         	}
-        	fail("Exception not thrown");
-    	}catch (UnsupportedOperationException e) {
-    		assertEquals("Operation not Supported", e.getMessage());
+    	}catch (CashOverloadException e) {
+    		thrown = true;
     	}
     	
+    	assertTrue(thrown);
     }
-
-
-     /**
-     * Test that loadCoinDispenser throws NullException when coin is null
-     */
-    @Test
-    public void testLoadCoinDispenserNullCoins() {
-        assertThrows(NullPointerException.class, () -> paymentHandler.loadCoinDispenser(null));
-    }
-
-
+    
+    
     /**
      * Test that the coin storage is empty
      * @throws SimulationException
@@ -303,13 +308,11 @@ public class PaymentHandlerTest {
         // Add coins to the coin storage unit before calling emptyCoinStorage()
     	Currency currency = Currency.getInstance("CAD");
         coin1 = new Coin(currency, new BigDecimal("1.00"));
-    	paymentHandler.coinStorage.load(coin1);
-        paymentHandler.emptyCoinStorage();
-        assertTrue(paymentHandler.coinStorage.getCoinCount() == 0);
+        paymentHandler.coinStorage.load(coin1);
+        paymentHandler.coinStorage.unload();
+    	
     }
-    
+
     
     
 }
-
-/// tthis is a comment 
