@@ -1,46 +1,47 @@
-package com.thelocalmarketplace.software.test;
+
 /*
  * Mahfuz Alam : 30142265
  * Lilia Skumatova : 30187339
  */
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.Product;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
-import com.thelocalmarketplace.software.PaymentHandler;
-import com.jjjwelectronics.Numeral;
-import com.jjjwelectronics.scanner.Barcode;
-import com.tdc.CashOverloadException;
-import com.tdc.DisabledException;
-import com.tdc.NoCashAvailableException;
-import com.tdc.coin.Coin;
-import com.tdc.coin.CoinDispenserBronze;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.HashMap;
-import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
 
+import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.scanner.Barcode;
+import com.tdc.coin.Coin;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.PLUCodedProduct;
+import com.thelocalmarketplace.hardware.PriceLookUpCode;
+import com.thelocalmarketplace.hardware.Product;
+import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.software.PaymentHandler;
+import com.thelocalmarketplace.software.outOfInkException;
+import com.thelocalmarketplace.software.outOfPaperException;
+import com.thelocalmarketplace.software.test.emptyProdcutStub;
 
 public class PaymentHandlerTest {
-
-    private PaymentHandler paymentHandler;
-    //private SelfCheckoutStation checkoutStation;
+	private SelfCheckoutStation checkoutStation;
     private ArrayList<Product> coinsList;
     private ArrayList<Product> allProducts;
     private Coin coin1, coin2;
     private BigDecimal totalCost;
+    private PaymentHandler paymentHandler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         // Mock SelfCheckoutStation and its components as needed
-     
-    	SelfCheckoutStation checkoutStation = new SelfCheckoutStation();
+    	checkoutStation = new SelfCheckoutStation();
     	
         Numeral[] codeDigits = new Numeral[4];
         
@@ -53,19 +54,89 @@ public class PaymentHandlerTest {
         // Create the Barcode object
         Barcode bananaBarcode = new Barcode(codeDigits);
     	
-    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12,10.00);
+    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12, (long) 10.00);
     	
-    	
-    	ArrayList<Product> allProducts = new ArrayList<Product>();
+    	// Add some product for testing
+    	allProducts = new ArrayList<Product>();
     	allProducts.add(banana);
-
-    	
+         
         paymentHandler = new PaymentHandler(checkoutStation, allProducts);
-        
-        
-        
     }
+    
+    @Test
+    public void testReceiptPrinter() throws Exception{
+        // Mocking System.out for testing output 
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+        
+        // Add some product for testing
+        allProducts.add(new PLUCodedProduct(new PriceLookUpCode("0001"), "Product B", (long) 15.00));
+        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler.amountSpent = BigDecimal.valueOf(27); // Set amount spent for testing
+        paymentHandler.changeRemaining = BigDecimal.valueOf(0); // Set change remaining for testing
 
+        paymentHandler.receiptPrinter();
+        
+        // Check if the receipt contains correct information
+        assertTrue(outContent.toString().contains("Product B $15.00"));
+        assertTrue(outContent.toString().contains("Total: $27.00"));
+        assertTrue(outContent.toString().contains("Paid: $27.00"));
+        assertTrue(outContent.toString().contains("Change: $0.00"));
+
+        allProducts.remove(1);
+        // Reset System.out
+        System.setOut(System.out);
+    }
+    
+    @Test(expected = NullPointerException.class)
+    public void testReceiptPrinterIncorrectProduct() throws Exception{
+        // Mocking System.out for testing output 
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+        
+        // Add some product for testing
+        allProducts.add(new emptyProdcutStub( (long) 4.00, false) );
+        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+
+        paymentHandler.receiptPrinter();
+	    assertTrue(outContent.toString().contains("This product is not a supported product, can not be registered for a price"));
+
+        // Reset System.out
+        System.setOut(System.out);
+    }
+    
+    @Test(expected = outOfPaperException.class)
+    public void testReceiptPrinterOutOfPaperException() throws Exception{
+    	// Mocking System.out for testing output 
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+        paymentHandler.paperSpaceCounter = 0;
+        paymentHandler.inkCounter = 10;
+
+	    // Check if the out of ink exception is thrown
+	    paymentHandler.receiptPrinter(); // Should throw outOfInkException
+	    assertTrue(outContent.toString().contains("The printer is out of Paper currently, needs maintenance."));
+	    
+	    // Reset System.out
+	    System.setOut(System.out);
+    }
+    
+    @Test(expected = outOfInkException.class)
+    public void testReceiptPrinterOutOfInkException() throws Exception{
+    	// Mocking System.out for testing output 
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+        paymentHandler.inkCounter = 0;
+        paymentHandler.paperSpaceCounter = 100;
+
+	    // Check if the out of ink exception is thrown
+	    paymentHandler.receiptPrinter(); // Should throw outOfInkException
+	    assertTrue(outContent.toString().contains("The printer is out of Ink currently, needs maintenance."));
+	    
+	    // Reset System.out
+	    System.setOut(System.out);
+    }
+ 
     @Test(expected = NullPointerException.class)
     public void constructor_NullStation_ThrowsException() {
         new PaymentHandler(null, new ArrayList<>());
@@ -92,6 +163,8 @@ public class PaymentHandlerTest {
         //coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
         assertTrue(paymentHandler.processPaymentWithCoins(coinsList));
     }
+    
+    
 
     
     
