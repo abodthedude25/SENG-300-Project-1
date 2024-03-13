@@ -16,3 +16,7 @@ public class SelfCheckoutStationSoftware {
 		return this.blocked;
 	}
 }
+/*
+ * 
+ * Test 101
+ */
