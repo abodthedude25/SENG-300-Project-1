@@ -7,6 +7,8 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.*;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.jjjwelectronics.Mass;
@@ -43,8 +45,10 @@ public class AddItemViaBarcodeScanTest {
 		
 		// Power up and enable hardware objects
 		scanner.plugIn(grid);
+		scanner.turnOn();
 		scanner.enable();
 		baggingArea.plugIn(grid);
+		baggingArea.turnOn();
 		baggingArea.enable();
 		
 		// Initializing mock barcoded item
@@ -73,4 +77,24 @@ public class AddItemViaBarcodeScanTest {
 		testBaggingAreaListener = new BaggingAreaListener();
 		baggingArea.register(testBaggingAreaListener);
 	}
+	
+	@Test
+    public void testAddingItem() {
+        baggingArea.addAnItem(barcodedItem);
+    }
+	
+	@After
+    public void tearDown() {
+        // de-register listeners 
+        scanner.deregister(testBarcodeItemAdder);
+        baggingArea.deregister(testBaggingAreaListener);
+        
+        // Disable, turn off and un-plug hardware objects
+        scanner.disable();
+        scanner.turnOff();
+        scanner.unplug();
+        baggingArea.disable();
+        baggingArea.turnOff();
+        baggingArea.unplug();
+    }
 }
