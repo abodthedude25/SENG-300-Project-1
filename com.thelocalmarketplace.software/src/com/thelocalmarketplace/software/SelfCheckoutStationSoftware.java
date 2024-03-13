@@ -2,6 +2,7 @@
  * Talaal Irtija (UCID: 30169780)
  * Yotam Rojnov (UCID: 30173949)
  * Joseph Tandyo (UCID: 30182561)
+ * Lucas Kasdorf (UCID: 30173922)
  */
 
 package com.thelocalmarketplace.software;
