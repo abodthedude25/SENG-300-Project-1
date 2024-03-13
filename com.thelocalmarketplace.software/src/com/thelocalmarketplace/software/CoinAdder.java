@@ -40,7 +40,6 @@ public class CoinAdder extends SelfCheckoutStation{
 	 * @throws CashOverloadException If the coin storage is overloaded
 	 */
 	public boolean insertCoin(Coin coin) throws DisabledException, CashOverloadException {
-		BigDecimal zero = BigDecimal.ZERO;
 		if(coin == null)
 			throw new NullPointerException("coin cannot be null."); // Check for null parameters.
 		boolean successfulInsertion = acceptInsertedCoin(coin);
