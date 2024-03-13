@@ -1,6 +1,5 @@
 package com.thelocalmarketplace.software;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
