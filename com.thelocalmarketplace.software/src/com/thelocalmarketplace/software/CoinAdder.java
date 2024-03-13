@@ -19,7 +19,6 @@ public class CoinAdder extends SelfCheckoutStation{
 
 	private SelfCheckoutStation cStation;
 	private ArrayList<Coin> coinsList;
-	private PaymentHandler handler;
 	
 		public CoinAdder(SelfCheckoutStation cStation, PaymentHandler handler) {
 			if(cStation == null) throw new NullPointerException("No argument may be null.");
