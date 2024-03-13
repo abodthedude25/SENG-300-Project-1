@@ -269,6 +269,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * Empties the coin storage unit.
 	 */
 	public void emptyCoinStorage() {
-		this.checkoutSystem.coinStorage.unload();
+		this.coinStorage.unload();
 	}
 }
