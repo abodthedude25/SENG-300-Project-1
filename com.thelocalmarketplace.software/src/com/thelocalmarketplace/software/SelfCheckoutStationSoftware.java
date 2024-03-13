@@ -1,5 +1,7 @@
 /*
  * Start Session Demo
+ * 
+ * import lol
  */
 
 
@@ -16,7 +18,3 @@ public class SelfCheckoutStationSoftware {
 		return this.blocked;
 	}
 }
-/*
- * 
- * Test wewewew
- */
