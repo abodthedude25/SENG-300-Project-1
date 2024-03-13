@@ -16,11 +16,13 @@ public class SelfCheckoutStationSoftware {
 	 */
 	private boolean blocked = false;
 
-	/** Boolean variable to track if a current session is active or not. */
+	/**
+	 * Boolean variable to track if a current session is active or not. 
+	 */
 	private boolean active;
 
 	/**
-	 * Set function to change the blocked variable value
+	 * Set function to change the blocked variable value.
 	 * @param value The new value for station block status
 	 */
 	public void setStationBlock(boolean value) {
@@ -28,10 +30,17 @@ public class SelfCheckoutStationSoftware {
 	}
 
 	/**
-	 * Get function to get the blocked station status
+	 * Get function to get the blocked station status.
 	 */
 	public boolean getStationBlock() {
 		return this.blocked;
+	}
+	
+	/**
+	 * Set function to change the active variable value.
+	 */
+	public void setStationActive() {
+		this.active = true;
 	}
 
 	/**
