@@ -1,3 +1,8 @@
+/*
+ * Start Session Demo
+ */
+
+
 package com.thelocalmarketplace.software;
 
 public class SelfCheckoutStationSoftware {
