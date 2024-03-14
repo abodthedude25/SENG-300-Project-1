@@ -12,7 +12,7 @@ package com.thelocalmarketplace.software;
 
 import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
 import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;
- import java.util.Scanner;
+import java.util.Scanner;
 
 public class SelfCheckoutStationSoftware {
 
@@ -63,16 +63,17 @@ public class SelfCheckoutStationSoftware {
 		if (active) {
 			throw new InvalidStateSimulationException("Session already started.");
 		}
-
+		
 		resetConfigurationToDefaults(); // Reset all self-checkout station configurations to default.
 		
-		 Scanner scanner = new Scanner(System.in); // Create a scanner object to read user input.
-		 scanner.nextLine(); // Ignore input for now.
-		 scanner.close(); // Close the scanner.
+		Scanner scanner = new Scanner(System.in); // Create a scanner object to read user input.
 		
 		// Prompt the user to touch anywhere to start and wait for an input.
-		 System.out.println("Welcome to The Local Marketplace. Touch anywhere to start.");
+		System.out.println("Welcome to The Local Marketplace. Touch anywhere to start.");
+		scanner.nextLine(); // Obtain user input.
 
 		active = true; // Set the current session to active.
+		
+		scanner.close(); // Close the scanner.
 	}
 }
