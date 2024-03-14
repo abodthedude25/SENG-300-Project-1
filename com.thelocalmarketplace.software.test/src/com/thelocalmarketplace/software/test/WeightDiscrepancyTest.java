@@ -15,4 +15,6 @@ public class WeightDiscrepancyTest {
 	private mockOrder mockOrder;
 	private mockScale mockScale;
 	
+	@Before
+	
 }
