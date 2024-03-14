@@ -83,7 +83,7 @@ public class AddItemViaBarcodeScanTest {
 		scanner.register(testBarcodeItemAdder);
 
 		// Initializing testBaggingAreaListener and making it listen to the scale object
-		testBaggingAreaListener = new BaggingAreaListener();
+		testBaggingAreaListener = new BaggingAreaListener(testOrder);
 		baggingArea.register(testBaggingAreaListener);
 	}
 
