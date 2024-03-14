@@ -73,9 +73,10 @@ public class CoinAdder extends SelfCheckoutStation{
 	 */
 	public boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
 		if (this.cStation.coinStorage.hasSpace()) {
-			this.cStation.coinSlot.receive(coin);
-			return true;
-
+			if (this.cStation.coinSlot.hasSpace()) {
+				this.cStation.coinSlot.receive(coin);
+				return true;
+			}
 		}
 		return false;
 	}
