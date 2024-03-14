@@ -67,6 +67,21 @@ public class WeightDiscrepancy extends ElectronicScale{
 		}
 	}
 	
+	public void unBlock() {
+		Mass actual;
+		Mass expected;
+		try {
+			actual = scale.getCurrentMassOnTheScale();
+			expected = new Mass(value);
+			
+			if (expected.equals(actual)) {
+				SelfCheckoutStationSoftware.setStationBlock(false);
+			}
+		} catch (OverloadedDevice e) {
+			SelfCheckoutStationSoftware.setStationBlock(true);
+		}
+	}
+	
     /**
      * Compares weight at block to current getWeight to check if an item has been removed.
      * 
