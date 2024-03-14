@@ -129,7 +129,7 @@ public class AddItemViaBarcodeScanTest {
 		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight() + 200); //Causes a discrepancy
 		weightDiscrepancy.checkDiscrepancy();
 		
-		assertTrue(SelfCheckoutStationSoftware.isBlocked());
+		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
 	}
 	
 	@Test
