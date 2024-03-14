@@ -33,7 +33,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 		this.items = order.getOrder();
 		this.scale = scale;
 		this.weightAtBlock = scale.getCurrentMassOnTheScale();
-		this.value = order.getTotalWeightInGrams() * 1_000_000; 
+		this.value = order.getTotalWeightInGrams() * 1_000_000;
 	}
 	
 	/**

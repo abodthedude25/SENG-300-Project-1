@@ -54,7 +54,29 @@ public class WeightDiscrepancyTest {
     }
     
     
-   
+    @Test
+    public void testUpdateMass_AddItemToOrder() throws OverloadedDevice {
+       
+        
+        MockItem item1 = new MockItem(new Mass(100));
+        MockItem item2 = new MockItem(new Mass(100));
+       
+        
+        order.addItemToOrder(item1);
+        order.addItemToOrder(item2);
+        
+        
+ 
+        WeightDiscrepancy weightDiscrepancy2 = new WeightDiscrepancy(order,scale);
+        
+        weightDiscrepancy2.updateMass();
+
+        Mass expectedMass = new Mass(200);
+ 
+        
+        assertEquals(expectedMass, scale.getCurrentMassOnTheScale()); } 
+    
+    
     
     @Test
     public void checkWeightChangeTestTrue(){
