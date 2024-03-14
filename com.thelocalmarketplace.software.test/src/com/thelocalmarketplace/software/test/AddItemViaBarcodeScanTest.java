@@ -86,12 +86,6 @@ public class AddItemViaBarcodeScanTest {
 		testBaggingAreaListener = new BaggingAreaListener(testOrder);
 		baggingArea.register(testBaggingAreaListener);
 	}
-
-	@Test
-	public void testDetectsBarcode() {
-		// work in progress
-		scanner.scan(barcodedItem);
-	}
 	
 	@Test
 	public void testProductLookupInDatabase(){
@@ -147,6 +141,15 @@ public class AddItemViaBarcodeScanTest {
 		assertTrue(order.isEmpty());
 	}
 
+	@Test
+	public void testWeightHasChanged() {
+		// test for signals to the system that the weight changed
+		// A customer scans an item. 
+		scanner.scan(barcodedItem);
+		// A customer places the item in the bagging area
+		baggingArea.addAnItem(barcodedItem);
+	}
+	
 	@After
 	public void tearDown() {
 		// de-register listeners 
