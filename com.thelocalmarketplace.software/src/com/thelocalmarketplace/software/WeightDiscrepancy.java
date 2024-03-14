@@ -10,9 +10,9 @@ import com.jjjwelectronics.scale.ElectronicScale;
 public class WeightDiscrepancy extends ElectronicScale{
 	
 	private List<Item> items;
-	private ElectronicScale scale;
+	private static ElectronicScale scale;
 	private Mass weightAtBlock;
-	private double value;
+	private static double value;
 	
     /**
      // Records weight at time of discrepancy before block
