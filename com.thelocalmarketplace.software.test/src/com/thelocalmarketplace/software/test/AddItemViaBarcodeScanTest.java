@@ -1,4 +1,4 @@
-// Joseph Tandyo
+// Joseph Tandyo 30182561
 // Alexandre Duteau
 // Syed Haider 
 // Yuinikoru Futamata 30173228
@@ -98,8 +98,8 @@ public class AddItemViaBarcodeScanTest {
 		BarcodedProduct foundProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcodedItem.getBarcode());
 		assertNotNull("Product should be found in the database", foundProduct);
 		assertEquals("Found product should match the test product that we created", barcodedProduct, foundProduct);
-		
-		
+
+
 	}
 
 	@Test
@@ -108,35 +108,40 @@ public class AddItemViaBarcodeScanTest {
 		Barcode nonExistentBarcode = new Barcode(nonExistentBarcodeDigits);
 		BarcodedProduct nullProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(nonExistentBarcode);
 		assertNull(nullProduct);
-		
-		
+
+
 	}
 	
 	@Test
 	public void testUpdatesTheOrderTotalForPrice(){
 		testOrder.addTotalPrice(barcodedProduct.getPrice());
 		assertEquals("Order total price should be updated", barcodedProduct.getPrice(),testOrder.getTotalPrice());
-		
+
 	}
-	
+
 	@Test
 	public void testUpdatesTheOrderTotalForWeight() {
-		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight());
-		assertEquals("Order total for weight should be updated", barcodedProduct.getExpectedWeight(),testOrder.getTotalWeightInGrams(), 0.01);
+		double before = testOrder.getTotalWeightInGrams();
+		double productWeight = barcodedProduct.getExpectedWeight();
+		testOrder.addTotalWeightInGrams(productWeight);
+
+		double after = testOrder.getTotalWeightInGrams();
+		assertEquals("Order total for weight should be updated", after, before + productWeight, 0.01);
 	}
 	@Test
 	public void testWeightDiscrepancyOverflow() {
+		SelfCheckoutStationSoftware.setStationBlock(false);
 		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight() + 200); //Causes a discrepancy
 		weightDiscrepancy.checkDiscrepancy();
-		
+
 		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
 	}
-	
+
 	@Test
 	public void testABarcodeHasBeenScannedWhenBlocked() {
 		SelfCheckoutStationSoftware.setStationBlock(true);
 		scanner.scan(barcodedItem);
-		
+
 		// Item should NOT be added to the order
 		ArrayList<Item> order = testOrder.getOrder();
 		assertTrue(order.isEmpty());

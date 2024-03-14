@@ -110,7 +110,7 @@ public class Order {
             // Signal to the customer to place the scanned item in the bagging area
             System.out.println("Please place item in the bagging area.");
             
-            weightDiscrepancy.unBlock(); // Checks for a weight discrepancy, if none, it unblocks the system
+            WeightDiscrepancy.unBlock(); // Checks for a weight discrepancy, if none, it unblocks the system
         }
     }
 }
