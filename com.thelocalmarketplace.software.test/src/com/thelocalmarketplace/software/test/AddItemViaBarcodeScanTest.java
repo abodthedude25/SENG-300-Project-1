@@ -101,6 +101,36 @@ public class AddItemViaBarcodeScanTest {
 		
 		
 	}
+
+	@Test
+	public void testProductLookupInDatabaseWhenNull() {
+		Numeral[] nonExistentBarcodeDigits = {Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven};
+		Barcode nonExistentBarcode = new Barcode(nonExistentBarcodeDigits);
+		BarcodedProduct nullProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(nonExistentBarcode);
+		assertNull(nullProduct);
+		
+		
+	}
+	
+	@Test
+	public void testUpdatesTheOrderTotalForPrice(){
+		testOrder.addTotalPrice(barcodedProduct.getPrice());
+		assertEquals("Order total price should be updated", barcodedProduct.getPrice(),testOrder.getTotalPrice());
+		
+	}
+	
+	@Test
+	public void testUpdatesTheOrderTotalForWeight() {
+		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight());
+		assertEquals("Order total for weight should be updated", barcodedProduct.getExpectedWeight(),testOrder.getTotalWeightInGrams(), 0.01);
+	}
+	@Test
+	public void testWeightDiscrepancyOverflow() {
+		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight() + 200); //Causes a discrepancy
+		weightDiscrepancy.checkDiscrepancy();
+		
+		assertTrue(SelfCheckoutStationSoftware.isBlocked());
+	}
 	
 	@Test
 	public void testABarcodeHasBeenScannedWhenBlocked() {
