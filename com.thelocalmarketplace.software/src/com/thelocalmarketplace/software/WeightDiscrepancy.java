@@ -1,3 +1,7 @@
+/**
+ * Tara Ghasemi M. Rad (UCID: 30171212)
+ * Izabella Mawani (UCID: 30179738)
+*/
 package com.thelocalmarketplace.software;
 
 import java.util.List;
@@ -43,6 +47,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * Records weight at time of discrepancy before block 
 	 */
 	public void updateMass() {
+//		Mass currMass = scale.getCurrentMassOnTheScale();
+//		currMass = currMass * 1_000_000;
 		for (Item item : items) {
 			scale.addAnItem(item);
 		}

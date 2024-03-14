@@ -4,6 +4,8 @@
  * Joseph Tandyo (UCID: 30182561)
  * Lucas Kasdorf (UCID: 30173922)
  * Abil Momin (UCID: 30154771)
+ * Tara Ghasemi M. Rad (UCID: 30171212)
+ * Izabella Mawani (UCID: 30179738)
  */
 
 package com.thelocalmarketplace.software;

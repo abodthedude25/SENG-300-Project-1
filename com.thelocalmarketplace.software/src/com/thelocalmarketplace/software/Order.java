@@ -88,6 +88,10 @@ public class Order {
      * Adds an item to the order via barcode scan
      */
     public void addItemViaBarcodeScan(Barcode barcode) {
+    	if (SelfCheckoutStationSoftware.getStationBlock()) {
+    		System.out.println("Blocked. Please add your item to the begging area.");
+    		return;
+    	}
     	// Get the product from the database
         BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 

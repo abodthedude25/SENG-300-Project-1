@@ -83,6 +83,10 @@ public class PaymentHandler extends SelfCheckoutStation {
 	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
 			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
 			outOfInkException {
+		if (SelfCheckoutStationSoftware.getStationBlock()) {
+			System.out.println("Blocked. Please add your item to the begging area.");
+			return false;
+		}
 		if (coinsList == null)
 			throw new NullPointerException("coinsList cannot be null."); // Check for null parameters.
 		BigDecimal value = new BigDecimal("0");
