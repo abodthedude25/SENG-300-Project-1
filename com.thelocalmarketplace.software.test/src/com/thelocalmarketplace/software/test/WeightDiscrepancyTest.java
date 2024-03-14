@@ -50,7 +50,7 @@ public class WeightDiscrepancyTest {
 
 	        
 
-	        weightDiscrepancy = new WeightDiscrepancy(order, scale);
+	        weightDiscrepancy = new WeightDiscrepancy(order, scale); 
 
 
 
