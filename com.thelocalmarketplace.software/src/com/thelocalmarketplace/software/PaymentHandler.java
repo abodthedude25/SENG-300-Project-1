@@ -1,3 +1,11 @@
+/**
+ * Duncan McKay (UCID: 30177857)
+ * Mahfuz Alam (UCID:30142265)
+ * Luis Trigueros Granillo (UCID: 30167989)
+ * Lilia Skumatova (UCID: 30187339)
+ * Abdelrahman Abbas (UCID: 30110374)
+ */
+
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
@@ -30,16 +38,24 @@ import ca.ucalgary.seng300.simulation.SimulationException;
 public class PaymentHandler extends SelfCheckoutStation {
 
 	public BigDecimal amountSpent;
-	private BigDecimal changeRemaining = BigDecimal.ZERO;
-	private BigDecimal totalCost = BigDecimal.ZERO;
+	public BigDecimal changeRemaining = BigDecimal.ZERO;
+	public BigDecimal totalCost = new BigDecimal(0);
 	private SelfCheckoutStation checkoutSystem = null;
 	private ArrayList<Product> allProducts;
+	public int paperSpaceCounter = 100; // Since there's no receipt printer and therefore no real way to measure paper
+	// and ink, I created counters for both the paper space and the ink in a receipt
+	// printer, starting with an arbitrary number 100
+	public int inkCounter = 100;
 
 	public PaymentHandler(SelfCheckoutStation station, ArrayList<Product> allProducts) {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
 		this.allProducts = allProducts;
+		for (int i = 0; i < this.allProducts.size(); i++) {
+			long price = (this.allProducts.get(i).getPrice());
+			this.totalCost = this.totalCost.add(new BigDecimal(price));
+		}
 	}
 
 	/**
@@ -61,9 +77,16 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws CashOverloadException    If the cash storage is overloaded.
 	 * @throws NoCashAvailableException If no cash is available for dispensing
 	 *                                  change.
+	 * @throws outOfInkException
+	 * @throws outOfPaperException
 	 */
 	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
-			throws DisabledException, CashOverloadException, NoCashAvailableException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
+			outOfInkException {
+		if (SelfCheckoutStationSoftware.getStationBlock()) {
+			System.out.println("Blocked. Please add your item to the begging area.");
+			return false;
+		}
 		if (coinsList == null)
 			throw new NullPointerException("coinsList cannot be null."); // Check for null parameters.
 		BigDecimal value = new BigDecimal("0");
@@ -74,12 +97,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
 
-		boolean isSuccess = false;
-		for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
-			isSuccess = acceptInsertedCoin(coin);
-			if (!isSuccess)
-				value = value.subtract(coin.getValue());
-		}
+		// for (Coin coin : coinsList) { // Accept each coin inserted by the customer.
+		// 	// Assume coins have already been checked before adding to coin list, done in
+		// 	// CoinAdder insertCoin method
+		// 	value = value.subtract(coin.getValue());
+		// }
 
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
@@ -95,24 +117,8 @@ public class PaymentHandler extends SelfCheckoutStation {
 	}
 
 	/**
-	 * Accepts a coin inserted by the customer into the coin slot.
-	 * 
-	 * @param coin The coin to be validated and accepted.
-	 * @return true if the coin is successfully accepted, false otherwise.
-	 * @throws DisabledException     If the coin slot is disabled.
-	 * @throws CashOverloadException If the cash storage is overloaded.
-	 */
-	private boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
-		if (this.checkoutSystem.coinStorage.hasSpace()) {
-			this.checkoutSystem.coinSlot.receive(coin);
-		} else {
-			this.checkoutSystem.coinSlot.disable();
-		}
-		return false;
-	}
-
-	/**
-	 * Dispenses the correct amount of change to the customer and gives them the choice to print a receipt.
+	 * Dispenses the correct amount of change to the customer and gives them the
+	 * choice to print a receipt.
 	 * 
 	 * Implements change dispensing logic using available coin denominations.
 	 * 
@@ -122,9 +128,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws CashOverloadException    If the cash storage is overloaded.
 	 * @throws NoCashAvailableException If no cash is available for dispensing
 	 *                                  change.
+	 * @throws outOfInkException
+	 * @throws outOfPaperException
 	 */
 	public boolean dispenseAccurateChange(BigDecimal changeValue)
-			throws DisabledException, CashOverloadException, NoCashAvailableException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
+			outOfInkException {
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
@@ -178,43 +187,59 @@ public class PaymentHandler extends SelfCheckoutStation {
 	}
 
 	/**
-	 * Prints a receipt for the customer, with all the products' info, price, the total cost, total amount paid, and change due.
+	 * Prints a receipt for the customer, with all the products' info, price, the
+	 * total cost, total amount paid, and change due.
 	 */
 
-	private void receiptPrinter() {
-		
+	public void receiptPrinter() throws outOfPaperException, outOfInkException {
+
 		ArrayList<String> receiptItems = new ArrayList<String>();
 
-		for (int i = 0; i < allProducts.size(); i++){
+		for (int i = 0; i < allProducts.size(); i++) {
 			String productDescription;
 			Product p = allProducts.get(i);
 
-			if (p instanceof BarcodedProduct){
-				productDescription = ((BarcodedProduct)p).getDescription();
+			if (p instanceof BarcodedProduct) { // Gets the product description and the price of a barcoded product
+				productDescription = ((BarcodedProduct) p).getDescription();
 				long price = (allProducts.get(i).getPrice());
-				receiptItems.add(productDescription + "$" + String.valueOf(price));
+				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
-
-			if (p instanceof PLUCodedProduct){
-				productDescription = ((PLUCodedProduct)p).getDescription();
+ 
+			else if (p instanceof PLUCodedProduct) { // Gets the product description and the price of a product inputted
+												// through price-lookup (PLU)
+				productDescription = ((PLUCodedProduct) p).getDescription();
 				long price = (allProducts.get(i).getPrice());
-				receiptItems.add(productDescription + "$" + String.valueOf(price));
+				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
-
+			else {
+				throw new NullPointerException("This product is not a supported product, can not be registered for a price");
+			}
 		}
 
 		BigDecimal purchaseValue = totalCost;
 		BigDecimal amountPaid = amountSpent;
 		BigDecimal changeDue = changeRemaining;
 
-		receiptItems.add("Total: $" + purchaseValue.toString());
-		receiptItems.add("Paid: $" + amountSpent.toString());
-		receiptItems.add("Change: $" + changeRemaining.toString());
+		receiptItems.add("Total: $" + String.format("%.2f", purchaseValue));
+		receiptItems.add("Paid: $" + String.format("%.2f", amountPaid));
+		receiptItems.add("Change: $" + String.format("%.2f", changeDue));
 
-		for (int i = 0; i < allProducts.size(); i++){
-			System.out.println("\n");
-			System.out.println(receiptItems.get(i));
-			System.out.println("\n");
+		for (int i = 0; i < receiptItems.size(); i++) {
+			System.out.println("\n"); // Adds a newline
+			paperSpaceCounter -= 5; // Paper space is decreased by an arbitrary number (5, in this case)
+			System.out.println(receiptItems.get(i)); // Prints the product description and price at a specific index
+			inkCounter -= 5; // Both paper and ink are used up in the printer
+			paperSpaceCounter -= 5;
+			System.out.println(paperSpaceCounter);
+
+			if (paperSpaceCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfPaperException("The printer is out of Paper currently, needs maintenance.");
+			}
+			if (inkCounter <= 0) {
+				checkoutSystem = null;
+				throw new outOfInkException("The printer is out of Ink currently, needs maintenance.");
+			}
 		}
 	}
 
@@ -248,8 +273,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * Empties the coin storage unit.
 	 */
 	public void emptyCoinStorage() {
-		this.checkoutSystem.coinStorage.unload();
-
+		this.coinStorage.unload();
 	}
-
 }
