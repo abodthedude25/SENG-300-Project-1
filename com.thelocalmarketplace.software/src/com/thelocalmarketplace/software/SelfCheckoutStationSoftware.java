@@ -46,6 +46,13 @@ public class SelfCheckoutStationSoftware {
 	}
 
 	/**
+	 * Get function to get the blocked station status.
+	 */
+	public boolean getStationActive() {
+		return this.active;
+	}
+	
+	/**
 	 * Function to start a session for self-checkout machine
 	 * @throws InvalidStateSimulationException If a session is already active.
 	 */
