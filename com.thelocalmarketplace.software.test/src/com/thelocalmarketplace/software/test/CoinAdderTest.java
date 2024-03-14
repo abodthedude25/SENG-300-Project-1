@@ -75,7 +75,9 @@ public class CoinAdderTest {
     // Tests whether the acceptedCoinsList is empty (null) when no coin has been added
     @Test
     public void testGetAcceptedCoinsListEmpty() {
-        assertTrue(coinAdder.getAcceptedCoinsList() == null);
+        for (Coin coin : coinAdder.getAcceptedCoinsList()) {
+        	assertTrue(coin == null);
+        }
     }
 
     // Tests whether valid coins will be inserted if the checkout station's storage unit has space
