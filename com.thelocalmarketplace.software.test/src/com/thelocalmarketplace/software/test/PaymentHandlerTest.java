@@ -35,7 +35,9 @@ import com.thelocalmarketplace.software.PaymentHandler;
 import com.thelocalmarketplace.software.outOfInkException;
 import com.thelocalmarketplace.software.outOfPaperException;
 
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import ca.ucalgary.seng300.simulation.SimulationException;
+import powerutility.PowerGrid;
 
 public class PaymentHandlerTest {
 	private SelfCheckoutStation checkoutStation;
@@ -278,22 +280,20 @@ public class PaymentHandlerTest {
      */
     @Test
     public void testLoadCoinDispenserOverload() throws CashOverloadException {
-    	boolean thrown = false;
     	Currency currency = Currency.getInstance("CAD");
-        coin1 = new Coin(currency, new BigDecimal("1.00"));
-        int capacity = 2;
-    	paymentHandler.configureCoinDispenserCapacity(capacity);
-    	
-    	try{
-        	for(int i = 0; i < capacity + 5; i++) {
-        		Coin c = new Coin(Currency.getInstance("CAD"), new BigDecimal(0.10));
-        		paymentHandler.loadCoinDispenser(c);
-        	}
-    	}catch (CashOverloadException e) {
-    		thrown = true;
-    	}
-    	
-    	assertTrue(thrown);
+    	// Prepare some coins
+        Coin coin1 = new Coin(currency, BigDecimal.valueOf(0.25));
+        Coin coin2 = new Coin(currency, BigDecimal.valueOf(0.10));
+
+        // Load coins into dispenser
+    	SelfCheckoutStation.configureCoinDispenserCapacity(2);
+    	BigDecimal[] listOfCoins = {BigDecimal.valueOf(0.25), BigDecimal.valueOf(0.10)};
+    	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
+    	checkoutStation = new SelfCheckoutStation();
+        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        checkoutStation.plugIn(PowerGrid.instance());
+        checkoutStation.turnOn();
+        paymentHandler.loadCoinDispenser(coin1, coin2);
     }
     
     
