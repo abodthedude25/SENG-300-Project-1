@@ -1,9 +1,10 @@
 package com.thelocalmarketplace.software;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
+import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.scale.ElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
@@ -19,14 +20,18 @@ public class Order {
     private BarcodedItem barcodedItem;
     private Mass mass;
     private WeightDiscrepancy weightDiscrepancy;
+    private ElectronicScale scale;
     
     /**
      * Constructs an empty order.
+     * @throws OverloadedDevice 
      */
-    public Order() {
+    public Order(ElectronicScale scale) throws OverloadedDevice {
         this.order = new ArrayList<Item>();
         this.totalWeight = 0;
         this.totalPrice = 0;
+        this.scale = scale;
+        this.weightDiscrepancy = new WeightDiscrepancy(this, scale);
     }
 
     /**

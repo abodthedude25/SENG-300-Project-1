@@ -7,12 +7,12 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.ElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScanner;
@@ -22,12 +22,15 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItemViaBarcodeScan;
 import com.thelocalmarketplace.software.BaggingAreaListener;
 import com.thelocalmarketplace.software.Order;
+import com.thelocalmarketplace.software.WeightDiscrepancy;
+
 import powerutility.PowerGrid;
 
 public class AddItemViaBarcodeScanTest {
 	PowerGrid grid;
 	BarcodeScanner scanner;
 	ElectronicScale baggingArea;
+	WeightDiscrepancy weightDiscrepancy;
 	BarcodedItem barcodedItem;
 	BarcodedProduct barcodedProduct;
 	AddItemViaBarcodeScan testBarcodeItemAdder;
@@ -35,7 +38,7 @@ public class AddItemViaBarcodeScanTest {
 	BaggingAreaListener testBaggingAreaListener;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws OverloadedDevice {
 		// Make a power grid for hardware to connect to
 		grid = PowerGrid.instance();
 
@@ -67,7 +70,10 @@ public class AddItemViaBarcodeScanTest {
 		ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcode, barcodedProduct);
 
 		// Initializing testOrder
-		testOrder = new Order();
+		testOrder = new Order(baggingArea);
+		
+		// Initializing weightDiscrepancy
+		weightDiscrepancy = new WeightDiscrepancy(testOrder, baggingArea);
 
 		// Initializing testBarcodeItemAdder and making it listen to the scanner object
 		testBarcodeItemAdder = new AddItemViaBarcodeScan(testOrder);
@@ -82,6 +88,25 @@ public class AddItemViaBarcodeScanTest {
 	public void testDetectsBarcode() {
 		// work in progress
 		scanner.scan(barcodedItem);
+	}
+	
+	@Test
+	public void testProductLookupInDatabase(){
+		BarcodedProduct foundProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcodedItem.getBarcode());
+		assertNotNull("Product should be found in the database", foundProduct);
+		assertEquals("Found product should match the test product that we created", barcodedProduct, foundProduct);
+		
+		
+	}
+	
+	@Test
+	public void testABarcodeHasBeenScannedWhenBlocked() {
+		SelfCheckoutStationSoftware.setStationBlock(true);
+		scanner.scan(barcodedItem);
+		
+		// Item should NOT be added to the order
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
 	}
 
 	@After

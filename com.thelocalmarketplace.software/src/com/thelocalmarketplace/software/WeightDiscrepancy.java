@@ -11,8 +11,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	private List<Item> items;
 	private ElectronicScale scale;
-	private Order order;
 	private Mass weightAtBlock;
+	private double value;
 	
     /**
      // Records weight at time of discrepancy before block
@@ -30,10 +30,10 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @throws OverloadedDevice  
 	 */
 	public WeightDiscrepancy(Order order, ElectronicScale scale) throws OverloadedDevice {
-		this.order = order;
 		this.items = order.getOrder();
 		this.scale = scale;
-		weightAtBlock = scale.getCurrentMassOnTheScale();
+		this.weightAtBlock = scale.getCurrentMassOnTheScale();
+		this.value = order.getTotalWeightInGrams() * 1_000_000;
 	}
 	
 	/**
@@ -43,14 +43,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * Records weight at time of discrepancy before block 
 	 */
 	public void updateMass() {
-		try {
-			Mass currMass = scale.getCurrentMassOnTheScale();
-			currMass = Mass.ZERO;
-			for (Item item : items) {
-				scale.addAnItem(item);
-			}
-		} catch (OverloadedDevice e) {
-			SelfCheckoutStationSoftware.setStationBlock(true);
+		for (Item item : items) {
+			scale.addAnItem(item);
 		}
 	}
 	
@@ -61,11 +55,9 @@ public class WeightDiscrepancy extends ElectronicScale{
 	public void checkDiscrepancy() {
 		boolean block;
 		Mass actual;
-		double value;
 		Mass expected;
 		try {
 			actual = scale.getCurrentMassOnTheScale();
-			value = order.getTotalWeightInGrams();
 			expected = new Mass(value);
 			
 			block = !expected.equals(actual);
@@ -81,7 +73,6 @@ public class WeightDiscrepancy extends ElectronicScale{
      * @return True if item has been removed (new weight is less). False otherwise.
      */
 	public boolean checkRemoval() {
-		double value = order.getTotalWeightInGrams();
 		Mass currentWeight = new Mass(value);
 		if (currentWeight.compareTo(weightAtBlock) < 0) {
 			return true;
@@ -97,7 +88,6 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if a weight increase has not been detected, therefore item not added to bagging area. 
 	 */
 	public boolean checkBaggageAddition() {
-		double value = order.getTotalWeightInGrams();
 		Mass currentWeight = new Mass(value);
 		if(currentWeight.compareTo(weightAtBlock) > 0) {
 			return true;
@@ -114,8 +104,11 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if the weight has not changed since block time 
 	 */
 	public boolean checkWeightChange() {
+<<<<<<< HEAD
 		double value = order.getTotalWeightInGrams();
 		value = value * 1000000; 
+=======
+>>>>>>> branch 'weightDiscrepancy' of https://github.com/abodthedude25/SENG-300-Project-1.git
 		Mass currentWeight = new Mass(value);
 		if(currentWeight != weightAtBlock) {
 			return true;
