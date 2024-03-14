@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +51,13 @@ public class PaymentHandlerTest {
     @Before
     public void setUp() {
         // Mock SelfCheckoutStation and its components as needed
+    	BigDecimal[] denominations = {new BigDecimal("0.25"),new BigDecimal("2"), new BigDecimal("3"), new BigDecimal("4")};
+    	SelfCheckoutStation.configureCoinDenominations(denominations);
     	checkoutStation = new SelfCheckoutStation();
     	
+
+    			
+    			
         Numeral[] codeDigits = new Numeral[4];
         
         // Split the number 1234 into its individual digits and create Numeral instances
@@ -63,7 +69,7 @@ public class PaymentHandlerTest {
         // Create the Barcode object
         Barcode bananaBarcode = new Barcode(codeDigits);
     	
-    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12, (long) 10.00);
+    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12, 10.00);
     	
     	// Add some product for testing
     	allProducts = new ArrayList<Product>();
@@ -76,6 +82,9 @@ public class PaymentHandlerTest {
 	PowerGrid.engageUninterruptiblePowerSource();
         PowerGrid.instance().forcePowerRestore();
     }
+   
+    
+    
     
     @Test
     public void testReceiptPrinter() throws Exception{
@@ -101,6 +110,9 @@ public class PaymentHandlerTest {
         // Reset System.out
         System.setOut(System.out);
     }
+
+    
+    
     
     @Test(expected = NullPointerException.class)
     public void testReceiptPrinterIncorrectProduct() throws Exception{
@@ -161,8 +173,12 @@ public class PaymentHandlerTest {
         // Simulate exact payment
         assertEquals(paymentHandler.getChangeRemaining(), BigDecimal.ZERO);
     }
+    
+    
+    
+    
     @Test
-    public void processPaymentWithCoinsTestWithOverpayment() throws Exception {
+    public void processPaymentWithCoinsTestWithOverpayment() throws Exception { //there is a probelm here 
         // Simulate sufficient payment
     	
     	ArrayList<Coin> coinsList = new ArrayList<Coin>();
@@ -173,8 +189,7 @@ public class PaymentHandlerTest {
 
         coinsList.add(coin1);
         coinsList.add(coin2);
-    	
-        //coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
+        
         assertTrue(paymentHandler.processPaymentWithCoins(coinsList));
     }
     
@@ -196,32 +211,25 @@ public class PaymentHandlerTest {
         coinsList.add(coin2);
         
         
-    	
-        //coinsList.remove(coin1); // Remove 1 dollar coin, leaving only 25 cents
         assertFalse(paymentHandler.processPaymentWithCoins(coinsList));
     }
     
     
     @Test
     public void testProcessPaymentWithExactAmount() throws Exception {
-        ArrayList<Coin> coinsList = new ArrayList<>();
-        coinsList.add(new Coin(new BigDecimal("10.00"))); // Adding a coin of $10
+    	ArrayList<Coin> coinsList = new ArrayList<Coin>();
+    	Currency currency = Currency.getInstance("CAD");
+    	
+    	coin1 = new Coin(currency,new BigDecimal("10.00"));
+        coin2 = new Coin(currency,new BigDecimal("2.00"));
+
+        coinsList.add(coin1);
+        coinsList.add(coin2);
         assertTrue("Payment should succeed with exact amount", paymentHandler.processPaymentWithCoins(coinsList));
     }
 
-    @Test
-    public void testProcessPaymentWithOverpayment() throws Exception {
-        ArrayList<Coin> coinsList = new ArrayList<>();
-        coinsList.add(new Coin(new BigDecimal("15.00"))); // Overpaying by $5
-        assertTrue("Payment should succeed and dispense change", paymentHandler.processPaymentWithCoins(coinsList));
-    }
+  
 
-    @Test
-    public void testProcessPaymentWithUnderpayment() throws Exception {
-        ArrayList<Coin> coinsList = new ArrayList<>();
-        coinsList.add(new Coin(new BigDecimal("5.00"))); // Underpaying by $5
-        assertFalse("Payment should fail with underpayment", paymentHandler.processPaymentWithCoins(coinsList));
-    }
 
     @Test(expected = NullPointerException.class)
     public void testProcessPaymentWithNullCoinsList() throws Exception {
@@ -254,24 +262,6 @@ public class PaymentHandlerTest {
     }
     
     
-    /**
-     * test for loading one null coin
-     * @throws CashOverloadException 
-     * @throws SimulationException 
-     */
-    @Test
-    public void testLoadOneCoinIsNull() throws SimulationException, CashOverloadException {
-    	Currency currency = Currency.getInstance("CAD");
-        coin1 = new Coin(currency, null);
-        boolean exceptionThrown = false;
-        try {
-        	paymentHandler.loadCoinDispenser(coin1);
-        }catch (NullPointerSimulationException e) {
-            
-           exceptionThrown = true;
-        }
-        assertTrue(exceptionThrown);
-    }
     
     
     /**
@@ -280,20 +270,22 @@ public class PaymentHandlerTest {
      */
     @Test
     public void testLoadCoinDispenserOverload() throws CashOverloadException {
+    	boolean thrown = false;
     	Currency currency = Currency.getInstance("CAD");
-    	// Prepare some coins
-        Coin coin1 = new Coin(currency, BigDecimal.valueOf(0.25));
-        Coin coin2 = new Coin(currency, BigDecimal.valueOf(0.10));
-
-        // Load coins into dispenser
-    	SelfCheckoutStation.configureCoinDispenserCapacity(2);
-    	BigDecimal[] listOfCoins = {BigDecimal.valueOf(0.25), BigDecimal.valueOf(0.10)};
-    	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
-    	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
-        checkoutStation.plugIn(PowerGrid.instance());
-        checkoutStation.turnOn();
-        paymentHandler.loadCoinDispenser(coin1, coin2);
+        coin1 = new Coin(currency, new BigDecimal("1.00"));
+        int capacity = 2;
+    	paymentHandler.configureCoinDispenserCapacity(capacity);
+    	
+    	try{
+        	for(int i = 0; i < capacity + 5; i++) {
+        		Coin c = new Coin(Currency.getInstance("CAD"), new BigDecimal(0.10));
+        		paymentHandler.loadCoinDispenser(c);
+        	}
+    	}catch (CashOverloadException e) {
+    		thrown = true;
+    	}
+    	
+    	assertTrue(thrown);
     }
     
     

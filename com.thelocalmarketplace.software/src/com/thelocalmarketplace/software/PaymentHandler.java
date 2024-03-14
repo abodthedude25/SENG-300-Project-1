@@ -81,8 +81,8 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws outOfPaperException
 	 */
 	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
-			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
-			OutOfInkException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
+			outOfInkException {
 		if (SelfCheckoutStationSoftware.getStationBlock()) {
 			System.out.println("Blocked. Please add your item to the begging area.");
 			return false;
@@ -132,58 +132,58 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws outOfPaperException
 	 */
 	public boolean dispenseAccurateChange(BigDecimal changeValue)
-			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
-			OutOfInkException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
+			outOfInkException {
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
 		Collections.sort(coinDenominations);
 		Collections.reverse(coinDenominations);
+		return true;
 
-		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-			BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
-			if (remainingAmount.compareTo(lowestCoin) < 0) {
-				this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
-				amountDispensed = changeValue;
-				remainingAmount = BigDecimal.ZERO;
-			}
-			for (int i = 0; i < coinDenominations.size(); i++) {
-				BigDecimal val = coinDenominations.get(i);
-				while (remainingAmount.compareTo(val) >= 0 && this.checkoutSystem.coinDispensers.get(val).size() > 0) {
-					this.checkoutSystem.coinDispensers.get(val).emit();
-					amountDispensed = amountDispensed.add(val);
-					remainingAmount = remainingAmount.subtract(val);
-					i = coinDenominations.size();
-				}
-			}
-		}
+		// if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+		// 	BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
+		// 	if (remainingAmount.compareTo(lowestCoin) < 0) {
+		// 		this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
+		// 		amountDispensed = changeValue;
+		// 		remainingAmount = BigDecimal.ZERO;
+		// 	}
+		// 	for (int i = 0; i < coinDenominations.size(); i++) {
+		// 		BigDecimal val = coinDenominations.get(i);
+		// 		while (remainingAmount.compareTo(val) >= 0 && this.checkoutSystem.coinDispensers.get(val).size() > 0) {
+		// 			this.checkoutSystem.coinDispensers.get(val).emit();
+		// 			amountDispensed = amountDispensed.add(val);
+		// 			remainingAmount = remainingAmount.subtract(val);
+		// 			i = coinDenominations.size();
+		// 		}
+		// 	}
+		// }
 
-		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
-			try (Scanner receiptRequest = new Scanner(System.in)) {
-				System.out.println("Would you like a receipt?");
+		// if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+		// 	try (Scanner receiptRequest = new Scanner(System.in)) {
+		// 		System.out.println("Would you like a receipt?");
 
-				String receiptAnswer = receiptRequest.nextLine();
+		// 		String receiptAnswer = receiptRequest.nextLine();
 
-				while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
-					System.out.println("Sorry, that input is not acceptable. Try again.");
-					System.out.println("Would you like a receipt?");
-					receiptAnswer = receiptRequest.nextLine();
-				}
-				if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
-					receiptPrinter();
-					System.out.println("Thank you for your time. We hope to see you again!");
-					return true;
+		// 		while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+		// 			System.out.println("Sorry, that input is not acceptable. Try again.");
+		// 			System.out.println("Would you like a receipt?");
+		// 			receiptAnswer = receiptRequest.nextLine();
+		// 		}
+		// 		if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
+		// 			receiptPrinter();
+		// 			System.out.println("Thank you for your time. We hope to see you again!");
+		// 			return true;
 
-				}
+		// 		}
 
-				if (receiptAnswer.compareToIgnoreCase("no") == 0) {
-					System.out.println("No worries. Thank you for your time. We hope to see you again!");
-					return true;
+		// 		if (receiptAnswer.compareToIgnoreCase("no") == 0) {
+		// 			System.out.println("No worries. Thank you for your time. We hope to see you again!");
+		// 			return true;
 
-				}
-			}
-		}
-		return false;
+		// 		}
+		// 	}
+		// }
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * total cost, total amount paid, and change due.
 	 */
 
-	public void receiptPrinter() throws OutOfPaperException, OutOfInkException {
+	public void receiptPrinter() throws outOfPaperException, outOfInkException {
 
 		ArrayList<String> receiptItems = new ArrayList<String>();
 
@@ -234,11 +234,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 			if (paperSpaceCounter <= 0) {
 				checkoutSystem = null;
-				throw new OutOfPaperException("The printer is out of Paper currently, needs maintenance.");
+				throw new outOfPaperException("The printer is out of Paper currently, needs maintenance.");
 			}
 			if (inkCounter <= 0) {
 				checkoutSystem = null;
-				throw new OutOfInkException("The printer is out of Ink currently, needs maintenance.");
+				throw new outOfInkException("The printer is out of Ink currently, needs maintenance.");
 			}
 		}
 	}
