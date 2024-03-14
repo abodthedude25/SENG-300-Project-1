@@ -5,6 +5,7 @@ import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.ElectronicScale;
+import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
@@ -32,6 +33,15 @@ public class Order {
 		this.totalPrice = 0;
 		this.scale = scale; 
 		this.weightDiscrepancy = new WeightDiscrepancy(this, scale); 
+	}
+
+	public Order() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public Order(ArrayList<Item> items) {
+		// TODO Auto-generated constructor stub			// newly added
 	}
 
 	/**
@@ -125,4 +135,6 @@ public class Order {
 
 		WeightDiscrepancy.unBlock(); // Checks for a weight discrepancy, if none, it unblocks the system
 	}
+	
+	
 }

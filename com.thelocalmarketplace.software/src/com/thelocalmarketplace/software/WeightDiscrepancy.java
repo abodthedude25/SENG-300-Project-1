@@ -34,11 +34,16 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * Constructor for order
 	 * @throws OverloadedDevice 
 	 */
-	public WeightDiscrepancy(Order order, ElectronicScale scale) throws OverloadedDevice {
+	public WeightDiscrepancy(Order order, ElectronicScale scale) {  // revised some code for the demo class 
 		this.items = order.getOrder();
-		this.scale = scale;
-		this.weightAtBlock = scale.getCurrentMassOnTheScale();
-		this.value = order.getTotalWeightInGrams() * 1_000_000;
+	    this.scale = scale;
+	    try {
+	        this.weightAtBlock = scale.getCurrentMassOnTheScale();
+	        this.value = order.getTotalWeightInGrams() * 1_000_000;
+	    } catch (OverloadedDevice e) {
+	        // Handle the exception accordingly, such as logging or throwing a runtime exception
+	        throw new RuntimeException("Failed to initialize WeightDiscrepancy: " + e.getMessage());
+	    }
 	}
 	
 	/**
