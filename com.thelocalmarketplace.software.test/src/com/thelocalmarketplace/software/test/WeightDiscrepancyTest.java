@@ -16,5 +16,21 @@ public class WeightDiscrepancyTest {
 	private mockScale mockScale;
 	
 	@Before
+	public void setUp() throws OverloadedDevice {
+        mockOrder = new MockOrder();
+        mockScale = new MockElectronicScale();
+        weightDiscrepancy = new WeightDiscrepancy(mockOrder, mockScale);
+        testsoftware = new SelfCheckoutStationSoftware();
+        orderr = new Order();
+
+    }
+	
+	
+	class MockItem extends Item {
+        public MockItem(Mass mass) {
+            super(mass);
+        }
+    }
 	
 }
+
