@@ -50,10 +50,10 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 		// if the software is not blocked, block it.
 		if(!SelfCheckoutStationSoftware.isBlocked()) {
 			SelfCheckoutStationSoftware.setStationBlock(true);
+			
+			// add the item to the order, the software will be blocked at this point
+			order.addItemViaBarcodeScan(barcode);
 		}
-
-		// add the item to the order, the software will be blocked at this point
-		order.addItemViaBarcodeScan(barcode);
 
 		// unblock the software
 		SelfCheckoutStationSoftware.setStationBlock(false);
