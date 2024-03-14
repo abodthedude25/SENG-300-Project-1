@@ -37,33 +37,18 @@ public class WeightDiscrepancyTest {
 	public void setUp() throws OverloadedDevice {
 
 	        scale = new ElectronicScale();
-
 	        PowerGrid grid = PowerGrid.instance();
-
 	        scale.plugIn(grid);
-
 	        scale.turnOn();
-
 	        scale.enable();
-
 	        order = new Order(scale);
-
-	        
-
-	        weightDiscrepancy = new WeightDiscrepancy(order, scale); 
-
-
-
-	        
+	        weightDiscrepancy = new WeightDiscrepancy(order, scale);         
 
     }
     
     class MockItem extends Item {
-
         public MockItem(Mass mass) {
-
             super(mass);
-
         }
 
     }
@@ -71,13 +56,28 @@ public class WeightDiscrepancyTest {
     
    
     
-    
     @Test
-    public void foo() {
-    	
+    public void checkWeightChangeTestTrue(){
+       
+        Mass mass1 = new Mass(500);
+        MockItem item1 = new MockItem(mass1); 
+        order.addItemToOrder(item1);
+        order.addTotalWeightInGrams(5);
+        assertTrue(weightDiscrepancy.checkWeightChange());    
     }
-  
     
+	@Test
+    public void checkWeightChangeTestFalse() throws Exception{
+       
+    	order.addTotalWeightInGrams(0.5);  //order.getTotalWeightInGrams();
+    	
+        Mass mass1 = new Mass(500000);
+        MockItem item1 = new MockItem(mass1); 
+       scale.addAnItem(item1); // scale.getCurrentMassOnTheScale() = 500 000 mcg
+        assertFalse(weightDiscrepancy.checkWeightChange());    
+//        assertEquals(mockScale.getCurrentMassOnTheScale(), mockOrder.getTotalWeightInGrams());
+        
+    } 
     
     
 
