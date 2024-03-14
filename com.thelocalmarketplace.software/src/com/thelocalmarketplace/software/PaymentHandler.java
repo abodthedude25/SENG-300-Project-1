@@ -77,12 +77,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws CashOverloadException    If the cash storage is overloaded.
 	 * @throws NoCashAvailableException If no cash is available for dispensing
 	 *                                  change.
-	 * @throws outOfInkException
+	 * @throws OutOfInkException
 	 * @throws outOfPaperException
 	 */
 	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
-			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
-			outOfInkException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
+			OutOfInkException {
 		if (SelfCheckoutStationSoftware.getStationBlock()) {
 			System.out.println("Blocked. Please add your item to the begging area.");
 			return false;
@@ -128,12 +128,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * @throws CashOverloadException    If the cash storage is overloaded.
 	 * @throws NoCashAvailableException If no cash is available for dispensing
 	 *                                  change.
-	 * @throws outOfInkException
+	 * @throws OutOfInkException
 	 * @throws outOfPaperException
 	 */
 	public boolean dispenseAccurateChange(BigDecimal changeValue)
-			throws DisabledException, CashOverloadException, NoCashAvailableException, outOfPaperException,
-			outOfInkException {
+			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
+			OutOfInkException {
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
@@ -191,7 +191,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * total cost, total amount paid, and change due.
 	 */
 
-	public void receiptPrinter() throws outOfPaperException, outOfInkException {
+	public void receiptPrinter() throws OutOfPaperException, OutOfInkException {
 
 		ArrayList<String> receiptItems = new ArrayList<String>();
 
@@ -234,11 +234,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 			if (paperSpaceCounter <= 0) {
 				checkoutSystem = null;
-				throw new outOfPaperException("The printer is out of Paper currently, needs maintenance.");
+				throw new OutOfPaperException("The printer is out of Paper currently, needs maintenance.");
 			}
 			if (inkCounter <= 0) {
 				checkoutSystem = null;
-				throw new outOfInkException("The printer is out of Ink currently, needs maintenance.");
+				throw new OutOfInkException("The printer is out of Ink currently, needs maintenance.");
 			}
 		}
 	}
