@@ -67,7 +67,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 		}
 	}
 	
-	public void unBlock() {
+	public static void unBlock() {
 		Mass actual;
 		Mass expected;
 		try {
