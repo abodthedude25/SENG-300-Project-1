@@ -26,11 +26,11 @@ public class Order {
      * Constructs an empty order.
      * @throws OverloadedDevice 
      */
-    public Order() throws OverloadedDevice {
+    public Order(ElectronicScale scale) throws OverloadedDevice {
         this.order = new ArrayList<Item>();
         this.totalWeight = 0;
         this.totalPrice = 0;
-        this.scale = new ElectronicScale();
+        this.scale = scale;
         this.weightDiscrepancy = new WeightDiscrepancy(this, scale);
     }
 

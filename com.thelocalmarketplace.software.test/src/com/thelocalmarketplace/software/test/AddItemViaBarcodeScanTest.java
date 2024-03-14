@@ -7,7 +7,6 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +22,15 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItemViaBarcodeScan;
 import com.thelocalmarketplace.software.BaggingAreaListener;
 import com.thelocalmarketplace.software.Order;
+import com.thelocalmarketplace.software.WeightDiscrepancy;
+
 import powerutility.PowerGrid;
 
 public class AddItemViaBarcodeScanTest {
 	PowerGrid grid;
 	BarcodeScanner scanner;
 	ElectronicScale baggingArea;
+	WeightDiscrepancy weightDiscrepancy;
 	BarcodedItem barcodedItem;
 	BarcodedProduct barcodedProduct;
 	AddItemViaBarcodeScan testBarcodeItemAdder;
@@ -68,7 +70,10 @@ public class AddItemViaBarcodeScanTest {
 		ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcode, barcodedProduct);
 
 		// Initializing testOrder
-		testOrder = new Order();
+		testOrder = new Order(baggingArea);
+		
+		// Initializing weightDiscrepancy
+		weightDiscrepancy = new WeightDiscrepancy(testOrder, baggingArea);
 
 		// Initializing testBarcodeItemAdder and making it listen to the scanner object
 		testBarcodeItemAdder = new AddItemViaBarcodeScan(testOrder);
