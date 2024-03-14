@@ -89,6 +89,17 @@ public class AddItemViaBarcodeScanTest {
 		// work in progress
 		scanner.scan(barcodedItem);
 	}
+	
+	@Test
+	public void testProductLookupInDatabase(){
+		BarcodedProduct foundProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcodedItem.getBarcode());
+		assertNotNull("Product should be found in the database", foundProduct);
+		assertEquals("Found product should match the test product that we created", barcodedProduct, foundProduct);
+		
+		
+	}
+	
+
 
 	@After
 	public void tearDown() {
