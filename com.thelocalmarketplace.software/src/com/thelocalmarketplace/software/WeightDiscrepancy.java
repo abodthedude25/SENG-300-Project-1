@@ -27,7 +27,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
 	/**
 	 * Constructor for order
-	 * @throws OverloadedDevice 
+	 * @throws OverloadedDevice  
 	 */
 	public WeightDiscrepancy(Order order, ElectronicScale scale) throws OverloadedDevice {
 		this.order = order;
@@ -115,6 +115,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 */
 	public boolean checkWeightChange() {
 		double value = order.getTotalWeightInGrams();
+		value = value * 1000000; 
 		Mass currentWeight = new Mass(value);
 		if(currentWeight != weightAtBlock) {
 			return true;
@@ -133,6 +134,12 @@ public class WeightDiscrepancy extends ElectronicScale{
 		super.notifyMassChanged();
 		checkDiscrepancy();
 	}
+	
+	public Mass getWeightAtBlock() throws OverloadedDevice {
+		Mass test = scale.getCurrentMassOnTheScale();
+		return test;
+	}
+	
 }
 
 
