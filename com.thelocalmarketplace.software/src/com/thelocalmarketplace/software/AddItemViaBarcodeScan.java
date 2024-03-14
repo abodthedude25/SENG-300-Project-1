@@ -6,12 +6,8 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 
-public class AddItemViaBarcodeScan implements BarcodeScannerListener {
-	// THIS IS A LISTENER, basically when the scan event happens, it calls the
-	// Order.java class' method to addItemViaBarcodeScan();
-	
+public class AddItemViaBarcodeScan implements BarcodeScannerListener {	
 	private Order order;
-	private SelfCheckoutStationSoftware software;
 	
 	/**
 	 * Constructor for order
@@ -19,6 +15,7 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 	public AddItemViaBarcodeScan(Order order) {
 		this.order = order;
 	}
+	
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
 		// TODO Auto-generated method stub
@@ -43,22 +40,22 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 		
 	}
 
+	/**
+	 * When a barcode is scanned, the item is added to the order
+	 * @param barcodeScanner
+	 * @param barcode
+	 */
 	@Override
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
-		// TODO Auto-generated method stub
-		// this is the method where we should call the method in Order.java addItemViaBarcodeScan()
-		// and do all the checks or whatever
-		
-		// detects barcode
-		if(!software.getStationBlock()) {
-			// block it?
-			software.setStationBlock(true);
-		};
-		
-		// do the other stuff
-		
-		if(software.getStationBlock()) {
-			software.setStationBlock(false);
+		// if the software is not blocked, block it.
+		if(!SelfCheckoutStationSoftware.isBlocked()) {
+			SelfCheckoutStationSoftware.setStationBlock(true);
 		}
+
+		// add the item to the order, the software will be blocked at this point
+		order.addItemViaBarcodeScan(barcode);
+
+		// unblock the software
+		SelfCheckoutStationSoftware.setStationBlock(false);
 	}
 }
