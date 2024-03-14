@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.ElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScanner;
@@ -35,7 +36,7 @@ public class AddItemViaBarcodeScanTest {
 	BaggingAreaListener testBaggingAreaListener;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws OverloadedDevice {
 		// Make a power grid for hardware to connect to
 		grid = PowerGrid.instance();
 
