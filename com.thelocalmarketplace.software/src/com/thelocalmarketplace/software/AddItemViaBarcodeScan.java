@@ -48,7 +48,7 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 	@Override
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 		// if the software is not blocked, block it.
-		if(!SelfCheckoutStationSoftware.isBlocked()) {
+		if(!SelfCheckoutStationSoftware.getStationBlock()) {
 			SelfCheckoutStationSoftware.setStationBlock(true);
 			
 			// add the item to the order, the software will be blocked at this point
