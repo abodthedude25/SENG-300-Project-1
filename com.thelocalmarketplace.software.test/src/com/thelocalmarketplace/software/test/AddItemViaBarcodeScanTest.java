@@ -7,9 +7,11 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.*;
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
@@ -22,6 +24,7 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItemViaBarcodeScan;
 import com.thelocalmarketplace.software.BaggingAreaListener;
 import com.thelocalmarketplace.software.Order;
+import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.WeightDiscrepancy;
 
 import powerutility.PowerGrid;
