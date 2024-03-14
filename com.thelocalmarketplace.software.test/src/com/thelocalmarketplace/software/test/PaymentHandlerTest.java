@@ -1,11 +1,11 @@
-
-/*
-<<<<<<< Upstream, based on branch 'main' of https://github.com/abodthedude25/SENG-300-Project-1.git
+/**
  * Mahfuz Alam : 30142265
  * Lilia Skumatova : 30187339
  * Mahfuz Alam : 30142265
  * Abdelrahman Abbas (UCID: 30110374)
  */
+package com.thelocalmarketplace.software.test;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,7 +34,6 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 import com.thelocalmarketplace.software.PaymentHandler;
 import com.thelocalmarketplace.software.outOfInkException;
 import com.thelocalmarketplace.software.outOfPaperException;
-import com.thelocalmarketplace.software.test.emptyProdcutStub;
 
 import ca.ucalgary.seng300.simulation.SimulationException;
 
