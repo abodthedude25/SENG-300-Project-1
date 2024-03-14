@@ -6,7 +6,7 @@ import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 public class BaggingAreaListener implements ElectronicScaleListener {
-	// This is a listener for the bagging area
+	// This is a listener for the bagging area.
 
 	private Order order;
 
