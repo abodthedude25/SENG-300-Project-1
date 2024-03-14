@@ -5,7 +5,13 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jjjwelectronics.Item;
+import com.jjjwelectronics.Mass;
+import com.jjjwelectronics.OverloadedDevice;
+import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.WeightDiscrepancy;
+
+import powerutility.PowerGrid;
 
 
 
@@ -17,12 +23,13 @@ public class WeightDiscrepancyTest {
 	
 	@Before
 	public void setUp() throws OverloadedDevice {
-        mockOrder = new MockOrder();
-        mockScale = new MockElectronicScale();
-        weightDiscrepancy = new WeightDiscrepancy(mockOrder, mockScale);
-        testsoftware = new SelfCheckoutStationSoftware();
-        orderr = new Order();
-
+	       mockOrder = new mockOrder();
+	        mockScale = new mockScale();
+	        weightDiscrepancy = new WeightDiscrepancy(mockOrder, mockScale);
+	        PowerGrid powerGrid = PowerGrid.instance();
+	        weightDiscrepancy.plugIn(powerGrid);
+	        weightDiscrepancy.turnOn();
+	        weightDiscrepancy.enable();
     }
 	
 	
