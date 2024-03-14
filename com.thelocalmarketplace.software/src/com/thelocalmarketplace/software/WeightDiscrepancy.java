@@ -1,6 +1,7 @@
 /**
  * Tara Ghasemi M. Rad (UCID: 30171212)
  * Izabella Mawani (UCID: 30179738)
+ * Emily Garcia-Volk (UCID: 30140791)
 */
 package com.thelocalmarketplace.software;
 
@@ -20,7 +21,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	
     /**
      // Records weight at time of discrepancy before block
-     // Added weightAtBlcok to constructor instead
+     // Added weightAtBlock to constructor instead
    
 	private void getWeightAtBlock() {
 		weightAtBlock = scale.getCurrentMassOnTheScale();
@@ -91,8 +92,9 @@ public class WeightDiscrepancy extends ElectronicScale{
     /**
      * Compares weight at block to current getWeight to check if an item has been removed.
      * 
-     * @return True if item has been removed (new weight is less). False otherwise.
-     */
+     * @return True if item has been removed (new weight is less). 
+     * @return Negative if weight decrease has not been detected
+     **/
 	public boolean checkRemoval() {
 		Mass currentWeight = new Mass(value);
 		if (currentWeight.compareTo(weightAtBlock) < 0) {
