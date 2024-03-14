@@ -1,11 +1,15 @@
 /**
  * Duncan McKay (UCID: 30177857)
+ * Mahfuz Alam (UCID:30142265)
+ * Luis Trigueros Granillo (UCID: 30167989)
+ * Lilia Skumatova (UCID: 30187339)
+ * Abdelrahman Abbas (UCID: 30110374)
  */
 
 package com.thelocalmarketplace.software;
 
 
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 
 
