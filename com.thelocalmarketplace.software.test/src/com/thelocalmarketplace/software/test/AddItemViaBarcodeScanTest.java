@@ -99,7 +99,15 @@ public class AddItemViaBarcodeScanTest {
 		
 	}
 	
-
+	@Test
+	public void testABarcodeHasBeenScannedWhenBlocked() {
+		SelfCheckoutStationSoftware.setStationBlock(true);
+		scanner.scan(barcodedItem);
+		
+		// Item should NOT be added to the order
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+	}
 
 	@After
 	public void tearDown() {
