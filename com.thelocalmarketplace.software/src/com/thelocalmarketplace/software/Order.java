@@ -28,10 +28,10 @@ public class Order {
      */
     public Order(ElectronicScale scale) throws OverloadedDevice {
         this.order = new ArrayList<Item>();
-        this.totalWeight = 0;
+        this.totalWeight = 0; 
         this.totalPrice = 0;
-        this.scale = scale;
-        this.weightDiscrepancy = new WeightDiscrepancy(this, scale);
+        this.scale = scale; 
+        this.weightDiscrepancy = new WeightDiscrepancy(this, scale); 
     }
 
     /**
