@@ -322,6 +322,37 @@ public class PaymentHandlerTest {
     	
     }
 
+    @Test (expected = NullPointerSimulationException.class)
+    public void loadCoinDispenserTestWithNull() throws NullPointerSimulationException, CashOverloadException {
+        // Add coins to the coin storage unit before calling emptyCoinStorage()
+     
+        paymentHandler.loadCoinDispenser(null);
+   
+    	
+    }
     
+    @Test (expected = NullPointerSimulationException.class)
+    public void loadCoinDispenserTestWithNullCoin() throws NullPointerSimulationException, CashOverloadException {
+        // Add coins to the coin storage unit before calling emptyCoinStorage()
+    	Currency currency = Currency.getInstance("CAD");
+        coin1 = new Coin(currency, new BigDecimal("1.00"));
+        coin2 = new Coin(currency, new BigDecimal("2.00"));
+        Coin coin3 = null;
+        paymentHandler.loadCoinDispenser(coin3,coin1,coin2);
+    }
+   
+    @Test 
+    public void loadCoinDispenserTest() throws NullPointerSimulationException, CashOverloadException {
+        // Add coins to the coin storage unit before calling emptyCoinStorage()
+    	Currency currency = Currency.getInstance("CAD");
+        coin1 = new Coin(currency, new BigDecimal("1.00"));
+        coin2 = new Coin(currency, new BigDecimal("2.00"));
+        checkoutStation.plugIn(PowerGrid.instance());
+        checkoutStation.turnOn();
+        
+        paymentHandler.loadCoinDispenser(coin1,coin2);
+    }
+
+	
     
 }
