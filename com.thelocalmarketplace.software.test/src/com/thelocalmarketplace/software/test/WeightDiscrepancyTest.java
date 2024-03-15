@@ -309,7 +309,108 @@ public class WeightDiscrepancyTest {
         assertTrue(weightDiscrepancy.checkRemoval());
         
     	}
+    @Test
+    public void testCheckbaggage_greaterthan() throws Exception {
+        
+  	   scale5 = new mockScale();
+         PowerGrid grid = PowerGrid.instance();
+         scale5.plugIn(grid);
+         scale5.turnOn();
+         scale5.enable();
+         
+         Mass mass1 = new Mass(3000000);
+         MockItem item1 = new MockItem(mass1); 
+         scale5.addAnItem(item1); 
+         order5 = new Order(scale5);
+        
+         
+         order5.addTotalWeightInGrams(5);  
+       
+         weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
+         
+        assertTrue(weightDiscrepancy.checkBaggageAddition()); 
+    }  
     
+    
+    @Test
+    public void testCheckbaggage_lessthan() {
+   
+        MockItem item1 = new MockItem(new Mass(1000));
+        MockItem item2 = new MockItem(new Mass(10));
+        MockItem item3 = new MockItem(new Mass(60));
+        
+        order.addItemToOrder(item1); 
+        order.addItemToOrder(item2);
+        order.addItemToOrder(item3);
+        
+        scale.addAnItem(item1);
+    
+        weightDiscrepancy.checkBaggageAddition();
+        assertFalse(weightDiscrepancy.checkBaggageAddition());       
+        
+    }  
+    
+
+    
+    @Test
+    public void checkWeightChangeTestTrue() throws Exception{
+  	   scale5 = new mockScale();
+         PowerGrid grid = PowerGrid.instance();
+         scale5.plugIn(grid);
+         scale5.turnOn();
+         scale5.enable();
+         
+         Mass mass1 = new Mass(5000000);
+         MockItem item1 = new MockItem(mass1); 
+         scale5.addAnItem(item1); 
+         order5 = new Order(scale5);
+        
+         
+         order5.addTotalWeightInGrams(3);  
+       
+         weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
+        assertTrue(weightDiscrepancy.checkWeightChange());    
+    }
+    
+  	@Test
+    public void checkWeightChangeTestFalse() throws Exception{
+        
+        scale5 = new mockScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale5.plugIn(grid);
+        scale5.turnOn();
+        scale5.enable();
+        
+        Mass mass1 = new Mass(5000000);
+        MockItem item1 = new MockItem(mass1); 
+        scale5.addAnItem(item1); 
+        order5 = new Order(scale5);
+       
+        
+        order5.addTotalWeightInGrams(5);  
+      
+        weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
+        
+        
+        assertFalse(weightDiscrepancy.checkWeightChange());    
+        
+    } 
+
+  	
+
+
+  	// mass changes and session is not blocked
+  	@Test
+  	public void notifymasschange_blocked() {
+  		MockItem item1 = new MockItem(new Mass(1000));
+  		order.addItemToOrder(item1); 
+        scale.addAnItem(item1);
+        weightDiscrepancy.notifyMassChanged();
+        
+  	} 
+    
+  	
+
     
  
 }
