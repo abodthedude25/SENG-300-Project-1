@@ -67,7 +67,7 @@ public class WeightDiscrepancyDemo {
             System.out.println("Weight changed: " + weightChanged);
 
             // Simulate unblocking
-            WeightDiscrepancy.unBlock();
+            WeightDiscrepancy.setStationBlock(true);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
