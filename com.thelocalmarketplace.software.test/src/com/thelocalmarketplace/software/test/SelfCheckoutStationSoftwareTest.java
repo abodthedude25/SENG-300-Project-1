@@ -46,7 +46,7 @@ public class SelfCheckoutStationSoftwareTest {
 	
 	@Test (expected = InvalidStateSimulationException.class)
 	public void testStartSessionActiveUsingSetter() {
-		software.setStationActive();
+		SelfCheckoutStationSoftware.setStationActive();
 		software.startSession();
 	}
 	
