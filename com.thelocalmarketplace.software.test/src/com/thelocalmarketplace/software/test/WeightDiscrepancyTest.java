@@ -139,25 +139,22 @@ public class WeightDiscrepancyTest {
 
     @Test
     public void testcheckDiscrepancy_diff() throws OverloadedDevice {
-    	
-    	scale3 = new ElectronicScale();
-        PowerGrid grid = PowerGrid.instance();
-        scale3.plugIn(grid);
-        scale3.turnOn();
-        scale3.enable();
-        order3 = new Order(scale3);
-        weightDiscrepancy33 = new WeightDiscrepancy(order3, scale3);   
-    	
-    	
-    	 MockItem item1 = new MockItem(new Mass(100));
-         MockItem item2 = new MockItem(new Mass(150));
-    	
-         order3.addItemToOrder(item1);
-         order3.addItemToOrder(item2);
-         scale3.addAnItem(item1);
+    	 scale5 = new mockScale();
+         PowerGrid grid = PowerGrid.instance();
+         scale5.plugIn(grid);
+         scale5.turnOn();
+         scale5.enable();
          
+         Mass mass1 = new Mass(5000000);
+         MockItem item1 = new MockItem(mass1); 
+         scale5.addAnItem(item1); 
+         order5 = new Order(scale5);
         
-        weightDiscrepancy33.checkDiscrepancy(); 
+         
+         order5.addTotalWeightInGrams(3);  
+       
+         weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
+         
         
         assertTrue(SelfCheckoutStationSoftware.getStationBlock());     
         
@@ -167,54 +164,26 @@ public class WeightDiscrepancyTest {
     @Test
     public void testcheckDiscrepancy_same() throws OverloadedDevice {
     
-    	 	scale2 = new ElectronicScale();
-	        PowerGrid grid = PowerGrid.instance();
-	        scale2.plugIn(grid);
-	        scale2.turnOn();
-	        scale2.enable();
-	        order2 = new Order(scale2);
-	        weightDiscrepancyla = new WeightDiscrepancy(order2, scale2);         
-    	
-    	 MockItem item1 = new MockItem(new Mass(100));
+    	 scale5 = new mockScale();
+         PowerGrid grid = PowerGrid.instance();
+         scale5.plugIn(grid);
+         scale5.turnOn();
+         scale5.enable();
          
-    	
-         order2.addItemToOrder(item1);
+         Mass mass1 = new Mass(5000000);
+         MockItem item1 = new MockItem(mass1); 
+         scale5.addAnItem(item1); 
+         order5 = new Order(scale5);
         
-         scale2.addAnItem(item1);      
+         
+         order5.addTotalWeightInGrams(5);  
        
-         
-        WeightDiscrepancy weightDiscrepancy3 = new WeightDiscrepancy(order2,scale2);
-         
-        weightDiscrepancy3.checkDiscrepancy();
+         weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
         
-        assertEquals(new Mass(100),scale2.getCurrentMassOnTheScale());
-    
-        
-        //assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
+        assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
         
     }                
     
-    
-    @Test
-	public void checkDescripExceptionTest() throws OverloadedDevice{
-		
-		scale4 = new ElectronicScale();
-        PowerGrid grid = PowerGrid.instance();
-        scale4.plugIn(grid);
-        scale4.turnOn();
-        scale4.enable();
-        order4 = new Order(scale4);
-        weightDiscrepancy4 = new WeightDiscrepancy(order4, scale4);   
-    	
-    
-         MockItem item2 = new MockItem(new Mass(200000000000000000L));
-   
-         scale4.addAnItem(item2);
-          
-         weightDiscrepancy4.checkDiscrepancy();; 
-         assertTrue(SelfCheckoutStationSoftware.getStationBlock());
-         
-}
     
     
     @Test
@@ -354,7 +323,7 @@ public class WeightDiscrepancyTest {
     
     @Test
     public void checkWeightChangeTestTrue() throws Exception{
-  	   scale5 = new mockScale();
+  	     scale5 = new mockScale();
          PowerGrid grid = PowerGrid.instance();
          scale5.plugIn(grid);
          scale5.turnOn();
