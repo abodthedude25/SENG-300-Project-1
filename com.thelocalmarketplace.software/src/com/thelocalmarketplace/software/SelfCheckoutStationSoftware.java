@@ -33,39 +33,39 @@ public class SelfCheckoutStationSoftware {
 	/**
 	 * Boolean variable that is used to track whether user interaction is blocked
 	 */
-	private static boolean blocked = false;
+	private boolean blocked = false;
 
 	/**
 	 * Boolean variable to track if a current session is active or not. 
 	 */
-	private static boolean active = false;
+	private boolean active = false;
 
 	/**
 	 * Set function to change the blocked variable value.
 	 * @param value The new value for station block status
 	 */
-	public static void setStationBlock(boolean value) {
+	public void setStationBlock(boolean value) {
 		blocked = value;
 	}
 
 	/**
 	 * Get function to get the blocked station status.
 	 */
-	public static boolean getStationBlock() {
+	public boolean getStationBlock() {
 		return blocked;
 	}
 	
 	/**
 	 * Set function to change the active variable value.
 	 */
-	public static void setStationActive() {
-		active = true;
+	public void setStationActive(boolean value) {
+		active = value;
 	}
 
 	/**
 	 * Get function to get the blocked station status.
 	 */
-	public static boolean getStationActive() {
+	public boolean getStationActive() {
 		return active;
 	}
 	
@@ -84,7 +84,9 @@ public class SelfCheckoutStationSoftware {
 		
 		// Prompt the user to touch anywhere to start and wait for an input.
 		System.out.println("Welcome to The Local Marketplace. Touch anywhere to start.");
-		scanner.nextLine(); // Obtain user input.
+		if (scanner.hasNextLine()) {
+			scanner.nextLine(); // Obtain user input.			
+		}
 
 		active = true; // Set the current session to active.
 		
