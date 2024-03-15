@@ -93,17 +93,12 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 */
 	public void checkDiscrepancy() {
 		boolean block;
-		Mass actual;
-		Mass expected;
-		try {
-			actual = scale.getCurrentMassOnTheScale();
-			expected = new Mass(value);
-			
-			block = !expected.equals(actual);
-			SelfCheckoutStationSoftware.setStationBlock(block);
-		} catch (OverloadedDevice e) {
-			SelfCheckoutStationSoftware.setStationBlock(true);
-		}
+		double actual;
+		double expected;
+		actual = weightAtBlockDouble;
+		expected = value;	
+		block = !(expected == actual);
+		SelfCheckoutStationSoftware.setStationBlock(block);
 	}
 	
 	public void unBlock() {
