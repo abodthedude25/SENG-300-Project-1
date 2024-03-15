@@ -21,7 +21,6 @@
  * Syed Haider (UCID: 30143096)
  * Nami Marwah (UCID: 30178528)
  */
-
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.assertEquals;
@@ -29,11 +28,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,42 +45,63 @@ import powerutility.NoPowerException;
 import powerutility.PowerGrid;
 
 
-public class WeightDiscrepancyTest {   
+public class WeightDiscrepancyTest {         
 	
 	private WeightDiscrepancy weightDiscrepancy;
 	private Order order;
 	private ElectronicScale scale;
+	private WeightDiscrepancy weightDiscrepancyla;
+	private Order order2;
+	private ElectronicScale scale2;
+	private WeightDiscrepancy weightDiscrepancy33;
+	private Order order3;
+	private ElectronicScale scale3;
+	
+     
      
     
 	@Before
 
-	public void setUp() throws OverloadedDevice {
-
+	public void setUp() throws OverloadedDevice {   
+		 	
+			
 	        scale = new ElectronicScale();
 	        PowerGrid grid = PowerGrid.instance();
 	        scale.plugIn(grid);
 	        scale.turnOn();
 	        scale.enable();
 	        order = new Order(scale);
-	        weightDiscrepancy = new WeightDiscrepancy(order, scale);         
+	        weightDiscrepancy = new WeightDiscrepancy(order, scale);     
+	          
 
     }
     
+	@After
+    public void tearDown() {
+        
+        // Unblock the system
+        SelfCheckoutStationSoftware.setStationBlock(false);
+    }
+	
+	  
+	
+	
     class MockItem extends Item {
         public MockItem(Mass mass) {
             super(mass);
         }
 
-    }
+    }   
     
+    
+
     
     @Test
     public void testUpdateMass_AddItemToOrder() throws OverloadedDevice {
-       
-        
-        MockItem item1 = new MockItem(new Mass(100));
-        MockItem item2 = new MockItem(new Mass(100));
-       
+         
+    	 MockItem item1 = new MockItem(new Mass(100));
+    	 MockItem item2 = new MockItem(new Mass(100));   
+    	    
         
         order.addItemToOrder(item1);
         order.addItemToOrder(item2);
@@ -97,37 +114,117 @@ public class WeightDiscrepancyTest {
 
         Mass expectedMass = new Mass(200);
  
+       
+        assertEquals(expectedMass, scale.getCurrentMassOnTheScale()); 
         
-        assertEquals(expectedMass, scale.getCurrentMassOnTheScale()); } 
-    
-    
-    
-    @Test
-    public void checkWeightChangeTestTrue(){
-       
-        Mass mass1 = new Mass(500);
-        MockItem item1 = new MockItem(mass1); 
-        order.addItemToOrder(item1);
-        order.addTotalWeightInGrams(5);
-        assertTrue(weightDiscrepancy.checkWeightChange());    
-    }
-    
-	@Test
-    public void checkWeightChangeTestFalse() throws Exception{
-       
-    	order.addTotalWeightInGrams(0.5);  //order.getTotalWeightInGrams();
-    	
-        Mass mass1 = new Mass(500000);
-        MockItem item1 = new MockItem(mass1); 
-       scale.addAnItem(item1); // scale.getCurrentMassOnTheScale() = 500 000 mcg
-        assertFalse(weightDiscrepancy.checkWeightChange());    
-//        assertEquals(mockScale.getCurrentMassOnTheScale(), mockOrder.getTotalWeightInGrams());
         
     } 
     
     
-
     
+    
+    
+
+    @Test
+    public void testcheckDiscrepancy_diff() throws OverloadedDevice {
+    	
+    	scale3 = new ElectronicScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale3.plugIn(grid);
+        scale3.turnOn();
+        scale3.enable();
+        order3 = new Order(scale3);
+        weightDiscrepancy33 = new WeightDiscrepancy(order3, scale3);   
+    	
+    	
+    	 MockItem item1 = new MockItem(new Mass(100));
+         MockItem item2 = new MockItem(new Mass(150));
+    	
+         order3.addItemToOrder(item1);
+         order3.addItemToOrder(item2);
+         scale3.addAnItem(item1);
+         
+        
+        weightDiscrepancy33.checkDiscrepancy(); 
+        
+        assertTrue(SelfCheckoutStationSoftware.getStationBlock());     
+        
+            }
+    
+    
+    @Test
+    public void testcheckDiscrepancy_same() throws OverloadedDevice {
+    
+    	 	scale2 = new ElectronicScale();
+	        PowerGrid grid = PowerGrid.instance();
+	        scale2.plugIn(grid);
+	        scale2.turnOn();
+	        scale2.enable();
+	        order2 = new Order(scale2);
+	        weightDiscrepancyla = new WeightDiscrepancy(order2, scale2);         
+    	
+    	 MockItem item1 = new MockItem(new Mass(100));
+         
+    	
+         order2.addItemToOrder(item1);
+        
+         scale2.addAnItem(item1);      
+       
+         
+        WeightDiscrepancy weightDiscrepancy3 = new WeightDiscrepancy(order2,scale2);
+         
+        weightDiscrepancy3.checkDiscrepancy();
+        
+        assertEquals(new Mass(100),scale2.getCurrentMassOnTheScale());
+        
+        
+        //assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
+        
+    }                
+    
+    
+    
+    
+    // weight at block - scale
+    // current weight - order
+    
+    
+    @Test
+    public void testCheckRemoval_greaterthan() throws OverloadedDevice {
+    	
+            
+        MockItem item1 = new MockItem(new Mass(100));
+        MockItem item2 = new MockItem(new Mass(1000));
+        MockItem item3 = new MockItem(new Mass(6000));
+        
+        order.addItemToOrder(item1); 
+        order.addItemToOrder(item2);
+        order.addItemToOrder(item3);
+        
+        scale.addAnItem(item1);
+            
+        
+        weightDiscrepancy.checkDiscrepancy(); 
+        
+        assertFalse(weightDiscrepancy.checkRemoval());    
+    }  
+
+ 
+    @Test
+    public void testCheckRemoval_lessthan() throws OverloadedDevice {
+        MockItem item1 = new MockItem(new Mass(1000));
+        MockItem item2 = new MockItem(new Mass(10));
+        MockItem item3 = new MockItem(new Mass(60));
+        
+        order.addItemToOrder(item1); 
+        order.addItemToOrder(item2);
+        order.addItemToOrder(item3);
+        
+        scale.addAnItem(item1);  
+        weightDiscrepancy.checkDiscrepancy();       
+        assertTrue(weightDiscrepancy.checkRemoval());      
+    }  
+  
     
     
     
