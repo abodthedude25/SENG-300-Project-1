@@ -35,11 +35,11 @@ public class Demo {
     
         SelfCheckoutStation station = new SelfCheckoutStation();
         ElectronicScaleWrapper scale = new ElectronicScaleWrapper(); 
+        
         try {
             Order order = new Order(scale); 
             AddItemViaBarcodeScan scannerListener = new AddItemViaBarcodeScan(order);
 
-       
             Numeral[] list = {Numeral.valueOf((byte)5), Numeral.valueOf((byte)5)};
             Numeral[] list1 = {Numeral.valueOf((byte)7), Numeral.valueOf((byte)4)};
             Barcode barcodeOfApple = new Barcode(list);
@@ -49,7 +49,6 @@ public class Demo {
             scannerListener.aBarcodeHasBeenScanned(null, barcodeOfApple);
             scannerListener.aBarcodeHasBeenScanned(null, barcodeOfBanana);
 
-     
             BaggingAreaListener baggingAreaListener = new BaggingAreaListener(order);
             scale.addElectronicScaleListener1(baggingAreaListener); 
 
