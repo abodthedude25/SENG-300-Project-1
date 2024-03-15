@@ -39,7 +39,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	    this.scale = scale;
 	    try {
 	        this.weightAtBlock = scale.getCurrentMassOnTheScale();
-	        this.value = order.getTotalWeightInGrams() * 1_000_000;
+	        this.value = order.getTotalWeightInGrams();
 	    } catch (OverloadedDevice e) {
 	        // Handle the exception accordingly, such as logging or throwing a runtime exception
 	        throw new RuntimeException("Failed to initialize WeightDiscrepancy: " + e.getMessage());
@@ -79,21 +79,30 @@ public class WeightDiscrepancy extends ElectronicScale{
 		}
 	}
 	
-	public static void unBlock() {
-		Mass actual;
-		Mass expected;
-		try {
-			actual = scale.getCurrentMassOnTheScale();
-			expected = new Mass(value);
-			
-			if (expected.equals(actual)) {
-				SelfCheckoutStationSoftware.setStationBlock(false);
-			}
-		} catch (OverloadedDevice e) {
-			SelfCheckoutStationSoftware.setStationBlock(true);
-		}
+	public void unBlock() {
+	    Mass actual;
+	    Mass expected;
+	    long tolerance;
+
+	    try {
+	        actual = scale.getCurrentMassOnTheScale();
+	        expected = new Mass(value);
+	        tolerance = scale.getSensitivityLimit().inMicrograms().longValue() / 2;
+
+	        long actualInMicrograms = actual.inMicrograms().longValue();
+	        long expectedInMicrograms = expected.inMicrograms().longValue();
+
+	        // Calculate the absolute difference and compare it with the tolerance
+	        long difference = Math.abs(actualInMicrograms - expectedInMicrograms);
+
+	        if (difference <= tolerance) {
+	            SelfCheckoutStationSoftware.setStationBlock(false);
+	        }
+	    } catch (OverloadedDevice e) {
+	        SelfCheckoutStationSoftware.setStationBlock(true);
+	    }
 	}
-	
+
     /**
      * Compares weight at block to current getWeight to check if an item has been removed.
      * 
