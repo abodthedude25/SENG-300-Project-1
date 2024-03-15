@@ -410,6 +410,12 @@ public class WeightDiscrepancyTest {
   	} 
     
   	
+  	@Test
+  	public void teststationblock() {
+  		weightDiscrepancy.setStationBlock(false);
+  		weightDiscrepancy.setStationBlock(true);
+  	}
+  	
 
     
  

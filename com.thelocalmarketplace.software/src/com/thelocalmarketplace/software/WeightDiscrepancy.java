@@ -184,6 +184,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 		checkDiscrepancy();
 	}
 
+	
 	public static void setStationBlock(boolean b) {
 		// TODO Auto-generated method stub
 		
