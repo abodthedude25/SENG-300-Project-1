@@ -24,8 +24,8 @@
 
 package com.thelocalmarketplace.software;
 
-public class outOfInkException extends Exception {
-    public outOfInkException(String inkErrorMessage){
+public class OutOfInkException extends Exception {
+    public OutOfInkException(String inkErrorMessage){
         super(inkErrorMessage);
     }
 

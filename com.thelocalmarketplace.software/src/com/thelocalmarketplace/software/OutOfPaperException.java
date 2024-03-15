@@ -24,8 +24,8 @@
 
 package com.thelocalmarketplace.software;
 
-public class outOfPaperException extends Exception {
-    public outOfPaperException(String paperErrorMessage) {
+public class OutOfPaperException extends Exception {
+    public OutOfPaperException(String paperErrorMessage) {
         super(paperErrorMessage);
     }
 
