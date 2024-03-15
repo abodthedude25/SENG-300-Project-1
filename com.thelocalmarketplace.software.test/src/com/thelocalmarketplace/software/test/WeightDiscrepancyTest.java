@@ -81,15 +81,6 @@ public class WeightDiscrepancyTest {
 
     }
 	
-
-    
-	@After
-    public void tearDown() {
-        
-        // Unblock the system
-        SelfCheckoutStationSoftware.setStationBlock(false);
-    }
-	
 	  
 	
 	// created mockitem class that extends Item class
@@ -151,10 +142,10 @@ public class WeightDiscrepancyTest {
          order5 = new Order(scale5);
         
          
-         order5.addTotalWeightInGrams(3);  
+         order5.addTotalWeightInGrams(2);  
        
          weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
-         
+         weightDiscrepancy.checkDiscrepancy();
         
         assertTrue(SelfCheckoutStationSoftware.getStationBlock());     
         
@@ -179,6 +170,7 @@ public class WeightDiscrepancyTest {
          order5.addTotalWeightInGrams(5);  
        
          weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
+    weightDiscrepancy.checkDiscrepancy();
         
         assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
         

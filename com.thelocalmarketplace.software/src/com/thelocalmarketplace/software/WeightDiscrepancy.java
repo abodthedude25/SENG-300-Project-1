@@ -95,11 +95,13 @@ public class WeightDiscrepancy extends ElectronicScale{
 		boolean block;
 		double actual;
 		double expected;
+
 		actual = weightAtBlockDouble;
 		expected = value;	
 		block = !(expected == actual);
 		SelfCheckoutStationSoftware.setStationBlock(block);
-	}
+		
+	} 
 	
 	public void unBlock() {
 	    Mass actual;
