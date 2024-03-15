@@ -166,6 +166,18 @@ public class AddItemViaBarcodeScanTest {
 		// System should not be blocked
 		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
 	}
+	@Test
+	public void testProductAddNullBarcodeToOrder() {
+		Numeral[] nonExistentBarcodeDigits = {Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven};
+		Barcode nonExistentBarcode = new Barcode(nonExistentBarcodeDigits);
+		Mass fakeMass = new Mass(1000000000); 
+		barcodedItem = new BarcodedItem(nonExistentBarcode, fakeMass);
+		scanner.scan(barcodedItem);
+		
+        	ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+		
+	}
 	
     @Test
     public void testAddItemToOrder() {
@@ -175,7 +187,7 @@ public class AddItemViaBarcodeScanTest {
         ArrayList<Item> order = testOrder.getOrder();
         assertTrue(!order.isEmpty());
     }
-    
+  
     @Test
     public void testGetOrderWhenEmpty() {
         ArrayList<Item> order = testOrder.getOrder();
