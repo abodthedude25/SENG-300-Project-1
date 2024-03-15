@@ -60,6 +60,9 @@ public class AddItemViaBarcodeScanTest {
 
 	@Before
 	public void setUp() throws OverloadedDevice {
+		// Start a new session
+		SelfCheckoutStationSoftware.setStationActive(true);
+		
 		// Make a power grid for hardware to connect to
 		grid = PowerGrid.instance();
 
@@ -151,6 +154,17 @@ public class AddItemViaBarcodeScanTest {
 	@Test
 	public void testABarcodeHasBeenScannedWhenBlocked() {
 		SelfCheckoutStationSoftware.setStationBlock(true);
+		scanner.scan(barcodedItem);
+
+		// Item should NOT be added to the order
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+	}
+	
+	@Test
+	public void testABarcodeHasBeenScannedWhenNoSession() {
+		SelfCheckoutStationSoftware.setStationActive(false);
+		
 		scanner.scan(barcodedItem);
 
 		// Item should NOT be added to the order
