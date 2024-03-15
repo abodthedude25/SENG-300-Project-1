@@ -63,8 +63,8 @@ public class WeightDiscrepancy extends ElectronicScale{
 	        
 	        BigInteger divisor = new BigInteger("1000000");
 	        BigInteger weightAtBlockBig = weightAtBlock.inMicrograms().divide(divisor);
-	        this.weightAtBlockDouble = weightAtBlockBig.doubleValue();
-	        this.value = order.getTotalWeightInGrams();
+	        WeightDiscrepancy.weightAtBlockDouble = weightAtBlockBig.doubleValue();
+	        WeightDiscrepancy.value = order.getTotalWeightInGrams();
 	        
 	    } catch (OverloadedDevice e) {
 	        // Handle the exception accordingly, such as logging or throwing a runtime exception
