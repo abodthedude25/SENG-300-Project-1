@@ -239,12 +239,20 @@ public class AddItemViaBarcodeScanTest {
     }
 
 	@Test
-	public void testWeightHasChanged() {
+	public void testWeightHasChanged() throws OverloadedDevice {
 		// test for signals to the system that the weight changed
 		// A customer scans an item. 
 		scanner.scan(barcodedItem);
-		// A customer places the item in the bagging area
-		baggingArea.addAnItem(barcodedItem);
+		
+		// get the initial mass from the bagging area
+        Mass initial = baggingArea.getCurrentMassOnTheScale();
+        // A customer places the item in the bagging area
+        baggingArea.addAnItem(barcodedItem);
+        // get the new mass from the bagging area
+        Mass current = baggingArea.getCurrentMassOnTheScale();
+        
+        // Initial and current mass should not be the same
+        assertNotSame(initial, current);
 	}
 	
 	@After
