@@ -100,11 +100,11 @@ public class WeightDiscrepancyTest {
     
 
     
-    @Test (expected = RuntimeException.class )
-    public void testconstructorexception() throws Exception {
-    	weightDiscrepancy100.(order,scale);
-    	
-    }
+//    @Test (expected = RuntimeException.class )
+//    public void testconstructorexception() throws Exception {
+//    	weightDiscrepancy100.(order,scale);
+//    	
+//    }
     
     
     

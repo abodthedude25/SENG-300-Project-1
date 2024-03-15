@@ -39,7 +39,7 @@ public class Demo {
             System.out.println("Total weight: " + order.getTotalWeightInGrams() + " grams");
 
             System.out.println("Payment received. Thank you for shopping with us!");
-        } catch (OverloadedDevice e) {
+        } catch (Exception e) {
             System.out.println("Failed to initialize order: " + e.getMessage());
         }
     }

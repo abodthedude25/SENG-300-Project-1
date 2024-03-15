@@ -178,6 +178,11 @@ public class WeightDiscrepancy extends ElectronicScale{
 		super.notifyMassChanged();
 		checkDiscrepancy();
 	}
+
+	public static void setStationBlock(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
 
