@@ -186,8 +186,12 @@ public class WeightDiscrepancy extends ElectronicScale{
 
 	
 	public static void setStationBlock(boolean b) {
-		// TODO Auto-generated method stub
-		
+		if (b == true) {
+			SelfCheckoutStationSoftware.setStationBlock(true);
+		}
+		if (b == false) {
+			SelfCheckoutStationSoftware.setStationBlock(false);
+		}
 	}
 }
 
