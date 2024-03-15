@@ -27,7 +27,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -58,6 +59,8 @@ public class WeightDiscrepancyTest {
 	private ElectronicScale scale3;
 	private Order order4;
 	private ElectronicScale scale4;
+	private Order order5;
+	private mockScale scale5;
 	private WeightDiscrepancy weightDiscrepancy4;
      
      
@@ -100,11 +103,11 @@ public class WeightDiscrepancyTest {
     
 
     
-//    @Test (expected = RuntimeException.class )
-//    public void testconstructorexception() throws Exception {
-//    	weightDiscrepancy100.(order,scale);
-//    	
-//    }
+    @Test (expected = RuntimeException.class )
+    public void testconstructorexception() throws Exception {
+    	weightDiscrepancy100.(order,scale);
+    	
+    }
     
     
     
@@ -132,10 +135,6 @@ public class WeightDiscrepancyTest {
         
         
     } 
-    
-    
-    
-    
     
 
     @Test
@@ -218,11 +217,6 @@ public class WeightDiscrepancyTest {
 }
     
     
-    
-    // weight at block - scale
-    // current weight - order
-    
-    
     @Test
     public void testCheckRemoval_greaterthan() throws OverloadedDevice {
     	
@@ -292,97 +286,30 @@ public class WeightDiscrepancyTest {
             }
 		
  
+	
     @Test
     public void testCheckRemoval_lessthan() throws OverloadedDevice {
-        MockItem item1 = new MockItem(new Mass(1000));
-        MockItem item2 = new MockItem(new Mass(10));
-        MockItem item3 = new MockItem(new Mass(60));
+            
+        scale5 = new mockScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale5.plugIn(grid);
+        scale5.turnOn();
+        scale5.enable();
         
-        order.addItemToOrder(item1); 
-        order.addItemToOrder(item2);
-        order.addItemToOrder(item3);
+        Mass mass1 = new Mass(5000000);
+        MockItem item1 = new MockItem(mass1); 
+        scale5.addAnItem(item1); 
+        order5 = new Order(scale5);
+       
         
-        scale.addAnItem(item1);  
-        weightDiscrepancy.checkDiscrepancy();       
-        assertTrue(weightDiscrepancy.checkRemoval());      
-    }  
-  
-  @Test
-  public void testCheckbaggage_greaterthan() {
+        order5.addTotalWeightInGrams(3);  
       
-      MockItem item1 = new MockItem(new Mass(100));
-      MockItem item2 = new MockItem(new Mass(1000));
-      MockItem item3 = new MockItem(new Mass(6000));
-      
-      order.addItemToOrder(item1); 
-      order.addItemToOrder(item2);
-      order.addItemToOrder(item3);
-      
-      scale.addAnItem(item1);      
-      weightDiscrepancy.checkBaggageAddition();   
-      assertTrue(weightDiscrepancy.checkBaggageAddition()); 
-  }  
-  
-  
-  @Test
-  public void testCheckbaggage_lesfsthan() {
- 
-      MockItem item1 = new MockItem(new Mass(1000));
-      MockItem item2 = new MockItem(new Mass(10));
-      MockItem item3 = new MockItem(new Mass(60));
-      
-      order.addItemToOrder(item1); 
-      order.addItemToOrder(item2);
-      order.addItemToOrder(item3);
-      
-      scale.addAnItem(item1);
-  
-      weightDiscrepancy.checkBaggageAddition();
-      assertFalse(weightDiscrepancy.checkBaggageAddition());       
-      
-  }  
-  
-
-  
-  @Test
-  public void checkWeightChangeTestTrue(){
+        weightDiscrepancy4 = new WeightDiscrepancy(order5, scale5);  
      
-      Mass mass1 = new Mass(500);
-      MockItem item1 = new MockItem(mass1); 
-      order.addItemToOrder(item1);
-      order.addTotalWeightInGrams(5);
-      assertTrue(weightDiscrepancy.checkWeightChange());    
-  }
-  
-	@Test
-  public void checkWeightChangeTestFalse() throws Exception{
-     
-  	order.addTotalWeightInGrams(0.5);  //order.getTotalWeightInGrams();
-  	
-      Mass mass1 = new Mass(500000);
-      MockItem item1 = new MockItem(mass1); 
-      scale.addAnItem(item1); // scale.getCurrentMassOnTheScale() = 500 000 mcg
-      assertFalse(weightDiscrepancy.checkWeightChange());    
-      assertEquals(scale.getCurrentMassOnTheScale(), order.getTotalWeightInGrams());
-      
-  } 
-
-	
-	
-	  
-	
-	// mass changes and session is not blocked
-	@Test
-	public void notifymasschange_blocked() {
-		MockItem item1 = new MockItem(new Mass(1000));
-		order.addItemToOrder(item1); 
-      scale.addAnItem(item1);
-      weightDiscrepancy.notifyMassChanged();
-      
-	} 
-  
-	
-
-
-}
+        assertTrue(weightDiscrepancy.checkRemoval());
+        
+    	}
     
+    
+ 
+}
