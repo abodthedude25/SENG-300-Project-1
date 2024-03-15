@@ -20,7 +20,6 @@ public class Order {
 	private long totalPrice;
 	private BarcodedItem barcodedItem;
 	private Mass mass;
-	private WeightDiscrepancy weightDiscrepancy;
 	private ElectronicScale scale;
 
 	/**
@@ -31,8 +30,7 @@ public class Order {
 		this.order = new ArrayList<Item>();
 		this.totalWeight = 0; 
 		this.totalPrice = 0;
-		this.scale = scale; 
-		this.weightDiscrepancy = new WeightDiscrepancy(this, scale); 
+		this.scale = scale;
 	}
 
 	public Order() {
@@ -98,10 +96,6 @@ public class Order {
 	 * Adds an item to the order via barcode scan
 	 */
 	public void addItemViaBarcodeScan(Barcode barcode) {
-		if (SelfCheckoutStationSoftware.getStationBlock()) {
-			System.out.println("Blocked. Please add your item to the begging area.");
-			return;
-		}
 		// Get the product from the database
 		BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 
@@ -127,13 +121,11 @@ public class Order {
 	 * @param scale
 	 * @throws OverloadedDevice
 	 */
-	public void checkForDiscrepancy(ElectronicScale scale) throws OverloadedDevice {
+	public void checkForDiscrepancy() throws OverloadedDevice {
 		// This method is called by the baggingAreaListener after an item is added to the bagging area scale
-		
-		// create the WeightDiscrepancy specifying the scale
-		weightDiscrepancy = new WeightDiscrepancy(this, scale);
+		WeightDiscrepancy weightDiscrepancy = new WeightDiscrepancy(this, scale);
 
-		WeightDiscrepancy.unBlock(); // Checks for a weight discrepancy, if none, it unblocks the system
+		weightDiscrepancy.unBlock(); // Checks for a weight discrepancy, if none, it unblocks the system
 	}
 	
 	
