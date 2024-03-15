@@ -26,7 +26,7 @@ package com.thelocalmarketplace.software.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
 
 
 import org.junit.After;
@@ -87,7 +87,7 @@ public class WeightDiscrepancyTest {
 	
 	  
 	
-	
+	// created mockitem class that extends Item class
     class MockItem extends Item {
         public MockItem(Mass mass) {
             super(mass);
@@ -97,7 +97,7 @@ public class WeightDiscrepancyTest {
     
     
 
-    
+    // create update mass test 
     @Test
     public void testUpdateMass_AddItemToOrder() throws OverloadedDevice {
          
@@ -337,7 +337,7 @@ public class WeightDiscrepancyTest {
 
 	
 	
-	
+	  
 	
 	// mass changes and session is not blocked
 	@Test
@@ -347,7 +347,7 @@ public class WeightDiscrepancyTest {
       scale.addAnItem(item1);
       weightDiscrepancy.notifyMassChanged();
       
-	}
+	} 
   
 	
 
