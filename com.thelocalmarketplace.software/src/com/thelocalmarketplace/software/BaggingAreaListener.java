@@ -1,5 +1,7 @@
 // Yuinikoru Futamata UCID: 30173228
+
 package com.thelocalmarketplace.software;
+
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Mass;
@@ -7,6 +9,7 @@ import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.ElectronicScale;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
+
 public class BaggingAreaListener implements ElectronicScaleListener {
 	// This is a listener for the bagging area.
 
@@ -49,7 +52,7 @@ public class BaggingAreaListener implements ElectronicScaleListener {
 		System.out.println("Weight changed in the bagging area: " + mass);
 
 		try {
-			order.checkForDiscrepancy((ElectronicScale) scale);
+			order.checkForDiscrepancy();
 		} catch (OverloadedDevice e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
