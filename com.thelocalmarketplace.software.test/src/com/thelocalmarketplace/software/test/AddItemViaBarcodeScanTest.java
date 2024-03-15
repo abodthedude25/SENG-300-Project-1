@@ -189,6 +189,42 @@ public class AddItemViaBarcodeScanTest {
         ArrayList<Item> order = testOrder.getOrder();
         assertTrue(order.contains(barcodedItem));
     }
+	@Test
+    public void testAddTotalWeightInGrams() {
+        double initialWeight = testOrder.getTotalWeightInGrams(); 
+        double weightToAdd = 100.0;
+        testOrder.addTotalWeightInGrams(weightToAdd);
+        assertEquals("The total weight should be updated correctly", initialWeight + weightToAdd, testOrder.getTotalWeightInGrams(), 0.001);
+    }
+
+    @Test
+    public void testAddNegativeWeight() {
+        double initialWeight = testOrder.getTotalWeightInGrams();
+        double weightToAdd = -50.0;
+        testOrder.addTotalWeightInGrams(weightToAdd);
+        assertEquals("The total weight should decrease when adding negative weight", initialWeight + weightToAdd, testOrder.getTotalWeightInGrams(), 0.001);
+    }
+
+    @Test
+    public void testAddZeroWeight() {
+        double initialWeight = testOrder.getTotalWeightInGrams();
+        testOrder.addTotalWeightInGrams(0);
+        assertEquals("The total weight should remain unchanged when adding zero", initialWeight, testOrder.getTotalWeightInGrams(), 0.001);
+    }
+	
+	@Test
+	public void testAddTotalPrice() {
+        long initialPrice = 100L; // Assuming the constructor or another method sets it to 100
+        testOrder.addTotalPrice(initialPrice);
+
+        // Add a specific price to the total
+        long priceToAdd = 50L;
+        testOrder.addTotalPrice(priceToAdd);
+
+        //Check if the total price has been updated correctly
+        long expectedTotalPrice = initialPrice + priceToAdd;
+        assertEquals(expectedTotalPrice, testOrder.getTotalPrice()); //method to get the total price
+    }
 
 	@Test
 	public void testWeightHasChanged() {
