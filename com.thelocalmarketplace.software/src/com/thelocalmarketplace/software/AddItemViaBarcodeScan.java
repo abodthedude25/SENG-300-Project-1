@@ -54,8 +54,5 @@ public class AddItemViaBarcodeScan implements BarcodeScannerListener {
 			// add the item to the order, the software will be blocked at this point
 			order.addItemViaBarcodeScan(barcode);
 		}
-
-		// unblock the software
-		SelfCheckoutStationSoftware.setStationBlock(false);
 	}
 }
