@@ -57,19 +57,6 @@ public class Order {
 		this.scale = scale;
 	}
 
-	public Order() {
-		// TODO Auto-generated constructor stub
-	}
-
-
-	public Order(ArrayList<Item> items) {
-		// TODO Auto-generated constructor stub			// newly added
-	}
-
-	public Order(ElectronicScaleWrapper scale2) {
-		// TODO Auto-generated constructor stub
-	}
-
 	/**
 	 * Adds an item to the order.
 	 *

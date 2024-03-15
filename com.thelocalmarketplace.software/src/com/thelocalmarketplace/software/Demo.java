@@ -22,7 +22,7 @@
  * Nami Marwah (UCID: 30178528)
  */
 
-package com.thelocalmarketplace.demo;
+package com.thelocalmarketplace.software;
 import com.thelocalmarketplace.software.*;
 import com.jjjwelectronics.*;
 import com.jjjwelectronics.scanner.*;
@@ -34,9 +34,12 @@ public class Demo {
     public static void main(String[] args) {
     
         SelfCheckoutStation station = new SelfCheckoutStation();
-        ElectronicScaleWrapper scale = new ElectronicScaleWrapper(); 
+        SelfCheckoutStationSoftware software = new SelfCheckoutStationSoftware();
+        ElectronicScaleWrapper scale = new ElectronicScaleWrapper();
         
         try {
+            software.startSession();
+
             Order order = new Order(scale); 
             AddItemViaBarcodeScan scannerListener = new AddItemViaBarcodeScan(order);
 
