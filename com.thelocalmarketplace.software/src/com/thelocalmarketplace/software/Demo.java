@@ -23,48 +23,118 @@
  */
 
 package com.thelocalmarketplace.software;
-import com.thelocalmarketplace.software.*;
+import com.tdc.coin.Coin;
 import com.jjjwelectronics.*;
 import com.jjjwelectronics.scanner.*;
 import com.jjjwelectronics.scale.*;
 import com.thelocalmarketplace.hardware.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.Locale;
+import java.util.Scanner;
 
+/**
+ * This class is a Demo of the functions created in software.
+ * Is extra, not required for the assignment, but the professor recommended it.
+ */
 public class Demo {
 
+    /**
+     * Main function for the demo.
+     */
     public static void main(String[] args) {
-    
+
+        // Initialize the station and scale
         SelfCheckoutStation station = new SelfCheckoutStation();
         SelfCheckoutStationSoftware software = new SelfCheckoutStationSoftware();
-        ElectronicScaleWrapper scale = new ElectronicScaleWrapper();
-        
-        try {
-            software.startSession();
+        ElectronicScale scale = new ElectronicScale();
 
-            Order order = new Order(scale); 
+        // Try catch block for any errors found.
+        try {
+            // Represents user input
+            Scanner input = new Scanner(System.in);
+
+            // Test startSession function
+            software.startSession(input);
+
+            // Create order and addItemViaBarcode scan objects
+            Order order = new Order(scale);
             AddItemViaBarcodeScan scannerListener = new AddItemViaBarcodeScan(order);
 
+            // Create barcodes for two items, an apple and banana
             Numeral[] list = {Numeral.valueOf((byte)5), Numeral.valueOf((byte)5)};
             Numeral[] list1 = {Numeral.valueOf((byte)7), Numeral.valueOf((byte)4)};
             Barcode barcodeOfApple = new Barcode(list);
             Barcode barcodeOfBanana = new Barcode(list1);
 
-            System.out.println("Scanning items...");
-            scannerListener.aBarcodeHasBeenScanned(null, barcodeOfApple);
-            scannerListener.aBarcodeHasBeenScanned(null, barcodeOfBanana);
+            // Create a string to hold user input.
+            String itemInput;
 
-            BaggingAreaListener baggingAreaListener = new BaggingAreaListener(order);
-            scale.addElectronicScaleListener1(baggingAreaListener); 
+            // Create an arrayList for all products in the order
+            ArrayList<Product> allProducts = new ArrayList<>();
 
-            System.out.println("Adding item to the scale...");
-            scale.theMassOnTheScaleHasChanged(new Mass(100)); 
-            scale.theMassOnTheScaleHasChanged(new Mass(200)); 
+            // Makes barcoded product for apple and banana
+            BarcodedProduct apple = new BarcodedProduct(barcodeOfApple, "An apple", 5, 1.00 );
+            BarcodedProduct banana = new BarcodedProduct(barcodeOfApple, "A banana", 3, 2.00 );
 
-            // Complete the checkout process
-            System.out.println("Finalizing order...");
-            System.out.println("Total price: $" + order.getTotalPrice());
-            System.out.println("Total weight: " + order.getTotalWeightInGrams() + " grams");
+            // Make an arraylist for the coins added
+            ArrayList<Coin> coinsList = new ArrayList<>();
 
-            System.out.println("Payment received. Thank you for shopping with us!");
+            // User interaction
+            System.out.println("Enter '1' for Apple.");
+            System.out.println("Enter '2' for Banana.");
+            itemInput = input.nextLine();
+
+            // If the user wants to add an Apple, this occurs
+            if (itemInput.equals("1")) {
+                allProducts.add(apple);
+
+                // Tests addItemViaBarcodeScan function
+                order.addItemViaBarcodeScan(barcodeOfApple);
+                PaymentHandler paymentHandler = new PaymentHandler(station, allProducts);
+
+                System.out.println("The price of an apple is $5. You insert 5 $1 bills.");
+
+                // Add 5 1 dollar coins to the coinsList
+                for (int i = 0; i < 5; i++) {
+                    Coin coin = new Coin(Currency.getInstance(Locale.CANADA), BigDecimal.valueOf(1));
+                    coinsList.add(coin);
+                }
+
+                // Test processPaymentWithCoins function, if successful print out a receipt.
+                if (paymentHandler.processPaymentWithCoins(coinsList)) {
+                    System.out.println("Payment Successful!");
+                    paymentHandler.receiptPrinter();
+                } else
+                    System.out.println("Unsuccessful Payment!");
+
+            // If the user wants to add a Banana, this occurs
+            } else if (itemInput.equals("2")) {
+                allProducts.add(banana);
+
+                // Tests addItemViaBarcodeScan function
+                order.addItemViaBarcodeScan(barcodeOfBanana);
+                PaymentHandler paymentHandler = new PaymentHandler(station, allProducts);
+
+                System.out.println("The price of a banana is $3. You insert 3 $1 bills.");
+
+                // Add 5 1 dollar coins to the coinsList
+                for (int i = 0; i < 5; i++) {
+                    Coin coin = new Coin(Currency.getInstance(Locale.CANADA), BigDecimal.valueOf(1));
+                    coinsList.add(coin);
+                }
+
+                // Test processPaymentWithCoins function, if successful print out a receipt.
+                if (paymentHandler.processPaymentWithCoins(coinsList)) {
+                    System.out.println("Payment Successful!");
+                    paymentHandler.receiptPrinter();
+                } else
+                    System.out.println("Unsuccessful Payment!");
+            }
+            else {
+                System.out.println("Unable to process input.");
+            }
         } catch (Exception e) {
             System.out.println("Failed to initialize order: " + e.getMessage());
         }

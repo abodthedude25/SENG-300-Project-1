@@ -133,7 +133,6 @@ public class Order {
 
 	/**
 	 * Checks for weight discrepancy, is called by the baggingAreaListener after an item is added to the bagging area scale
-	 * @param scale
 	 * @throws OverloadedDevice
 	 */
 	public void checkForDiscrepancy() throws OverloadedDevice {

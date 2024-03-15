@@ -100,7 +100,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
 			OutOfInkException {
 		if (SelfCheckoutStationSoftware.getStationBlock()) {
-			System.out.println("Blocked. Please add your item to the begging area.");
+			System.out.println("Blocked. Please add your item to the bagging area.");
 			return false;
 		}
 		
@@ -116,6 +116,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.changeRemaining = value.subtract(this.totalCost);
 		System.out.println(value);
 
+		System.out.println(totalCost);
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
 
@@ -249,7 +250,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 			System.out.println(receiptItems.get(i)); // Prints the product description and price at a specific index
 			inkCounter -= 5; // Both paper and ink are used up in the printer
 			paperSpaceCounter -= 5;
-			System.out.println(paperSpaceCounter);
 
 			if (paperSpaceCounter <= 0) {
 				checkoutSystem = null;
