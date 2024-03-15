@@ -87,7 +87,6 @@ public class WeightDiscrepancyTest {
         }
     }   
     
-<<<<<<< Upstream, based on branch 'main' of https://github.com/abodthedude25/SENG-300-Project-1.git
     
 
     /** Create Test for the constructor exception
@@ -95,13 +94,10 @@ public class WeightDiscrepancyTest {
      * @throws Exception
      */
     
-=======
->>>>>>> 713524c added tests for dispense accurate change
     @Test (expected = RuntimeException.class )
     public void testconstructorexception() throws Exception {
     	weightDiscrepancy100.(order,scale);
     	
-<<<<<<< Upstream, based on branch 'main' of https://github.com/abodthedude25/SENG-300-Project-1.git
     }
     
     
@@ -109,11 +105,6 @@ public class WeightDiscrepancyTest {
      * and then call update mass, the expected mass should be equal to what the scale says
      * @throws OverloadedDevice
      */
-=======
-    } 
-   
-    // create update mass test 
->>>>>>> 713524c added tests for dispense accurate change
     @Test
     public void testUpdateMass_AddItemToOrder() throws OverloadedDevice {
          
