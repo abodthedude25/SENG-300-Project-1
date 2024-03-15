@@ -24,7 +24,7 @@ public class SelfCheckoutStationSoftware {
 	/**
 	 * Boolean variable to track if a current session is active or not. 
 	 */
-	private static boolean active;
+	private static boolean active = false;
 
 	/**
 	 * Set function to change the blocked variable value.

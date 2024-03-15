@@ -43,6 +43,7 @@ public class SelfCheckoutStationSoftwareTest {
 	@Test
 	public void testStartSessionNotActive() {
 		software.startSession();
+		assertFalse(software.getStationActive());
 	}
 	
 	@Test
