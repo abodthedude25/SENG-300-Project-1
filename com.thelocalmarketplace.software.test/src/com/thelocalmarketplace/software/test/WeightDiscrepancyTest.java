@@ -77,6 +77,8 @@ public class WeightDiscrepancyTest {
 	          
 
     }
+	
+
     
 	@After
     public void tearDown() {
@@ -97,6 +99,15 @@ public class WeightDiscrepancyTest {
     
     
 
+    
+    @Test (expected = RuntimeException.class )
+    public void testconstructorexception() throws Exception {
+    	weightDiscrepancy100.(order,scale);
+    	
+    }
+    
+    
+    
     // create update mass test 
     @Test
     public void testUpdateMass_AddItemToOrder() throws OverloadedDevice {
@@ -184,6 +195,27 @@ public class WeightDiscrepancyTest {
         
     }                
     
+    
+    @Test
+	public void checkDescripExceptionTest() throws OverloadedDevice{
+		
+		scale4 = new ElectronicScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale4.plugIn(grid);
+        scale4.turnOn();
+        scale4.enable();
+        order4 = new Order(scale4);
+        weightDiscrepancy4 = new WeightDiscrepancy(order4, scale4);   
+    	
+    
+         MockItem item2 = new MockItem(new Mass(200000000000000000L));
+   
+         scale4.addAnItem(item2);
+          
+         weightDiscrepancy4.checkDiscrepancy();; 
+         assertTrue(SelfCheckoutStationSoftware.getStationBlock());
+         
+}
     
     
     
