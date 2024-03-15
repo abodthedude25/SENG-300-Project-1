@@ -38,7 +38,7 @@ public class mockScale extends ElectronicScale {
     public synchronized void addAnItem(Item item) {
         currentMass = currentMass.sum(item.getMass());
         items.add(item);
-        System.out.println("Current Mass after adding item: " + currentMass);
+        
     }
 
     @Override

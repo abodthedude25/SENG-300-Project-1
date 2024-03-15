@@ -411,11 +411,20 @@ public class WeightDiscrepancyTest {
     
   	
   	@Test
-  	public void teststationblock() {
-  		weightDiscrepancy.setStationBlock(false);
+  	public void teststationblock_true() {
   		weightDiscrepancy.setStationBlock(true);
+  		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
+  		
   	}
   	
+  	@Test
+  	public void teststationblock_false() {
+  		weightDiscrepancy.setStationBlock(false);
+  		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
+  		
+  	}  
+  	
+  	  
 
     
  
