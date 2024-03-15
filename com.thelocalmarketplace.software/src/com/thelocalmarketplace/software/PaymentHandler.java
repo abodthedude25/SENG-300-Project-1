@@ -4,6 +4,7 @@
  * Luis Trigueros Granillo (UCID: 30167989)
  * Lilia Skumatova (UCID: 30187339)
  * Abdelrahman Abbas (UCID: 30110374)
+ * Talaal Irtija (UCID: 30169780)
  */
 
 package com.thelocalmarketplace.software;
