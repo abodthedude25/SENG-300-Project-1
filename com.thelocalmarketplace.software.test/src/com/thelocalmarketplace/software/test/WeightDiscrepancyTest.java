@@ -56,7 +56,9 @@ public class WeightDiscrepancyTest {
 	private WeightDiscrepancy weightDiscrepancy33;
 	private Order order3;
 	private ElectronicScale scale3;
-	
+	private Order order4;
+	private ElectronicScale scale4;
+	private WeightDiscrepancy weightDiscrepancy4;
      
      
     
@@ -209,6 +211,54 @@ public class WeightDiscrepancyTest {
         assertFalse(weightDiscrepancy.checkRemoval());    
     }  
 
+	@Test
+	public void unBlockTest() throws Exception {
+		
+		scale4 = new ElectronicScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale4.plugIn(grid);
+        scale4.turnOn();
+        scale4.enable();
+        order4 = new Order(scale4);
+        weightDiscrepancy4 = new WeightDiscrepancy(order4, scale4);   
+    	
+    	
+    	 MockItem item1 = new MockItem(new Mass(100));
+         MockItem item2 = new MockItem(new Mass(150));
+    	
+         order4.addItemToOrder(item1);
+         order4.addItemToOrder(item2);
+         scale4.addAnItem(item1);
+          
+        weightDiscrepancy4.unBlock(); 
+        
+        assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
+        
+            }
+		
+	
+	
+	@Test
+	public void unBlockCatchExceptionTest() throws OverloadedDevice{
+		
+		scale4 = new ElectronicScale();
+        PowerGrid grid = PowerGrid.instance();
+        scale4.plugIn(grid);
+        scale4.turnOn();
+        scale4.enable();
+        order4 = new Order(scale4);
+        weightDiscrepancy4 = new WeightDiscrepancy(order4, scale4);   
+    	
+    
+         MockItem item2 = new MockItem(new Mass(200000000000000000L));
+   
+         scale4.addAnItem(item2);
+          
+         weightDiscrepancy4.unBlock(); 
+         assertTrue(SelfCheckoutStationSoftware.getStationBlock());    
+ 
+            }
+		
  
     @Test
     public void testCheckRemoval_lessthan() throws OverloadedDevice {
@@ -300,10 +350,7 @@ public class WeightDiscrepancyTest {
 	}
   
 	
-	@Test
-	public void notifymasschange_unblocked() {
-		
-	}
+
 
 }
     
