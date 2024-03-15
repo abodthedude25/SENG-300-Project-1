@@ -88,17 +88,7 @@ public class WeightDiscrepancyTest {
     }   
     
     
-
-    /** Create Test for the constructor exception
-     * 
-     * @throws Exception
-     */
-    
-    @Test (expected = RuntimeException.class )
-    public void testconstructorexception() throws Exception {
-    	weightDiscrepancy100.(order,scale);
-    	
-    }
+ 
     
     
     /** Create test for update mass, do this by creating two items, set the mass, add it to order
