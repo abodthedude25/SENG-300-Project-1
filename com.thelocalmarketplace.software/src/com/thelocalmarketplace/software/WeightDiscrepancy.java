@@ -24,6 +24,7 @@
 
 package com.thelocalmarketplace.software;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import com.jjjwelectronics.Item;
@@ -37,6 +38,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	private static ElectronicScale scale;
 	private Mass weightAtBlock;
 	private static double value;
+	private static double weightAtBlockDouble;
 	
     /**
      // Records weight at time of discrepancy before block
@@ -58,7 +60,12 @@ public class WeightDiscrepancy extends ElectronicScale{
 	    this.scale = scale;
 	    try {
 	        this.weightAtBlock = scale.getCurrentMassOnTheScale();
+	        
+	        BigInteger divisor = new BigInteger("1000000");
+	        BigInteger weightAtBlockBig = weightAtBlock.inMicrograms().divide(divisor);
+	        this.weightAtBlockDouble = weightAtBlockBig.doubleValue();
 	        this.value = order.getTotalWeightInGrams();
+	        
 	    } catch (OverloadedDevice e) {
 	        // Handle the exception accordingly, such as logging or throwing a runtime exception
 	        throw new RuntimeException("Failed to initialize WeightDiscrepancy: " + e.getMessage());
@@ -71,6 +78,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	/**
 	 * Records weight at time of discrepancy before block 
 	 */
+	
 	public void updateMass() {
 //		Mass currMass = scale.getCurrentMassOnTheScale();
 //		currMass = currMass * 1_000_000;
@@ -129,8 +137,7 @@ public class WeightDiscrepancy extends ElectronicScale{
      * @return Negative if weight decrease has not been detected
      **/
 	public boolean checkRemoval() {
-		Mass currentWeight = new Mass(value);
-		if (currentWeight.compareTo(weightAtBlock) < 0) {
+		if (value<weightAtBlockDouble) {
 			return true;
 		} else {
 			return false;
@@ -144,8 +151,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if a weight increase has not been detected, therefore item not added to bagging area. 
 	 */
 	public boolean checkBaggageAddition() {
-		Mass currentWeight = new Mass(value);
-		if(currentWeight.compareTo(weightAtBlock) > 0) {
+		if(value>weightAtBlockDouble) {
 			return true;
 		} else {
 			return false; 
@@ -160,8 +166,7 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * @return False if the weight has not changed since block time 
 	 */
 	public boolean checkWeightChange() {
-		Mass currentWeight = new Mass(value);
-		if(currentWeight != weightAtBlock) {
+		if(value != weightAtBlockDouble) {
 			return true;
 		} else {
 			return false; 
