@@ -43,16 +43,16 @@ public class SelfCheckoutStationSoftwareTest {
 	@Test
 	public void testStartSessionNotActive() {
 		software.startSession();
-		assertFalse(software.getStationActive());
+		assertFalse(SelfCheckoutStationSoftware.getStationActive());
 	}
 	
 	@Test
 	public void testStartSessionBlockGetter() {
 		software.startSession();
-		assertFalse(software.getStationBlock());
-		software.setStationBlock(true);
-		assertTrue(software.getStationBlock());
-		software.setStationBlock(false);
-		assertFalse(software.getStationBlock());
+		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
+		SelfCheckoutStationSoftware.setStationBlock(true);
+		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
+		SelfCheckoutStationSoftware.setStationBlock(false);
+		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
 	}
 }
