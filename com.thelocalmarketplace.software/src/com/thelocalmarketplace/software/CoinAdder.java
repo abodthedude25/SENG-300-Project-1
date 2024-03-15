@@ -40,6 +40,9 @@ public class CoinAdder extends SelfCheckoutStation{
 	private SelfCheckoutStation cStation;
 	private ArrayList<Coin> coinsList;
 
+	/*
+	 * Creates a list of inserted coins that can be used as argument for PaymentHandler.
+	 */
 	public CoinAdder(SelfCheckoutStation cStation) {
 		if(cStation == null) throw new NullPointerException("No argument may be null.");
 		this.cStation = cStation;
