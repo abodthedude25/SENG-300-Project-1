@@ -176,7 +176,7 @@ public class WeightDiscrepancyTest {
         weightDiscrepancy3.checkDiscrepancy();
         
         assertEquals(new Mass(100),scale2.getCurrentMassOnTheScale());
-        
+    
         
         //assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
         
@@ -225,8 +225,85 @@ public class WeightDiscrepancyTest {
         assertTrue(weightDiscrepancy.checkRemoval());      
     }  
   
-    
-    
-    
+  @Test
+  public void testCheckbaggage_greaterthan() {
+      
+      MockItem item1 = new MockItem(new Mass(100));
+      MockItem item2 = new MockItem(new Mass(1000));
+      MockItem item3 = new MockItem(new Mass(6000));
+      
+      order.addItemToOrder(item1); 
+      order.addItemToOrder(item2);
+      order.addItemToOrder(item3);
+      
+      scale.addAnItem(item1);      
+      weightDiscrepancy.checkBaggageAddition();   
+      assertTrue(weightDiscrepancy.checkBaggageAddition()); 
+  }  
   
+  
+  @Test
+  public void testCheckbaggage_lesfsthan() {
+ 
+      MockItem item1 = new MockItem(new Mass(1000));
+      MockItem item2 = new MockItem(new Mass(10));
+      MockItem item3 = new MockItem(new Mass(60));
+      
+      order.addItemToOrder(item1); 
+      order.addItemToOrder(item2);
+      order.addItemToOrder(item3);
+      
+      scale.addAnItem(item1);
+  
+      weightDiscrepancy.checkBaggageAddition();
+      assertFalse(weightDiscrepancy.checkBaggageAddition());       
+      
+  }  
+  
+
+  
+  @Test
+  public void checkWeightChangeTestTrue(){
+     
+      Mass mass1 = new Mass(500);
+      MockItem item1 = new MockItem(mass1); 
+      order.addItemToOrder(item1);
+      order.addTotalWeightInGrams(5);
+      assertTrue(weightDiscrepancy.checkWeightChange());    
+  }
+  
+	@Test
+  public void checkWeightChangeTestFalse() throws Exception{
+     
+  	order.addTotalWeightInGrams(0.5);  //order.getTotalWeightInGrams();
+  	
+      Mass mass1 = new Mass(500000);
+      MockItem item1 = new MockItem(mass1); 
+      scale.addAnItem(item1); // scale.getCurrentMassOnTheScale() = 500 000 mcg
+      assertFalse(weightDiscrepancy.checkWeightChange());    
+      assertEquals(scale.getCurrentMassOnTheScale(), order.getTotalWeightInGrams());
+      
+  } 
+
+	
+	
+	
+	
+	// mass changes and session is not blocked
+	@Test
+	public void notifymasschange_blocked() {
+		MockItem item1 = new MockItem(new Mass(1000));
+		order.addItemToOrder(item1); 
+      scale.addAnItem(item1);
+      weightDiscrepancy.notifyMassChanged();
+      
+	}
+  
+	
+	@Test
+	public void notifymasschange_unblocked() {
+		
+	}
+
 }
+    
