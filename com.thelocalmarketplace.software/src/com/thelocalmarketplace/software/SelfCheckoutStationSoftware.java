@@ -33,39 +33,39 @@ public class SelfCheckoutStationSoftware {
 	/**
 	 * Boolean variable that is used to track whether user interaction is blocked
 	 */
-	private boolean blocked = false;
+	private static boolean blocked = false;
 
 	/**
 	 * Boolean variable to track if a current session is active or not. 
 	 */
-	private boolean active = false;
+	private static boolean active = false;
 
 	/**
 	 * Set function to change the blocked variable value.
 	 * @param value The new value for station block status
 	 */
-	public void setStationBlock(boolean value) {
+	public static void setStationBlock(boolean value) {
 		blocked = value;
 	}
 
 	/**
 	 * Get function to get the blocked station status.
 	 */
-	public boolean getStationBlock() {
+	public static boolean getStationBlock() {
 		return blocked;
 	}
 	
 	/**
 	 * Set function to change the active variable value.
 	 */
-	public void setStationActive(boolean value) {
+	public static void setStationActive(boolean value) {
 		active = value;
 	}
 
 	/**
 	 * Get function to get the blocked station status.
 	 */
-	public boolean getStationActive() {
+	public static boolean getStationActive() {
 		return active;
 	}
 	

@@ -42,12 +42,12 @@ public class SelfCheckoutStationSoftwareTest {
 	@Before
 	public void setup() {
 		software = new SelfCheckoutStationSoftware();
-		software.setStationActive(false);
+		SelfCheckoutStationSoftware.setStationActive(false);
 	}
 	
 	@Test (expected = InvalidStateSimulationException.class)
 	public void testStartSessionActiveUsingSetter() {
-		software.setStationActive(true);
+		SelfCheckoutStationSoftware.setStationActive(true);
 		software.startSession();
 	}
 	
@@ -60,16 +60,16 @@ public class SelfCheckoutStationSoftwareTest {
 	@Test
 	public void testStartSessionNotActive() {
 		software.startSession();
-		assertTrue(software.getStationActive());
+		assertTrue(SelfCheckoutStationSoftware.getStationActive());
 	}
 	
 	@Test
 	public void testStartSessionBlockGetter() {
 		software.startSession();
-		assertFalse(software.getStationBlock());
-		software.setStationBlock(true);
-		assertTrue(software.getStationBlock());
-		software.setStationBlock(false);
-		assertFalse(software.getStationBlock());
+		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
+		SelfCheckoutStationSoftware.setStationBlock(true);
+		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
+		SelfCheckoutStationSoftware.setStationBlock(false);
+		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
 	}
 }

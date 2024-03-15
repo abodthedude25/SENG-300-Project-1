@@ -45,7 +45,7 @@ public class SelfCheckoutStationSoftwareDemo {
 
         // Demonstrate getting and setting station active status
         System.out.println("Station active status: " + SelfCheckoutStationSoftware.getStationActive());
-        SelfCheckoutStationSoftware.setStationActive();
+        SelfCheckoutStationSoftware.setStationActive(true);
         System.out.println("Station active status after setting: " + SelfCheckoutStationSoftware.getStationActive());
     }
 }
