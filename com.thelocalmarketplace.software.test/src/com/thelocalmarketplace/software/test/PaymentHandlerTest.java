@@ -51,8 +51,8 @@ import com.thelocalmarketplace.hardware.PriceLookUpCode;
 import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 import com.thelocalmarketplace.software.PaymentHandler;
-import com.thelocalmarketplace.software.outOfInkException;
-import com.thelocalmarketplace.software.outOfPaperException;
+import com.thelocalmarketplace.software.OutOfInkException;
+import com.thelocalmarketplace.software.OutOfPaperException;
 
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import ca.ucalgary.seng300.simulation.SimulationException;
@@ -149,7 +149,7 @@ public class PaymentHandlerTest {
         System.setOut(System.out);
     }
     
-    @Test(expected = outOfPaperException.class)
+    @Test(expected = OutOfPaperException.class)
     public void testReceiptPrinterOutOfPaperException() throws Exception{
     	// Mocking System.out for testing output 
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -165,7 +165,7 @@ public class PaymentHandlerTest {
 	    System.setOut(System.out);
     }
     
-    @Test(expected = outOfInkException.class)
+    @Test(expected = OutOfInkException.class)
     public void testReceiptPrinterOutOfInkException() throws Exception{
     	// Mocking System.out for testing output 
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
