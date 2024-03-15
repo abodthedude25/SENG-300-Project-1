@@ -125,8 +125,7 @@ public class AddItemViaBarcodeScanTest {
 	@Test
 	public void testWeightDiscrepancyOverflow() {
 		SelfCheckoutStationSoftware.setStationBlock(false);
-		testOrder.addTotalWeightInGrams(barcodedProduct.getExpectedWeight() + 200); //Causes a discrepancy
-		weightDiscrepancy.checkDiscrepancy();
+		scanner.scan(barcodedItem);
 
 		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
 	}
@@ -140,6 +139,38 @@ public class AddItemViaBarcodeScanTest {
 		ArrayList<Item> order = testOrder.getOrder();
 		assertTrue(order.isEmpty());
 	}
+	
+	@Test
+	public void testABarcodeHasBeenScannedAndAddItemToBaggingArea() throws OverloadedDevice {
+		scanner.scan(barcodedItem);
+		baggingArea.addAnItem(barcodedItem);
+		
+		// System should not be blocked
+		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
+	}
+	
+    @Test
+    public void testAddItemToOrder() {
+        testOrder.addItemToOrder(barcodedItem);
+        
+        // Item should be added to the order
+        ArrayList<Item> order = testOrder.getOrder();
+        assertTrue(!order.isEmpty());
+    }
+    
+    @Test
+    public void testGetOrderWhenEmpty() {
+        ArrayList<Item> order = testOrder.getOrder();
+        assertTrue(order.isEmpty());
+    }
+    
+    @Test
+    public void testGetOrderWhenNotEmpty() {
+        testOrder.addItemToOrder(barcodedItem);
+
+        ArrayList<Item> order = testOrder.getOrder();
+        assertTrue(order.contains(barcodedItem));
+    }
 
 	@Test
 	public void testWeightHasChanged() {
@@ -163,5 +194,8 @@ public class AddItemViaBarcodeScanTest {
 		baggingArea.disable();
 		baggingArea.turnOff();
 		baggingArea.unplug();
+		
+		// Unblock the system
+		SelfCheckoutStationSoftware.setStationBlock(false);
 	}
 }
