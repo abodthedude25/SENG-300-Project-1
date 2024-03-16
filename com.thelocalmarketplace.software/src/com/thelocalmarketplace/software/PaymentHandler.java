@@ -167,6 +167,28 @@ public class PaymentHandler extends SelfCheckoutStation {
 		 }
 
 		 return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
+		 
+		 /** 
+		  * the following is code that code be later useful for when integrating the
+		  * dispenseAccurateChange with the receiptPrinter functions
+		  *
+		 if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+		       Scanner receiptRequest = new Scanner(System.in);
+		       System.out.println("Would you like a receipt?");
+		       String receiptAnswer = receiptRequest.nextLine();
+		       while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+		           System.out.println("Sorry, that input is not acceptable. Try again.");
+		           System.out.println("Would you like a receipt?");
+		           receiptAnswer = receiptRequest.nextLine();}
+		       if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
+		           receiptPrinter();
+		           System.out.println("Thank you for your time. We hope to see you again!");
+		          return true;}
+		       if (receiptAnswer.compareToIgnoreCase("no") == 0) {
+		           System.out.println("No worries. Thank you for your time. We hope to see you again!");
+		           return true;}}
+		  return false;
+		 */
 	}
 
 	/**

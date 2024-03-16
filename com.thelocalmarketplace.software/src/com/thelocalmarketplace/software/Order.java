@@ -65,14 +65,6 @@ public class Order {
 	public void addItemToOrder(Item item) {
 		this.order.add(item);
 	}
-	
-	public void removeLastItemInList() {
-		// Calculate index of last element 
-        int index = this.order.size() - 1; 
-  
-        // Delete last element by passing index 
-        this.order.remove(index); 
-	}
 
 	/**
 	 * Gets the order.

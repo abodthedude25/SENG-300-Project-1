@@ -151,7 +151,6 @@ public class PaymentHandlerTest {
         paymentHandler.receiptPrinter(testOrder);
 	    assertTrue(outContent.toString().contains("This product is not a supported product, can not be registered for a price"));
 
-	    testOrder.removeLastItemInList();
         // Reset System.out
         System.setOut(System.out);
     }
