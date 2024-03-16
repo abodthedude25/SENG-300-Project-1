@@ -191,6 +191,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 				long price = product.getPrice();
 				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
+<<<<<<< Upstream, based on branch 'main' of https://github.com/abodthedude25/SENG-300-Project-1.git
  
 			else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
 												// through price-lookup (PLU)
@@ -200,6 +201,17 @@ public class PaymentHandler extends SelfCheckoutStation {
 				long price = product.getPrice();
 				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
+=======
+ //this should be added later on for PLUcode use-case handling
+//			else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
+//												// through price-lookup (PLU)
+//				PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
+//
+//				productDescription = product.getDescription();
+//				long price = product.getPrice();
+//				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
+//			}
+>>>>>>> 1373ff0 order changing group 3's tests'
 			else {
 				throw new NullPointerException("This product is not a supported product, can not be registered for a price");
 			}

@@ -42,8 +42,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.scale.ElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
+import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
 import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
@@ -51,7 +55,9 @@ import com.thelocalmarketplace.hardware.PLUCodedProduct;
 import com.thelocalmarketplace.hardware.PriceLookUpCode;
 import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.PaymentHandler;
+import com.thelocalmarketplace.software.Order;
 import com.thelocalmarketplace.software.OutOfInkException;
 import com.thelocalmarketplace.software.OutOfPaperException;
 
@@ -62,39 +68,46 @@ import powerutility.PowerGrid;
 public class PaymentHandlerTest {
 	private SelfCheckoutStation checkoutStation;
     private ArrayList<Product> coinsList;
-    private ArrayList<Product> allProducts;
     private Coin coin1, coin2;
     private BigDecimal totalCost;
     private PaymentHandler paymentHandler;
+    private BarcodedItem barcodedItem;
+    private BarcodedProduct barcodedProduct;
+    private ElectronicScale baggingArea;
+    private Order testOrder;
+    private PLUCodedProduct pluCodedProduct;
 
     @Before
-    public void setUp() {
+    public void setUp() throws OverloadedDevice {
         // Mock SelfCheckoutStation and its components as needed
     	BigDecimal[] denominations = {new BigDecimal("0.25"),new BigDecimal("2"), new BigDecimal("3"), new BigDecimal("4")};
     	SelfCheckoutStation.configureCoinDenominations(denominations);
     	checkoutStation = new SelfCheckoutStation();
-        Numeral[] codeDigits = new Numeral[4];
         
-        // Split the number 1234 into its individual digits and create Numeral instances
-        codeDigits[0] = Numeral.one; // Assuming these are defined in Numeral
-        codeDigits[1] = Numeral.two;
-        codeDigits[2] = Numeral.three;
-        codeDigits[3] = Numeral.four;
-        
-        // Create the Barcode object
-        Barcode bananaBarcode = new Barcode(codeDigits);
-    	
-    	BarcodedProduct banana = new BarcodedProduct(bananaBarcode, "bannana", 12, 10.00);
-    	
-    	// Add some product for testing
-    	allProducts = new ArrayList<Product>();
-    	allProducts.add(banana);
-         
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        baggingArea = new ElectronicScale();
+        // Initializing mock barcoded item
+ 		Numeral[] barcodeDigits = {Numeral.one, Numeral.two, Numeral.three, Numeral.four, Numeral.five};
+ 		Barcode barcode = new Barcode(barcodeDigits);
+ 		Mass itemMass = new Mass(1000000000); // 1kg in micrograms
+ 		barcodedItem = new BarcodedItem(barcode, itemMass);
 
-	paymentHandler.coinStorage.connect(PowerGrid.instance());
+ 		// Initializing mock product (using same barcode as the barcoded item)
+ 		String productDescription = "banana";
+ 		long productPrice = 5;
+ 		double productWeightInGrams = 1000;
+ 		barcodedProduct = new BarcodedProduct(barcode, productDescription, productPrice, productWeightInGrams);
+
+ 		// Adding mock product into product database
+ 		ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcode, barcodedProduct);
+
+ 		// Initializing testOrder
+ 		testOrder = new Order(baggingArea);
+         
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
+
+        paymentHandler.coinStorage.connect(PowerGrid.instance());
         paymentHandler.coinStorage.activate();
-	PowerGrid.engageUninterruptiblePowerSource();
+        PowerGrid.engageUninterruptiblePowerSource();
         PowerGrid.instance().forcePowerRestore();
     }
     
@@ -103,22 +116,19 @@ public class PaymentHandlerTest {
         // Mocking System.out for testing output 
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
-        
-        // Add some product for testing
-        allProducts.add(new PLUCodedProduct(new PriceLookUpCode("0001"), "Product B", (long) 15.00));
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
-        paymentHandler.amountSpent = BigDecimal.valueOf(27); // Set amount spent for testing
+
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
+        paymentHandler.amountSpent = BigDecimal.valueOf(5); // Set amount spent for testing
         paymentHandler.changeRemaining = BigDecimal.valueOf(0); // Set change remaining for testing
 
-        paymentHandler.receiptPrinter();
+        paymentHandler.receiptPrinter(testOrder);
         
         // Check if the receipt contains correct information
-        assertTrue(outContent.toString().contains("Product B $15.00"));
-        assertTrue(outContent.toString().contains("Total: $27.00"));
-        assertTrue(outContent.toString().contains("Paid: $27.00"));
+        assertTrue(outContent.toString().contains("banana $5.00"));
+        assertTrue(outContent.toString().contains("Total: $5.00"));
+        assertTrue(outContent.toString().contains("Paid: $5.00"));
         assertTrue(outContent.toString().contains("Change: $0.00"));
 
-        allProducts.remove(1);
         // Reset System.out
         System.setOut(System.out);
     }
@@ -129,11 +139,9 @@ public class PaymentHandlerTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
         
-        // Add some product for testing
-        allProducts.add(new emptyProdcutStub( (long) 4.00, false) );
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
 
-        paymentHandler.receiptPrinter();
+        paymentHandler.receiptPrinter(testOrder);
 	    assertTrue(outContent.toString().contains("This product is not a supported product, can not be registered for a price"));
 
         // Reset System.out
@@ -149,7 +157,7 @@ public class PaymentHandlerTest {
         paymentHandler.inkCounter = 10;
 
 	    // Check if the out of ink exception is thrown
-	    paymentHandler.receiptPrinter(); // Should throw outOfInkException
+	    paymentHandler.receiptPrinter(testOrder); // Should throw outOfInkException
 	    assertTrue(outContent.toString().contains("The printer is out of Paper currently, needs maintenance."));
 	    
 	    // Reset System.out
@@ -165,7 +173,7 @@ public class PaymentHandlerTest {
         paymentHandler.paperSpaceCounter = 100;
 
 	    // Check if the out of ink exception is thrown
-	    paymentHandler.receiptPrinter(); // Should throw outOfInkException
+	    paymentHandler.receiptPrinter(testOrder); // Should throw outOfInkException
 	    assertTrue(outContent.toString().contains("The printer is out of Ink currently, needs maintenance."));
 	    
 	    // Reset System.out
@@ -173,8 +181,8 @@ public class PaymentHandlerTest {
     }
  
     @Test(expected = NullPointerException.class)
-    public void constructor_NullStation_ThrowsException() {
-        new PaymentHandler(null, new ArrayList<>());
+    public void constructor_NullStation_ThrowsException() throws OverloadedDevice {
+        new PaymentHandler(null, new Order(null));
     }
 
     @Test
@@ -193,7 +201,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(2);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
     	checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         paymentHandler.totalCost = new BigDecimal("0.25");
@@ -281,7 +289,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(2);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
 
@@ -306,7 +314,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(2);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         paymentHandler.loadCoinDispenser(coin1, coin2);
@@ -331,7 +339,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(2);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         //should throw error for not recognizing coin in dispenser
@@ -355,8 +363,8 @@ public class PaymentHandlerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testConstructorNullStation() {
-        new PaymentHandler(null, new ArrayList<>());
+    public void testConstructorNullStation() throws OverloadedDevice {
+        new PaymentHandler(null, new Order(null));
     }
 
     @Test
@@ -368,7 +376,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(10);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         
@@ -399,7 +407,7 @@ public class PaymentHandlerTest {
     	SelfCheckoutStation.configureCoinDenominations(listOfCoins);
     	SelfCheckoutStation.configureCoinDispenserCapacity(10);
     	checkoutStation = new SelfCheckoutStation();
-        paymentHandler = new PaymentHandler(checkoutStation, allProducts);
+        paymentHandler = new PaymentHandler(checkoutStation, testOrder);
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         
