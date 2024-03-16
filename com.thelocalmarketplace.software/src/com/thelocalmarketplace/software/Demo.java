@@ -96,7 +96,9 @@ public class Demo {
                 System.out.println("About to print order.");
                 System.out.println("order length is: " + order.getOrder().size());
                 for(Item item: order.getOrder()){
-                    System.out.println(item.toString());
+                    BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(((BarcodedItem) item).getBarcode());
+
+                    System.out.println(product.getDescription());
                 }
 
 
