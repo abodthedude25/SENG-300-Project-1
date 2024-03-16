@@ -120,7 +120,7 @@ public class Demo {
                 System.out.println("The price of a banana is $3. You insert 3 $1 bills.");
 
                 // Add 5 1 dollar coins to the coinsList
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 3; i++) {
                     Coin coin = new Coin(Currency.getInstance(Locale.CANADA), BigDecimal.valueOf(1));
                     coinsList.add(coin);
                 }
