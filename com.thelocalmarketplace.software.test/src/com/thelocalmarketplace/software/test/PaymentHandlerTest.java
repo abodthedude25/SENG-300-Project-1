@@ -102,6 +102,7 @@ public class PaymentHandlerTest {
 
  		// Initializing testOrder
  		testOrder = new Order(baggingArea);
+ 		testOrder.addItemViaBarcodeScan(barcode);
          
         paymentHandler = new PaymentHandler(checkoutStation, testOrder);
 
@@ -140,10 +141,17 @@ public class PaymentHandlerTest {
         System.setOut(new PrintStream(outContent));
         
         paymentHandler = new PaymentHandler(checkoutStation, testOrder);
+        
+        Numeral[] barcodeDigits = {Numeral.zero, Numeral.two, Numeral.three};
+ 		Barcode barcode = new Barcode(barcodeDigits);
+ 		Mass mass = new Mass(3); // Converts the weight of the product to a mass
+ 		BarcodedItem barcodedItem = new BarcodedItem(barcode, mass);
+        testOrder.addItemToOrder(barcodedItem);
 
         paymentHandler.receiptPrinter(testOrder);
 	    assertTrue(outContent.toString().contains("This product is not a supported product, can not be registered for a price"));
 
+	    testOrder.removeLastItemInList();
         // Reset System.out
         System.setOut(System.out);
     }
@@ -235,6 +243,8 @@ public class PaymentHandlerTest {
         coinsList.add(coin1);
         coinsList.add(coin2);
         
+        checkoutStation.plugIn(PowerGrid.instance());
+        checkoutStation.turnOn();
         
         assertFalse(paymentHandler.processPaymentWithCoins(coinsList));
     }
@@ -250,6 +260,12 @@ public class PaymentHandlerTest {
 
         coinsList.add(coin1);
         coinsList.add(coin2);
+        
+        checkoutStation.plugIn(PowerGrid.instance());
+        checkoutStation.turnOn();
+        
+        paymentHandler.totalCost = new BigDecimal("12.0");
+        
         assertTrue("Payment should succeed with exact amount", paymentHandler.processPaymentWithCoins(coinsList));
     }
 
@@ -258,7 +274,6 @@ public class PaymentHandlerTest {
         paymentHandler.processPaymentWithCoins(null); // This should throw NullPointerException
     }
     
-
     /**
      * Test that the coin storage is empty
      * @throws SimulationException
