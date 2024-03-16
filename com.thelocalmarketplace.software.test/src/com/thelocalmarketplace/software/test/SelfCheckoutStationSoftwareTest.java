@@ -27,6 +27,8 @@ package com.thelocalmarketplace.software.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Scanner;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,34 +40,36 @@ import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
 public class SelfCheckoutStationSoftwareTest {
 	
 	private SelfCheckoutStationSoftware software;
+	private Scanner input;
 	
 	@Before
 	public void setup() {
 		software = new SelfCheckoutStationSoftware();
+		input = new Scanner(System.in);
 		SelfCheckoutStationSoftware.setStationActive(false);
 	}
 	
 	@Test (expected = InvalidStateSimulationException.class)
 	public void testStartSessionActiveUsingSetter() {
 		SelfCheckoutStationSoftware.setStationActive(true);
-		software.startSession();
+		software.startSession(input);
 	}
 	
 	@Test (expected = InvalidStateSimulationException.class)
 	public void testStartSessionTwice() {
-		software.startSession();
-		software.startSession();
+		software.startSession(input);
+		software.startSession(input);
 	}
 
 	@Test
 	public void testStartSessionNotActive() {
-		software.startSession();
+		software.startSession(input);
 		assertTrue(SelfCheckoutStationSoftware.getStationActive());
 	}
 	
 	@Test
 	public void testStartSessionBlockGetter() {
-		software.startSession();
+		software.startSession(input);
 		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
 		SelfCheckoutStationSoftware.setStationBlock(true);
 		assertTrue(SelfCheckoutStationSoftware.getStationBlock());
