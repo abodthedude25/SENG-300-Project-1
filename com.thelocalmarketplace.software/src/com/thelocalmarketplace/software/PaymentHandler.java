@@ -32,16 +32,14 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Formatter.BigDecimalLayoutForm;
 
+import com.jjjwelectronics.Item;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
 import com.tdc.ComponentFailure;
 import com.tdc.DisabledException;
 import com.tdc.NoCashAvailableException;
 import com.tdc.coin.Coin;
-import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.PLUCodedProduct;
-import com.thelocalmarketplace.hardware.Product;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.*;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
@@ -57,21 +55,18 @@ public class PaymentHandler extends SelfCheckoutStation {
 	public BigDecimal changeRemaining = BigDecimal.ZERO;
 	public BigDecimal totalCost = new BigDecimal(0);
 	private SelfCheckoutStation checkoutSystem = null;
-	private ArrayList<Product> allProducts;
+	private ArrayList<Item> allItemOrders;
 	public int paperSpaceCounter = 100; // Since there's no receipt printer and therefore no real way to measure paper
 	// and ink, I created counters for both the paper space and the ink in a receipt
 	// printer, starting with an arbitrary number 100
 	public int inkCounter = 100;
 
-	public PaymentHandler(SelfCheckoutStation station, ArrayList<Product> allProducts) {
+	public PaymentHandler(SelfCheckoutStation station, Order order) {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
-		this.allProducts = allProducts;
-		for (int i = 0; i < this.allProducts.size(); i++) {
-			long price = (this.allProducts.get(i).getPrice());
-			this.totalCost = this.totalCost.add(new BigDecimal(price));
-		}
+		this.allItemOrders = order.getOrder();
+		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
 	}
 
 	/**
@@ -174,36 +169,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 		 }
 
 		 return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
-		 
-		/** 
-		 * the following is code that code be later useful for when integrating the
-		 *  dispenseAccurateChange with the receiptPrinter functions
-		 * 
-		 * 
-		 * if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
-			 	Scanner receiptRequest = new Scanner(System.in);
-		 		System.out.println("Would you like a receipt?");
-
-		 		String receiptAnswer = receiptRequest.nextLine();
-
-		 		while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
-		 			System.out.println("Sorry, that input is not acceptable. Try again.");
-		 			System.out.println("Would you like a receipt?");
-		 			receiptAnswer = receiptRequest.nextLine();
-		 		}
-		 		if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
-		 			receiptPrinter();
-		 			System.out.println("Thank you for your time. We hope to see you again!");
-					return true;
-		 		}
-
-		 		if (receiptAnswer.compareToIgnoreCase("no") == 0) {
-		 			System.out.println("No worries. Thank you for your time. We hope to see you again!");
-		 			return true;
-		 		}
-			}
-			return false;
-		 */
 	}
 
 	/**
@@ -211,24 +176,28 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 * total cost, total amount paid, and change due.
 	 */
 
-	public void receiptPrinter() throws OutOfPaperException, OutOfInkException {
+	public void receiptPrinter(Order order) throws OutOfPaperException, OutOfInkException {
 
 		ArrayList<String> receiptItems = new ArrayList<String>();
 
-		for (int i = 0; i < allProducts.size(); i++) {
+		for (int i = 0; i < order.getOrder().size(); i++) {
 			String productDescription;
-			Product p = allProducts.get(i);
+			Item item = order.getOrder().get(i);
 
-			if (p instanceof BarcodedProduct) { // Gets the product description and the price of a barcoded product
-				productDescription = ((BarcodedProduct) p).getDescription();
-				long price = (allProducts.get(i).getPrice());
+			if (item instanceof BarcodedItem) { // Gets the product description and the price of a barcoded product
+				BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(((BarcodedItem) item).getBarcode());
+
+				productDescription = product.getDescription();
+				long price = product.getPrice();
 				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
  
-			else if (p instanceof PLUCodedProduct) { // Gets the product description and the price of a product inputted
+			else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
 												// through price-lookup (PLU)
-				productDescription = ((PLUCodedProduct) p).getDescription();
-				long price = (allProducts.get(i).getPrice());
+				PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
+
+				productDescription = product.getDescription();
+				long price = product.getPrice();
 				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
 			else {

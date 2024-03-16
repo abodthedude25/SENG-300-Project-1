@@ -28,6 +28,8 @@ import com.jjjwelectronics.*;
 import com.jjjwelectronics.scanner.*;
 import com.jjjwelectronics.scale.*;
 import com.thelocalmarketplace.hardware.*;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -60,7 +62,6 @@ public class Demo {
 
             // Create order and addItemViaBarcode scan objects
             Order order = new Order(scale);
-            AddItemViaBarcodeScan scannerListener = new AddItemViaBarcodeScan(order);
 
             // Create barcodes for two items, an apple and banana
             Numeral[] list = {Numeral.valueOf((byte)5), Numeral.valueOf((byte)5)};
@@ -71,12 +72,12 @@ public class Demo {
             // Create a string to hold user input.
             String itemInput;
 
-            // Create an arrayList for all products in the order
-            ArrayList<Product> allProducts = new ArrayList<>();
-
             // Makes barcoded product for apple and banana
             BarcodedProduct apple = new BarcodedProduct(barcodeOfApple, "An apple", 5, 1.00 );
             BarcodedProduct banana = new BarcodedProduct(barcodeOfApple, "A banana", 3, 2.00 );
+
+            ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcodeOfApple, apple);
+            ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcodeOfBanana, banana);
 
             // Make an arraylist for the coins added
             ArrayList<Coin> coinsList = new ArrayList<>();
@@ -88,11 +89,16 @@ public class Demo {
 
             // If the user wants to add an Apple, this occurs
             if (itemInput.equals("1")) {
-                allProducts.add(apple);
-
                 // Tests addItemViaBarcodeScan function
                 order.addItemViaBarcodeScan(barcodeOfApple);
-                PaymentHandler paymentHandler = new PaymentHandler(station, allProducts);
+                PaymentHandler paymentHandler = new PaymentHandler(station, order);
+
+                System.out.println("About to print order.");
+                System.out.println("order length is: " + order.getOrder().size());
+                for(Item item: order.getOrder()){
+                    System.out.println(item.toString());
+                }
+
 
                 System.out.println("The price of an apple is $5. You insert 5 $1 bills.");
 
@@ -102,20 +108,19 @@ public class Demo {
                     coinsList.add(coin);
                 }
 
+
                 // Test processPaymentWithCoins function, if successful print out a receipt.
                 if (paymentHandler.processPaymentWithCoins(coinsList)) {
                     System.out.println("Payment Successful!");
-                    paymentHandler.receiptPrinter();
+                    paymentHandler.receiptPrinter(order);
                 } else
                     System.out.println("Unsuccessful Payment!");
 
             // If the user wants to add a Banana, this occurs
             } else if (itemInput.equals("2")) {
-                allProducts.add(banana);
-
                 // Tests addItemViaBarcodeScan function
                 order.addItemViaBarcodeScan(barcodeOfBanana);
-                PaymentHandler paymentHandler = new PaymentHandler(station, allProducts);
+                PaymentHandler paymentHandler = new PaymentHandler(station, order);
 
                 System.out.println("The price of a banana is $3. You insert 3 $1 bills.");
 
@@ -128,7 +133,7 @@ public class Demo {
                 // Test processPaymentWithCoins function, if successful print out a receipt.
                 if (paymentHandler.processPaymentWithCoins(coinsList)) {
                     System.out.println("Payment Successful!");
-                    paymentHandler.receiptPrinter();
+                    paymentHandler.receiptPrinter(order);
                 } else
                     System.out.println("Unsuccessful Payment!");
             }
