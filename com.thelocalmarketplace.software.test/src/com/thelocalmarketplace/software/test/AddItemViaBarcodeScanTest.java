@@ -60,6 +60,9 @@ public class AddItemViaBarcodeScanTest {
 
 	@Before
 	public void setUp() throws OverloadedDevice {
+		// Start a new session
+		SelfCheckoutStationSoftware.setStationActive(true);
+		
 		// Make a power grid for hardware to connect to
 		grid = PowerGrid.instance();
 
@@ -92,7 +95,7 @@ public class AddItemViaBarcodeScanTest {
 
 		// Initializing testOrder
 		testOrder = new Order(baggingArea);
-		
+
 		// Initializing weightDiscrepancy
 		weightDiscrepancy = new WeightDiscrepancy(testOrder, baggingArea);
 
@@ -104,7 +107,7 @@ public class AddItemViaBarcodeScanTest {
 		testBaggingAreaListener = new BaggingAreaListener(testOrder);
 		baggingArea.register(testBaggingAreaListener);
 	}
-	
+
 	@Test
 	public void testProductLookupInDatabase(){
 		BarcodedProduct foundProduct = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcodedItem.getBarcode());
@@ -123,7 +126,7 @@ public class AddItemViaBarcodeScanTest {
 
 
 	}
-	
+
 	@Test
 	public void testUpdatesTheOrderTotalForPrice(){
 		testOrder.addTotalPrice(barcodedProduct.getPrice());
@@ -159,46 +162,113 @@ public class AddItemViaBarcodeScanTest {
 	}
 	
 	@Test
+	public void testABarcodeHasBeenScannedWhenNoSession() {
+		SelfCheckoutStationSoftware.setStationActive(false);
+		
+		scanner.scan(barcodedItem);
+
+		// Item should NOT be added to the order
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+	}
+
+	@Test
 	public void testABarcodeHasBeenScannedAndAddItemToBaggingArea() throws OverloadedDevice {
 		scanner.scan(barcodedItem);
 		baggingArea.addAnItem(barcodedItem);
-		
+
 		// System should not be blocked
 		assertFalse(SelfCheckoutStationSoftware.getStationBlock());
 	}
-	
-    @Test
-    public void testAddItemToOrder() {
-        testOrder.addItemToOrder(barcodedItem);
-        
-        // Item should be added to the order
-        ArrayList<Item> order = testOrder.getOrder();
-        assertTrue(!order.isEmpty());
-    }
-    
-    @Test
-    public void testGetOrderWhenEmpty() {
-        ArrayList<Item> order = testOrder.getOrder();
-        assertTrue(order.isEmpty());
-    }
-    
-    @Test
-    public void testGetOrderWhenNotEmpty() {
-        testOrder.addItemToOrder(barcodedItem);
+	@Test
+	public void testProductAddNullBarcodeToOrder() {
+		Numeral[] nonExistentBarcodeDigits = {Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven, Numeral.seven};
+		Barcode nonExistentBarcode = new Barcode(nonExistentBarcodeDigits);
+		Mass fakeMass = new Mass(1000000000); 
+		barcodedItem = new BarcodedItem(nonExistentBarcode, fakeMass);
+		scanner.scan(barcodedItem);
 
-        ArrayList<Item> order = testOrder.getOrder();
-        assertTrue(order.contains(barcodedItem));
-    }
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+
+	}
 
 	@Test
-	public void testWeightHasChanged() {
+	public void testAddItemToOrder() {
+		testOrder.addItemToOrder(barcodedItem);
+
+		// Item should be added to the order
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(!order.isEmpty());
+	}
+
+	@Test
+	public void testGetOrderWhenEmpty() {
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.isEmpty());
+	}
+
+	@Test
+	public void testGetOrderWhenNotEmpty() {
+		testOrder.addItemToOrder(barcodedItem);
+
+		ArrayList<Item> order = testOrder.getOrder();
+		assertTrue(order.contains(barcodedItem));
+	}
+	@Test
+	public void testAddTotalWeightInGrams() {
+		double initialWeight = testOrder.getTotalWeightInGrams(); 
+		double weightToAdd = 100.0;
+		testOrder.addTotalWeightInGrams(weightToAdd);
+		assertEquals("The total weight should be updated correctly", initialWeight + weightToAdd, testOrder.getTotalWeightInGrams(), 0.001);
+	}
+
+	@Test
+	public void testAddNegativeWeight() {
+		double initialWeight = testOrder.getTotalWeightInGrams();
+		double weightToAdd = -50.0;
+		testOrder.addTotalWeightInGrams(weightToAdd);
+		assertEquals("The total weight should decrease when adding negative weight", initialWeight + weightToAdd, testOrder.getTotalWeightInGrams(), 0.001);
+	}
+
+	@Test
+	public void testAddZeroWeight() {
+		double initialWeight = testOrder.getTotalWeightInGrams();
+		testOrder.addTotalWeightInGrams(0);
+		assertEquals("The total weight should remain unchanged when adding zero", initialWeight, testOrder.getTotalWeightInGrams(), 0.001);
+	}
+
+	@Test
+	public void testAddTotalPrice() {
+		long initialPrice = 100L; // Assuming the constructor or another method sets it to 100
+		testOrder.addTotalPrice(initialPrice);
+
+		// Add a specific price to the total
+		long priceToAdd = 50L;
+		testOrder.addTotalPrice(priceToAdd);
+
+		//Check if the total price has been updated correctly
+		long expectedTotalPrice = initialPrice + priceToAdd;
+		assertEquals(expectedTotalPrice, testOrder.getTotalPrice()); //method to get the total price
+	}
+
+	@Test
+	public void testWeightHasChanged() throws OverloadedDevice {
 		// test for signals to the system that the weight changed
 		// A customer scans an item. 
 		scanner.scan(barcodedItem);
+
+		// get the initial mass from the bagging area
+		Mass initial = baggingArea.getCurrentMassOnTheScale();
 		// A customer places the item in the bagging area
 		baggingArea.addAnItem(barcodedItem);
+		// get the new mass from the bagging area
+		Mass current = baggingArea.getCurrentMassOnTheScale();
+
+		// Initial and current mass should not be the same
+		assertNotSame(initial, current);
 	}
-	
+
 	@After
 	public void tearDown() {
 		// de-register listeners 
@@ -212,7 +282,7 @@ public class AddItemViaBarcodeScanTest {
 		baggingArea.disable();
 		baggingArea.turnOff();
 		baggingArea.unplug();
-		
+
 		// Unblock the system
 		SelfCheckoutStationSoftware.setStationBlock(false);
 	}

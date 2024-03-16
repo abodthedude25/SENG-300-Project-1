@@ -28,6 +28,9 @@ import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
 import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;
 import java.util.Scanner;
 
+/**
+ * This class is for the software required for the self-checkout station session
+ */
 public class SelfCheckoutStationSoftware {
 
 	/**
@@ -58,8 +61,8 @@ public class SelfCheckoutStationSoftware {
 	/**
 	 * Set function to change the active variable value.
 	 */
-	public static void setStationActive() {
-		active = true;
+	public static void setStationActive(boolean value) {
+		active = value;
 	}
 
 	/**
@@ -71,23 +74,22 @@ public class SelfCheckoutStationSoftware {
 	
 	/**
 	 * Function to start a session for self-checkout machine
+	 * @param scanner The scanner used to obtain user input.
 	 * @throws InvalidStateSimulationException If a session is already active.
 	 */
-	public void startSession() {
+	public void startSession(Scanner scanner) {
 		if (active) {
 			throw new InvalidStateSimulationException("Session already started.");
 		}
 		
 		resetConfigurationToDefaults(); // Reset all self-checkout station configurations to default.
 		
-		Scanner scanner = new Scanner(System.in); // Create a scanner object to read user input.
-		
+
 		// Prompt the user to touch anywhere to start and wait for an input.
 		System.out.println("Welcome to The Local Marketplace. Touch anywhere to start.");
-		scanner.nextLine(); // Obtain user input to simulate customer touching screen. Will be implemented with a button in future iterations
+		scanner.nextLine();
 
-		active = true; // Set the current session to active.
-		
-		scanner.close(); // Close the scanner.
+		setStationActive(true); // Set the current session to active.
+
 	}
 }

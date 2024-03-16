@@ -63,7 +63,6 @@ public class CoinAdderTest {
         PowerGrid.engageUninterruptiblePowerSource();
         PowerGrid.instance().forcePowerRestore();
 
-
     }
 
     @After

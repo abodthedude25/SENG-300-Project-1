@@ -65,12 +65,18 @@ public class BaggingAreaListener implements ElectronicScaleListener {
 		// TODO Auto-generated method stub
 
 	}
+	
+	/**
+	 * When an item is added to the bagging area, it checks for a discrepancy. The BaggingAreaListener needs
+	 * to be registered to the scale.
+	 * @param scale
+	 * @param mass
+	 */
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
 		// This will be for the use case Add item by Barcode Scan
 		// Signals to the system that the weight has changed
 
-		// temporary print statement, will later be made to signal to the system the weight has changed
 		System.out.println("Weight changed in the bagging area: " + mass);
 
 		try {

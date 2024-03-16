@@ -96,7 +96,7 @@ public abstract class AbstractElectronicScale extends AbstractDevice<ElectronicS
 		// To avoid drift in the sum due to round-off error, recalculate the mass.
 		Mass newMass = Mass.ZERO;
 		for(Item itemOnScale : items)
-			newMass = newMass.sum(itemOnScale.getMass());
+			newMass = newMass.sum(itemOnScale.getMass()); 
 
 		currentMass = newMass;
 
