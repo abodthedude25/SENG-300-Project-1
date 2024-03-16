@@ -223,7 +223,7 @@ public class WeightDiscrepancyTest {
          order4.addItemToOrder(item2);
          scale4.addAnItem(item1);
           
-        weightDiscrepancy4.unBlock(); 
+        weightDiscrepancy4.checkIfCanUnblock();
         
         assertFalse(SelfCheckoutStationSoftware.getStationBlock());     
         
@@ -251,7 +251,7 @@ public class WeightDiscrepancyTest {
    
         scale4.addAnItem(item2);
           
-        weightDiscrepancy4.unBlock(); 
+        weightDiscrepancy4.checkIfCanUnblock();
         assertTrue(SelfCheckoutStationSoftware.getStationBlock());    
  
             }
