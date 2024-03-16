@@ -28,6 +28,9 @@ import ca.ucalgary.seng300.simulation.InvalidStateSimulationException;
 import static com.thelocalmarketplace.hardware.SelfCheckoutStation.resetConfigurationToDefaults;
 import java.util.Scanner;
 
+/**
+ * This class is for the software required for the self-checkout station session
+ */
 public class SelfCheckoutStationSoftware {
 
 	/**
