@@ -87,7 +87,9 @@ public class SelfCheckoutStationSoftware {
 
 		// Prompt the user to touch anywhere to start and wait for an input.
 		System.out.println("Welcome to The Local Marketplace. Touch anywhere to start.");
-		scanner.nextLine();
+		
+		// assume the user gives some kind of input.
+		// scanner.nextLine();
 
 		setStationActive(true); // Set the current session to active.
 
