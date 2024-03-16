@@ -109,9 +109,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
-		System.out.println(value);
 
-		System.out.println(totalCost);
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
 

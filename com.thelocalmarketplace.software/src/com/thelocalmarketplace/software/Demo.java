@@ -93,15 +93,6 @@ public class Demo {
                 order.addItemViaBarcodeScan(barcodeOfApple);
                 PaymentHandler paymentHandler = new PaymentHandler(station, order);
 
-                System.out.println("About to print order.");
-                System.out.println("order length is: " + order.getOrder().size());
-                for(Item item: order.getOrder()){
-                    BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(((BarcodedItem) item).getBarcode());
-
-                    System.out.println(product.getDescription());
-                }
-
-
                 System.out.println("The price of an apple is $5. You insert 5 $1 bills.");
 
                 // Add 5 1 dollar coins to the coinsList
