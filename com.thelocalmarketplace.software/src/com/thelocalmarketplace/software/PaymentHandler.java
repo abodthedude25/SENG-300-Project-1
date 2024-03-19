@@ -22,7 +22,9 @@
  * Nami Marwah (UCID: 30178528)
  */
 
+
 package com.thelocalmarketplace.software;
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Formatter.BigDecimalLayoutForm;
 
-import javax.smartcardio.Card;
 
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.scanner.BarcodedItem;
@@ -44,14 +45,17 @@ import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.*;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
+
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import ca.ucalgary.seng300.simulation.SimulationException;
+
 
 /**
  * Manages the payment process with coins for a self-checkout system.
  * Handles coin insertion, validation, and change dispensing.
  */
 public class PaymentHandler extends SelfCheckoutStation {
+
 
 	public BigDecimal amountSpent;
 	public BigDecimal changeRemaining = BigDecimal.ZERO;
@@ -63,6 +67,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 	// printer, starting with an arbitrary number 100
 	public int inkCounter = 100;
 
+
 	public PaymentHandler(SelfCheckoutStation station, Order order) {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
@@ -71,19 +76,21 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
 	}
 
-	/** 
+
+	/**
 	 * will be used to help with Signaling to the Customer the updated amount
 	 * due after the insertion of each coin.
-	 * 
+	 *
 	 * @return money left to pay
 	 */
 	public BigDecimal getChangeRemaining() {
 		return this.changeRemaining;
 	}
 
+
 	/**
 	 * Processes payment using coins inserted by the customer.
-	 * 
+	 *
 	 * @param coinsList List of coins inserted by the customer.
 	 * @return true if payment is successful, false otherwise.
 	 * @throws DisabledException        If the coin slot is disabled.
@@ -100,22 +107,26 @@ public class PaymentHandler extends SelfCheckoutStation {
 			System.out.println("Blocked. Please add your item to the bagging area.");
 			return false;
 		}
-		
+
 		if (coinsList == null)
 			throw new NullPointerException("coinsList cannot be null."); // Check for null parameters.
-		
+
 		BigDecimal value = new BigDecimal("0");
 		for (Coin coin : coinsList) { // Calculate the total value of coins inserted.
 			value = value.add(coin.getValue());
 		}
 
+
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
+
 
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
 
+
 		this.amountSpent = this.totalCost;
+
 
 		// Return true if accurate change is dispensed.
 		if (value.compareTo(this.totalCost) > 0) {
@@ -125,12 +136,13 @@ public class PaymentHandler extends SelfCheckoutStation {
 		return true;
 	}
 
+
 	/**
 	 * Dispenses the correct amount of change to the customer and gives them the
 	 * choice to print a receipt.
-	 * 
+	 *
 	 * Implements change dispensing logic using available coin denominations.
-	 * 
+	 *
 	 * @param changeValue The amount of change to be dispensed.
 	 * @return true if correct change is dispensed, false otherwise.
 	 * @throws DisabledException        If the coin slot is disabled.
@@ -143,69 +155,76 @@ public class PaymentHandler extends SelfCheckoutStation {
 	public boolean dispenseAccurateChange(BigDecimal changeValue)
 			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
 			OutOfInkException {
-		
+
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
 		Collections.sort(coinDenominations);
 		Collections.reverse(coinDenominations);
 
-		 if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-		 	for (int i = 0; i < coinDenominations.size(); i++) {
-		 		BigDecimal val = coinDenominations.get(i);
-		 		System.out.println(val);
-		 		while (remainingAmount.compareTo(val) >= 0 && checkoutSystem.coinDispensers.get(val).size() > 0) {
-		 			this.checkoutSystem.coinDispensers.get(val).emit();
-		 			amountDispensed = amountDispensed.add(val);
-		 			remainingAmount = remainingAmount.subtract(val);
-		 		}
-		 	}
-		 	BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
-		 	if (remainingAmount.compareTo(lowestCoin) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-		 		this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
-		 		amountDispensed = changeValue;
-		 		remainingAmount = BigDecimal.ZERO;
-		 	}
-		 }
 
-		 return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
-		 
-		 /** 
-		  * the following is code that code be later useful for when integrating the
-		  * dispenseAccurateChange with the receiptPrinter functions
-		  *
+		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+			for (int i = 0; i < coinDenominations.size(); i++) {
+				BigDecimal val = coinDenominations.get(i);
+				System.out.println(val);
+				while (remainingAmount.compareTo(val) >= 0 && checkoutSystem.coinDispensers.get(val).size() > 0) {
+					this.checkoutSystem.coinDispensers.get(val).emit();
+					amountDispensed = amountDispensed.add(val);
+					remainingAmount = remainingAmount.subtract(val);
+				}
+			}
+			BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
+			if (remainingAmount.compareTo(lowestCoin) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+				this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
+				amountDispensed = changeValue;
+				remainingAmount = BigDecimal.ZERO;
+			}
+		}
+
+
+		return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
+
+		/**
+		 * the following is code that code be later useful for when integrating the
+		 * dispenseAccurateChange with the receiptPrinter functions
+		 *
 		 if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
-		       Scanner receiptRequest = new Scanner(System.in);
-		       System.out.println("Would you like a receipt?");
-		       String receiptAnswer = receiptRequest.nextLine();
-		       while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
-		           System.out.println("Sorry, that input is not acceptable. Try again.");
-		           System.out.println("Would you like a receipt?");
-		           receiptAnswer = receiptRequest.nextLine();}
-		       if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
-		           receiptPrinter();
-		           System.out.println("Thank you for your time. We hope to see you again!");
-		          return true;}
-		       if (receiptAnswer.compareToIgnoreCase("no") == 0) {
-		           System.out.println("No worries. Thank you for your time. We hope to see you again!");
-		           return true;}}
-		  return false;
+		 Scanner receiptRequest = new Scanner(System.in);
+		 System.out.println("Would you like a receipt?");
+		 String receiptAnswer = receiptRequest.nextLine();
+		 while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+		 System.out.println("Sorry, that input is not acceptable. Try again.");
+		 System.out.println("Would you like a receipt?");
+		 receiptAnswer = receiptRequest.nextLine();}
+		 if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
+		 receiptPrinter();
+		 System.out.println("Thank you for your time. We hope to see you again!");
+		 return true;}
+		 if (receiptAnswer.compareToIgnoreCase("no") == 0) {
+		 System.out.println("No worries. Thank you for your time. We hope to see you again!");
+		 return true;}}
+		 return false;
 		 */
 	}
+
 
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
 	 * total cost, total amount paid, and change due.
 	 */
 
+
 	public void receiptPrinter(Order order) throws OutOfPaperException, OutOfInkException {
 
+
 		ArrayList<String> receiptItems = new ArrayList<String>();
+
 
 		System.out.println(order.getOrder().size());
 		for (int i = 0; i < order.getOrder().size(); i++) {
 			String productDescription;
 			Item item = order.getOrder().get(i);
+
 
 			if (item instanceof BarcodedItem) { // Gets the product description and the price of a barcoded product
 				BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(((BarcodedItem) item).getBarcode());
@@ -214,28 +233,33 @@ public class PaymentHandler extends SelfCheckoutStation {
 				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
 			}
 
- //this should be added later on for PLUcode use-case handling
-//			else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
-//												// through price-lookup (PLU)
-//				PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
+
+//this should be added later on for PLUcode use-case handling
+//       else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
+//                                  // through price-lookup (PLU)
+//          PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
 //
-//				productDescription = product.getDescription();
-//				long price = product.getPrice();
-//				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
-//			}
+//          productDescription = product.getDescription();
+//          long price = product.getPrice();
+//          receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
+//       }
 			else {
 				throw new NullPointerException("This product is not a supported product, can not be registered for a price");
 			}
 
+
 		}
+
 
 		BigDecimal purchaseValue = totalCost;
 		BigDecimal amountPaid = amountSpent;
 		BigDecimal changeDue = changeRemaining;
 
+
 		receiptItems.add("Total: $" + String.format("%.2f", purchaseValue));
 		receiptItems.add("Paid: $" + String.format("%.2f", amountPaid));
 		receiptItems.add("Change: $" + String.format("%.2f", changeDue));
+
 
 		for (int i = 0; i < receiptItems.size(); i++) {
 			System.out.println("\n"); // Adds a newline
@@ -243,6 +267,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 			System.out.println(receiptItems.get(i)); // Prints the product description and price at a specific index
 			inkCounter -= 5; // Both paper and ink are used up in the printer
 			paperSpaceCounter -= 5;
+
 
 			if (paperSpaceCounter <= 0) {
 				checkoutSystem = null;
@@ -255,9 +280,10 @@ public class PaymentHandler extends SelfCheckoutStation {
 		}
 	}
 
+
 	/**
 	 * Loads coins into the coin dispensers for change.
-	 * 
+	 *
 	 * @param coins Coins to be loaded into the dispensers.
 	 * @throws CashOverloadException If the coin dispensers are overloaded with
 	 *                               coins.
@@ -281,9 +307,6 @@ public class PaymentHandler extends SelfCheckoutStation {
 		}
 	}
 
-	public void payWithCreditViaSwipe(Card card) {
-		CardSwipeData data = card.swipe();
-
-	}
 
 }
+
