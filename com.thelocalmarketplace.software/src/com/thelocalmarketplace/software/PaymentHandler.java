@@ -62,10 +62,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 	public BigDecimal totalCost = new BigDecimal(0);
 	private SelfCheckoutStation checkoutSystem = null;
 	private ArrayList<Item> allItemOrders;
-	public int paperSpaceCounter = 100; // Since there's no receipt printer and therefore no real way to measure paper
-	// and ink, I created counters for both the paper space and the ink in a receipt
-	// printer, starting with an arbitrary number 100
-	public int inkCounter = 100;
+
 
 
 	public PaymentHandler(SelfCheckoutStation station, Order order) {
@@ -181,30 +178,23 @@ public class PaymentHandler extends SelfCheckoutStation {
 			}
 		}
 
+		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+			Scanner receiptRequest = new Scanner(System.in);
+			System.out.println("Would you like a receipt?"); // Asks the user for a receipt
+			String receiptAnswer = receiptRequest.nextLine();
+			while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
+				System.out.println("Sorry, that input is not acceptable. Try again."); // Keeps prompting user for receipt until "yes" or "no" answer
+				System.out.println("Would you like a receipt?");
+				receiptAnswer = receiptRequest.nextLine();}
+			if (receiptAnswer.compareToIgnoreCase("yes") == 0) { // If yes, receiptPrinter and thank user
+				receiptPrinter();
+				System.out.println("Thank you for your time. We hope to see you again!");
+				return true;}
+			if (receiptAnswer.compareToIgnoreCase("no") == 0) { // If no, thank user
+				System.out.println("No worries. Thank you for your time. We hope to see you again!");
+				return true;}}
+		return false;
 
-		return (remainingAmount.compareTo(BigDecimal.ZERO) == 0);
-
-		/**
-		 * the following is code that code be later useful for when integrating the
-		 * dispenseAccurateChange with the receiptPrinter functions
-		 *
-		 if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
-		 Scanner receiptRequest = new Scanner(System.in);
-		 System.out.println("Would you like a receipt?");
-		 String receiptAnswer = receiptRequest.nextLine();
-		 while (receiptAnswer.compareToIgnoreCase("yes") != 0 || receiptAnswer.compareToIgnoreCase("no") != 0) {
-		 System.out.println("Sorry, that input is not acceptable. Try again.");
-		 System.out.println("Would you like a receipt?");
-		 receiptAnswer = receiptRequest.nextLine();}
-		 if (receiptAnswer.compareToIgnoreCase("yes") == 0) {
-		 receiptPrinter();
-		 System.out.println("Thank you for your time. We hope to see you again!");
-		 return true;}
-		 if (receiptAnswer.compareToIgnoreCase("no") == 0) {
-		 System.out.println("No worries. Thank you for your time. We hope to see you again!");
-		 return true;}}
-		 return false;
-		 */
 	}
 
 
@@ -234,15 +224,13 @@ public class PaymentHandler extends SelfCheckoutStation {
 			}
 
 
-//this should be added later on for PLUcode use-case handling
-//       else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
-//                                  // through price-lookup (PLU)
-//          PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
-//
-//          productDescription = product.getDescription();
-//          long price = product.getPrice();
-//          receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
-//       }
+			else if (item instanceof PLUCodedItem) { // Gets the product description and the price of a product inputted
+				// through price-lookup (PLU)
+				PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(((PLUCodedItem) item).getPLUCode());
+				productDescription = product.getDescription();
+				long price = product.getPrice();
+				receiptItems.add(productDescription + " $" + String.format("%.2f", (float)price));
+			}
 			else {
 				throw new NullPointerException("This product is not a supported product, can not be registered for a price");
 			}
@@ -263,20 +251,10 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 		for (int i = 0; i < receiptItems.size(); i++) {
 			System.out.println("\n"); // Adds a newline
-			paperSpaceCounter -= 5; // Paper space is decreased by an arbitrary number (5, in this case)
-			System.out.println(receiptItems.get(i)); // Prints the product description and price at a specific index
-			inkCounter -= 5; // Both paper and ink are used up in the printer
-			paperSpaceCounter -= 5;
-
-
-			if (paperSpaceCounter <= 0) {
-				checkoutSystem = null;
-				throw new OutOfPaperException("The printer is out of Paper currently, needs maintenance.");
+			for (int j = 0; j < receiptItems.get(i).length(); j++) {
+				System.out.println(receiptItems.get(i).charAt(j));
 			}
-			if (inkCounter <= 0) {
-				checkoutSystem = null;
-				throw new OutOfInkException("The printer is out of Ink currently, needs maintenance.");
-			}
+
 		}
 	}
 
