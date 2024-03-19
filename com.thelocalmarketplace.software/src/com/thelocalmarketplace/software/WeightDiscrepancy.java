@@ -30,32 +30,22 @@ import java.util.List;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScale; 
+import com.jjjwelectronics.scale.AbstractElectronicScale; 
 
-public class WeightDiscrepancy extends ElectronicScale{
+public class WeightDiscrepancy {
 	
 	private List<Item> items;
-	private static ElectronicScale scale;
+	private static AbstractElectronicScale scale;
 	private Mass weightAtBlock;
 	private static double value;
 	private static double weightAtBlockDouble;
 	
-    /**
-     // Records weight at time of discrepancy before block
-     // Added weightAtBlock to constructor instead
-   
-	private void getWeightAtBlock() {
-		weightAtBlock = scale.getCurrentMassOnTheScale();
-	}
 
-    */
-	
-	
 	/**
 	 * Constructor for order
 	 * @throws OverloadedDevice 
 	 */
-	public WeightDiscrepancy(Order order, ElectronicScale scale) {  // revised some code for the demo class 
+	public WeightDiscrepancy(Order order, AbstractElectronicScale scale) {  // revised some code for the demo class 
 		this.items = order.getOrder();
 	    this.scale = scale;
 	    try {
@@ -80,8 +70,6 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 */
 	
 	public void updateMass() {
-//		Mass currMass = scale.getCurrentMassOnTheScale();
-//		currMass = currMass * 1_000_000;
 		for (Item item : items) {
 			scale.addAnItem(item);
 		}
@@ -175,11 +163,11 @@ public class WeightDiscrepancy extends ElectronicScale{
 	 * If blocked, will check if correct item was added/removed using setBlocked
 	 * Will unblock if weight change fixes the weight discrepancy
 	 */
-	@Override
-	public void notifyMassChanged() {
-		super.notifyMassChanged();
-		checkDiscrepancy();
-	}
+//	@Override
+//	public void notifyMassChanged() {
+//		super.notifyMassChanged();
+//		checkDiscrepancy();
+//	}
 
 	
 	public static void setStationBlock(boolean b) {
