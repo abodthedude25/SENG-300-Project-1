@@ -1,5 +1,5 @@
 /**
- * Yotam Rojnov (UCID: 30173949)
+ * Yotam i Rojnov (UCID: 30173949)
  * Duncan McKay (UCID: 30177857)
  * Mahfuz Alam (UCID:30142265)
  * Luis Trigueros Granillo (UCID: 30167989)
