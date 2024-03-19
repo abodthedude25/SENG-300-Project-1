@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Formatter.BigDecimalLayoutForm;
 
+import javax.smartcardio.Card;
+
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
@@ -277,6 +279,11 @@ public class PaymentHandler extends SelfCheckoutStation {
 				throw new NullPointerException("This coin type does not exist.");
 			}
 		}
+	}
+
+	public void payWithCreditViaSwipe(Card card) {
+		CardSwipeData data = card.swipe();
+
 	}
 
 }
