@@ -34,9 +34,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Formatter.BigDecimalLayoutForm;
 
-
+import com.jjjwelectronics.EmptyDevice;
 import com.jjjwelectronics.Item;
+import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.jjjwelectronics.printer.*;
 import com.tdc.CashOverloadException;
 import com.tdc.ComponentFailure;
 import com.tdc.DisabledException;
@@ -62,15 +64,19 @@ public class PaymentHandler extends SelfCheckoutStation {
 	public BigDecimal totalCost = new BigDecimal(0);
 	private SelfCheckoutStation checkoutSystem = null;
 	private ArrayList<Item> allItemOrders;
+	private ReceiptPrinterGold gold;
 
 
 
-	public PaymentHandler(SelfCheckoutStation station, Order order) {
+	public PaymentHandler(SelfCheckoutStation station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
 		this.allItemOrders = order.getOrder();
 		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
+		this.gold = new ReceiptPrinterGold();
+		this.gold.addInk(this.gold.MAXIMUM_INK);
+		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
 	}
 
 
@@ -96,10 +102,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 *                                  change.
 	 * @throws OutOfInkException
 	 * @throws OutOfPaperException
+	 * @throws OverloadedDevice
+	 * @throws EmptyDevice
 	 */
 	public boolean processPaymentWithCoins(ArrayList<Coin> coinsList)
 			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
-			OutOfInkException {
+			OutOfInkException, EmptyDevice, OverloadedDevice {
 		if (SelfCheckoutStationSoftware.getStationBlock()) {
 			System.out.println("Blocked. Please add your item to the bagging area.");
 			return false;
@@ -148,10 +156,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	 *                                  change.
 	 * @throws OutOfInkException
 	 * @throws OutOfPaperException
+	 * @throws OverloadedDevice
+	 * @throws EmptyDevice
 	 */
 	public boolean dispenseAccurateChange(BigDecimal changeValue)
 			throws DisabledException, CashOverloadException, NoCashAvailableException, OutOfPaperException,
-			OutOfInkException {
+			OutOfInkException, EmptyDevice, OverloadedDevice {
 
 		BigDecimal amountDispensed = new BigDecimal("0.0");
 		BigDecimal remainingAmount = changeValue;
@@ -187,7 +197,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 				System.out.println("Would you like a receipt?");
 				receiptAnswer = receiptRequest.nextLine();}
 			if (receiptAnswer.compareToIgnoreCase("yes") == 0) { // If yes, receiptPrinter and thank user
-				receiptPrinter();
+				printReceiptForCustomer(null);
 				System.out.println("Thank you for your time. We hope to see you again!");
 				return true;}
 			if (receiptAnswer.compareToIgnoreCase("no") == 0) { // If no, thank user
@@ -201,10 +211,12 @@ public class PaymentHandler extends SelfCheckoutStation {
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
 	 * total cost, total amount paid, and change due.
+	 * @throws OverloadedDevice
+	 * @throws EmptyDevice
 	 */
 
 
-	public void receiptPrinter(Order order) throws OutOfPaperException, OutOfInkException {
+	public String printReceiptForCustomer(Order order) throws OutOfPaperException, OutOfInkException, EmptyDevice, OverloadedDevice {
 
 
 		ArrayList<String> receiptItems = new ArrayList<String>();
@@ -250,12 +262,31 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 
 		for (int i = 0; i < receiptItems.size(); i++) {
-			System.out.println("\n"); // Adds a newline
+			this.gold.print('\n');
+
+			if (this.gold.paperRemaining() == 0) {
+				this.checkoutSystem = null;
+				throw new OutOfPaperException("This station is out of paper and needs maintenance.");
+			}
+
 			for (int j = 0; j < receiptItems.get(i).length(); j++) {
-				System.out.println(receiptItems.get(i).charAt(j));
+				this.gold.print(receiptItems.get(i).charAt(j));
+
+				if (this.gold.paperRemaining() == 0) {
+					this.checkoutSystem = null;
+					throw new OutOfPaperException("This station is out of paper and needs maintenance.");
+				}
+
+				if (this.gold.inkRemaining() == 0) {
+					this.checkoutSystem = null;
+					throw new OutOfPaperException("This station is out of ink and needs maintenance.");
+				}
 			}
 
 		}
+
+		this.gold.cutPaper();
+		return this.gold.removeReceipt();
 	}
 
 
