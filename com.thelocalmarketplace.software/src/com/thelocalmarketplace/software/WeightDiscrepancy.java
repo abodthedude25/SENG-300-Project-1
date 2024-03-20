@@ -187,6 +187,9 @@ public class WeightDiscrepancy {
 	 */
 	public static void handleBulkyItem(Order order, double productWeight) {
 		SelfCheckoutStationSoftware.setStationBlock(true);
+		System.out.println("No-bagging request is in progress.");
+		// add code here when attendant feedback can be handled (?) 
+		System.out.println("Request has been approved");
 		double expectedWeight = order.getTotalWeightInGrams();
 		double finalWeight = productWeight - expectedWeight; // should be =<0
 		order.addTotalWeightInGrams(finalWeight);
