@@ -21,7 +21,7 @@ import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.printer.*;
 
 
-public class PayWithBanknoteUpdated {
+public class PayWithBanknote {
 
 	private BanknoteInsertionSlot insertionSlot;
 	private BanknoteValidator banknoteValidator;
@@ -40,7 +40,7 @@ public class PayWithBanknoteUpdated {
 	private ReceiptPrinterGold gold;
 
 	//remove this once part of the paymentHandler class
-	public PayWithBanknoteUpdated(BigDecimal totalAmount) {
+	public PayWithBanknote(BigDecimal totalAmount) {
 
 		this.totalCost = totalAmount;
 		// create a new instance of insertionSlot
