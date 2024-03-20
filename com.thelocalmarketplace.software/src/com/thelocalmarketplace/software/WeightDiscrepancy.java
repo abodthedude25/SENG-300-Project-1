@@ -178,6 +178,20 @@ public class WeightDiscrepancy {
 			SelfCheckoutStationSoftware.setStationBlock(false);
 		}
 	}
+	
+	/**
+	 * When called will remove weight of the bulky item from the expected total weight
+	 * Allows for bulky items to not be bagged, and not cause a weight discrepancy
+	 * @param order
+	 * @param productWeight, weight of the bulky item
+	 */
+	public static void handleBulkyItem(Order order, double productWeight) {
+		SelfCheckoutStationSoftware.setStationBlock(true);
+		double expectedWeight = order.getTotalWeightInGrams();
+		double finalWeight = productWeight - expectedWeight; // should be =<0
+		order.addTotalWeightInGrams(finalWeight);
+		SelfCheckoutStationSoftware.setStationBlock(false);
+	}
 }
 
 
