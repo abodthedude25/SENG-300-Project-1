@@ -32,18 +32,45 @@ import java.util.ArrayList;
 import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.coin.Coin;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 
-public class CoinAdder extends SelfCheckoutStation{
+public class CoinAdder {
 
-	private SelfCheckoutStation cStation;
+	private AbstractSelfCheckoutStation cStation;
 	private ArrayList<Coin> coinsList;
 
 	/*
 	 * Creates a list of inserted coins that can be used as argument for PaymentHandler.
+	 * For bronze self checkout station.
 	 */
-	public CoinAdder(SelfCheckoutStation cStation) {
+	public CoinAdder(SelfCheckoutStationBronze cStation) {
+		if(cStation == null) throw new NullPointerException("No argument may be null.");
+		this.cStation = cStation;
+		this.coinsList = new ArrayList<Coin>();
+
+	}
+	
+	/*
+	 * Creates a list of inserted coins that can be used as argument for PaymentHandler.
+	 * For silver self checkout station.
+	 */
+	public CoinAdder(SelfCheckoutStationSilver cStation) {
+		if(cStation == null) throw new NullPointerException("No argument may be null.");
+		this.cStation = cStation;
+		this.coinsList = new ArrayList<Coin>();
+
+	}
+	
+	/*
+	 * Creates a list of inserted coins that can be used as argument for PaymentHandler.
+	 * For gold self checkout station.
+	 */
+	public CoinAdder(SelfCheckoutStationGold cStation) {
 		if(cStation == null) throw new NullPointerException("No argument may be null.");
 		this.cStation = cStation;
 		this.coinsList = new ArrayList<Coin>();
