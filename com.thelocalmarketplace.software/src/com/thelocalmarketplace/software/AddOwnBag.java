@@ -115,7 +115,7 @@ public class AddOwnBag {
 			}
 			else {
 				WeightDiscrepancy.setStationBlock(false);  // change to unblock and continue 
-				order.addTotalWeightInGrams(weight_of_bag);
+				order.addTotalWeightInGrams(weight_of_bag);  //order and scale weight is the same , so no weight discrep
 				System.out.println("You may now continue");
 			}
 
@@ -125,9 +125,6 @@ public class AddOwnBag {
 		}
 
 		
-	}
-		
-		
-		
+	}	
 	
 }
