@@ -69,6 +69,9 @@ public class PaymentHandler {
 	private ArrayList<Coin> coinsList;
 	private ArrayList<Banknote> banknotesList;
 
+	private Order order; // Represents the customer order
+						 // Consider adapting the other methods to reflect this global variable.
+
 
 
 	public PaymentHandler(SelfCheckoutStationBronze station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -82,6 +85,8 @@ public class PaymentHandler {
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 	
 	public PaymentHandler(SelfCheckoutStationSilver station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -95,6 +100,8 @@ public class PaymentHandler {
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 
 	public PaymentHandler(SelfCheckoutStationGold station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -108,6 +115,8 @@ public class PaymentHandler {
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 
 
@@ -450,7 +459,7 @@ public class PaymentHandler {
 		}
 	}
 
-	public void payWithCreditViaSwipe(Card card, BigDecimal amountCharged) {
+	public void payWithCreditViaSwipe(Card card, BigDecimal amountCharged, CardIssuer cardIssuer) {
 		AbstractCardReader cardReader;
 		if (checkoutSystem instanceof SelfCheckoutStationBronze) {
 			cardReader = new CardReaderBronze();
@@ -468,6 +477,20 @@ public class PaymentHandler {
 		Scanner input = new Scanner(System.in);
 		System.out.println("Please Enter Signature:");
 		String signature = input.nextLine();
+		long holdNumber = cardIssuer.authorizeHold(data.getNumber(), amountCharged);
+		if (holdNumber == -1) {
+			// HOLD FAILED
+			return;
+		} 
+		boolean transaction = cardIssuer.postTransaction(data.getNumber(), holdNumber, amountCharged);
+		if (!transaction) {
+			// TRANSACTION FAILED
+			return;
+		}
+		totalCost = 0; // Update the total amount due to the customer
+		printReceiptForCustomer(order); // Print the reciept.
+
+
 	}
 
 
