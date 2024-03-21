@@ -56,19 +56,20 @@ import ca.ucalgary.seng300.simulation.SimulationException;
  * Manages the payment process with coins for a self-checkout system.
  * Handles coin insertion, validation, and change dispensing.
  */
-public class PaymentHandler extends SelfCheckoutStation {
+public class PaymentHandler {
 
 
 	public BigDecimal amountSpent;
 	public BigDecimal changeRemaining = BigDecimal.ZERO;
 	public BigDecimal totalCost = new BigDecimal(0);
-	private SelfCheckoutStation checkoutSystem = null;
+	private AbstractSelfCheckoutStation checkoutSystem = null;
 	private ArrayList<Item> allItemOrders;
 	private ReceiptPrinterGold gold;
+	private ArrayList<Coin> coinsList;
 
 
 
-	public PaymentHandler(SelfCheckoutStation station, Order order) throws EmptyDevice, OverloadedDevice {
+	public PaymentHandler(SelfCheckoutStationBronze station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
 		this.checkoutSystem = station;
@@ -77,7 +78,33 @@ public class PaymentHandler extends SelfCheckoutStation {
 		this.gold = new ReceiptPrinterGold();
 		this.gold.addInk(this.gold.MAXIMUM_INK);
 		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.coinsList = new ArrayList<Coin>();
 	}
+	
+	public PaymentHandler(SelfCheckoutStationSilver station, Order order) throws EmptyDevice, OverloadedDevice {
+		if (station == null)
+			throw new NullPointerException("No argument may be null.");
+		this.checkoutSystem = station;
+		this.allItemOrders = order.getOrder();
+		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
+		this.gold = new ReceiptPrinterGold();
+		this.gold.addInk(this.gold.MAXIMUM_INK);
+		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.coinsList = new ArrayList<Coin>();
+	}
+
+	public PaymentHandler(SelfCheckoutStationGold station, Order order) throws EmptyDevice, OverloadedDevice {
+		if (station == null)
+			throw new NullPointerException("No argument may be null.");
+		this.checkoutSystem = station;
+		this.allItemOrders = order.getOrder();
+		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
+		this.gold = new ReceiptPrinterGold();
+		this.gold.addInk(this.gold.MAXIMUM_INK);
+		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.coinsList = new ArrayList<Coin>();
+	}
+
 
 
 	/**
@@ -118,6 +145,7 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 		BigDecimal value = new BigDecimal("0");
 		for (Coin coin : coinsList) { // Calculate the total value of coins inserted.
+			acceptInsertedCoin(coin);
 			value = value.add(coin.getValue());
 		}
 
@@ -207,7 +235,62 @@ public class PaymentHandler extends SelfCheckoutStation {
 
 	}
 
+	
+	/**
+	 * Inserts a machine into the coin slot and adds it to a list of accepted coins.
+	 *
+	 * @param coin The coin to be inserted into the system
+	 * @return true if the coin was accepted into machine and added to coinsList, false otherwise.
+	 * @throws DisabledException If the coin slot is disabled
+	 * @throws CashOverloadException If the coin storage is overloaded
+	 */
+	public boolean insertCoin(Coin coin) throws DisabledException, CashOverloadException {
+		if(coin == null)
+			throw new NullPointerException("coin cannot be null."); // Check for null parameters.
+		boolean successfulInsertion = acceptInsertedCoin(coin);
+		if (successfulInsertion) {
+			coinsList.add(coin);
+			return true;
+		}
+		return false;
+	}
 
+	/**
+	 * Get the list of coins that were successfully added to the machine
+	 * @return the list of accepted coins
+	 */
+	public ArrayList<Coin> getAcceptedCoinsList() {
+		return coinsList;
+	}
+
+
+	/**
+	 * Accepts a coin inserted by the customer into the coin slot.
+	 *
+	 * @param coin The coin to be validated and accepted.
+	 * @return true if the coin is successfully accepted, false otherwise.
+	 * @throws DisabledException     If the coin slot is disabled.
+	 * @throws CashOverloadException If the cash storage is overloaded.
+	 */
+	public boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
+		if (this.checkoutSystem.coinStorage.hasSpace()) {
+			if (this.checkoutSystem.coinSlot.hasSpace()) {
+				this.checkoutSystem.coinSlot.receive(coin);
+				this.checkoutSystem.coinValidator.receive(coin);
+				return true;
+			} else {
+				this.checkoutSystem.coinTray.receive(coin);
+				return false;
+			}
+		} else {
+			this.checkoutSystem.coinTray.receive(coin);
+			return false;
+		}
+	}
+	
+	
+	
+	
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
 	 * total cost, total amount paid, and change due.

@@ -121,9 +121,11 @@ public class CoinAdder {
 		if (this.cStation.coinStorage.hasSpace()) {
 			if (this.cStation.coinSlot.hasSpace()) {
 				this.cStation.coinSlot.receive(coin);
+				this.cStation.coinValidator.receive(coin);
 				return true;
 			}
 		}
+		this.cStation.coinTray.receive(coin);
 		return false;
 	}
 }
