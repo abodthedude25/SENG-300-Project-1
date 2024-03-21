@@ -28,12 +28,14 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.software.CheckoutStub;
 import com.thelocalmarketplace.software.CoinAdder;
 import com.thelocalmarketplace.software.PaymentHandler;
 
 import powerutility.PowerGrid;
 
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.coin.Coin;
@@ -46,13 +48,14 @@ import java.util.Currency;
 public class CoinAdderTest {
 
     private CoinAdder coinAdder;
-    private SelfCheckoutStation cStation;
+    private CheckoutStub cStation;
     private ArrayList<Coin> coinsList;
 
     @Before
     public void setUp() {
-        cStation = new SelfCheckoutStation();
-        coinsList = new ArrayList<Coin>();
+        
+        //  coinsList = new ArrayList<Coin>();
+        cStation = new CheckoutStub();
         coinAdder = new CoinAdder(cStation);
         cStation.coinStorage.connect(PowerGrid.instance());
         cStation.coinStorage.activate();
@@ -68,14 +71,15 @@ public class CoinAdderTest {
     @After
     public void tearDown() {
         cStation = null;
-        coinsList = null;
+        // coinsList = null;
         coinAdder = null;
     }
 
     // Checks if a NullPointerException is thrown if coinAdder is initialized with a null station
     @Test (expected = NullPointerException.class)
     public void testInitializeCoinAdderWithNullStation() {
-        coinAdder = new CoinAdder(null);
+    	cStation = null;
+        coinAdder = new CoinAdder(cStation);
     }
 
     // Tests if a NullPointerException is thrown if the coin being inserted is null
@@ -117,7 +121,7 @@ public class CoinAdderTest {
         System.out.println(cStation.coinStorage.getCapacity());
         Coin coin = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.05"));
         assertTrue(cStation.coinStorage.hasSpace());
-        for (int i = 0; i < 26; i++) {
+        for (int i = 0; i < 2000; i++) {
             coinAdder.insertCoin(coin);
         }
         assertTrue(cStation.coinStorage.hasSpace());
