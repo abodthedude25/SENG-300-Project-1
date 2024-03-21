@@ -66,6 +66,7 @@ public class PaymentHandler {
 	private ArrayList<Item> allItemOrders;
 	private ReceiptPrinterBronze printerBronze;
 	private ArrayList<Coin> coinsList;
+	private ArrayList<Banknote> banknotesList;
 
 
 
@@ -79,6 +80,7 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
 	}
 	
 	public PaymentHandler(SelfCheckoutStationSilver station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -91,6 +93,7 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
 	}
 
 	public PaymentHandler(SelfCheckoutStationGold station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -103,6 +106,7 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
 	}
 
 
@@ -287,7 +291,53 @@ public class PaymentHandler {
 			return false;
 		}
 	}
+
+	/**
+	 * Inserts a machine into the banknote slot and adds it to a list of accepted banknotes
+	 *
+	 * @param banknote The banknote to be inserted into the system
+	 * @return true if the banknote was accepted into machine and added to banknoteList, false otherwise.
+	 * @throws DisabledException If the banknote slot is disabled
+	 * @throws CashOverloadException If the banknote storage is overloaded
+	 */
+	public boolean insertBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
+		if(banknote == null)
+			throw new NullPointerException("banknote cannot be null."); // Check for null parameters.
+		boolean successfulInsertion = acceptInsertedBanknote(banknote);
+		if (successfulInsertion) {
+			banknotesList.add(banknote);
+			return true;
+		}
+		return false;
+	}
 	
+	/**
+	 * Get the list of banknotes that were successfully added to the machine
+	 * @return the list of accepted banknotes
+	 */
+	public ArrayList<Banknote> getAcceptedBanknotesList() {
+		return banknotesList;
+	}
+	
+	/**
+	 * Accepts a banknote inserted by the customer into the banknote slot
+	 * @param banknote to be validated and accepted
+	 * @return true if the banknote is successfully accepted, false otherwise
+	 * @throws DisabledException if the banknote slot is disabled.
+	 * @throws CashOverloadException if the banknote storage is overloaded
+	 */
+	public boolean acceptInsertedBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
+		if (this.checkoutSystem.banknoteStorage.hasSpace()) {
+			if(this.checkoutSystem.banknoteInput.hasSpace()) {
+				this.checkoutSystem.banknoteInput.receive(banknote);
+				this.checkoutSystem.banknoteValidator.receive(banknote);
+				return true;
+			}
+		}
+		//check this, as for coin it's coinTray
+		this.checkoutSystem.banknoteOutput.receive(banknote);;
+		return false;
+	}
 	
 	
 	
