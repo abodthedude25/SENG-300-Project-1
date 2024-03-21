@@ -80,7 +80,7 @@ public class PaymentHandler {
 	private ArrayList<Banknote> banknotesList;
 
 	private Order order; // Represents the customer order
-						 // Consider adapting the other methods to reflect this global variable.
+	// Consider adapting the other methods to reflect this global variable.
 
 	public PaymentHandler(SelfCheckoutStationBronze station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
@@ -96,7 +96,7 @@ public class PaymentHandler {
 
 		this.order = order;
 	}
-	
+
 	public PaymentHandler(SelfCheckoutStationSilver station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
 			throw new NullPointerException("No argument may be null.");
@@ -213,54 +213,54 @@ public class PaymentHandler {
 		Collections.sort(coinDenominations);
 		Collections.reverse(coinDenominations);
 		List<BigDecimal> bankNoteDenominations = Arrays.stream(this.checkoutSystem.banknoteDenominations)
-                .collect(Collectors.toList());
+				.collect(Collectors.toList());
 		Collections.sort(bankNoteDenominations);
 		Collections.reverse(bankNoteDenominations);
 
-		// This approach aims to find the optimal combination of denominations to minimize the 
-		// number of banknotes and coins used while considering the limited availability of 
+		// This approach aims to find the optimal combination of denominations to minimize the
+		// number of banknotes and coins used while considering the limited availability of
 		// each denomination.
 		while (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-            boolean dispensed = false;
+			boolean dispensed = false;
 
-            // Try using banknotes first
-            for (BigDecimal bankNote : bankNoteDenominations) {
-                if (remainingAmount.compareTo(bankNote) >= 0 && checkoutSystem.banknoteDispensers.get(bankNote).size() > 0) {
-                    checkoutSystem.banknoteDispensers.get(bankNote).emit();
-                    this.checkoutSystem.banknoteOutput.removeDanglingBanknotes();
-                    amountDispensed = amountDispensed.add(bankNote);
-                    remainingAmount = remainingAmount.subtract(bankNote);
-                    dispensed = true;
-                    break;
-                }
-            }
+			// Try using banknotes first
+			for (BigDecimal bankNote : bankNoteDenominations) {
+				if (remainingAmount.compareTo(bankNote) >= 0 && checkoutSystem.banknoteDispensers.get(bankNote).size() > 0) {
+					checkoutSystem.banknoteDispensers.get(bankNote).emit();
+					this.checkoutSystem.banknoteOutput.removeDanglingBanknotes();
+					amountDispensed = amountDispensed.add(bankNote);
+					remainingAmount = remainingAmount.subtract(bankNote);
+					dispensed = true;
+					break;
+				}
+			}
 
-            // If no banknotes are available or insufficient, try using coins
-            if (!dispensed) {
-                for (BigDecimal coin : coinDenominations) {
-                    if (remainingAmount.compareTo(coin) >= 0 && checkoutSystem.coinDispensers.get(coin).size() > 0) {
-                        checkoutSystem.coinDispensers.get(coin).emit();
-                        amountDispensed = amountDispensed.add(coin);
-                        remainingAmount = remainingAmount.subtract(coin);
-                        dispensed = true;
-                        break;
-                    }
-                }
-            }
+			// If no banknotes are available or insufficient, try using coins
+			if (!dispensed) {
+				for (BigDecimal coin : coinDenominations) {
+					if (remainingAmount.compareTo(coin) >= 0 && checkoutSystem.coinDispensers.get(coin).size() > 0) {
+						checkoutSystem.coinDispensers.get(coin).emit();
+						amountDispensed = amountDispensed.add(coin);
+						remainingAmount = remainingAmount.subtract(coin);
+						dispensed = true;
+						break;
+					}
+				}
+			}
 
-            // If neither banknotes nor coins can be used, break the loop
-            if (!dispensed) {
-            	BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
-            	BigDecimal lowestBankNote = bankNoteDenominations.get(bankNoteDenominations.size() - 1);
-            	BigDecimal lowestVal = lowestCoin.min(lowestBankNote);
-    			if (remainingAmount.compareTo(lowestVal) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-    				this.checkoutSystem.coinDispensers.get(lowestVal).emit();
-    				amountDispensed = changeValue;
-    				remainingAmount = BigDecimal.ZERO;
-    			}
-                break;
-            }
-        }
+			// If neither banknotes nor coins can be used, break the loop
+			if (!dispensed) {
+				BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
+				BigDecimal lowestBankNote = bankNoteDenominations.get(bankNoteDenominations.size() - 1);
+				BigDecimal lowestVal = lowestCoin.min(lowestBankNote);
+				if (remainingAmount.compareTo(lowestVal) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+					this.checkoutSystem.coinDispensers.get(lowestVal).emit();
+					amountDispensed = changeValue;
+					remainingAmount = BigDecimal.ZERO;
+				}
+				break;
+			}
+		}
 
 		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
 			Scanner receiptRequest = new Scanner(System.in);
@@ -271,7 +271,7 @@ public class PaymentHandler {
 				System.out.println("Would you like a receipt?");
 				receiptAnswer = receiptRequest.nextLine();}
 			if (receiptAnswer.compareToIgnoreCase("yes") == 0) { // If yes, receiptPrinter and thank user
-				printReceiptForCustomer(null);
+				printReceiptForCustomer(this.order);
 				System.out.println("Thank you for your time. We hope to see you again!");
 				return true;}
 			if (receiptAnswer.compareToIgnoreCase("no") == 0) { // If no, thank user
@@ -324,7 +324,7 @@ public class PaymentHandler {
 		this.checkoutSystem.banknoteOutput.receive(banknote);;
 		return false;
 	}
-	
+
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
 	 * total cost, total amount paid, and change due.
@@ -431,7 +431,7 @@ public class PaymentHandler {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loads banknotes into the banknote dispensers for change.
 	 *
@@ -480,7 +480,7 @@ public class PaymentHandler {
 		if (holdNumber == -1) {
 			// HOLD FAILED
 			return;
-		} 
+		}
 		boolean transaction = cardIssuer.postTransaction(data.getNumber(), holdNumber, amountCharged);
 		if (!transaction) {
 			// TRANSACTION FAILED
