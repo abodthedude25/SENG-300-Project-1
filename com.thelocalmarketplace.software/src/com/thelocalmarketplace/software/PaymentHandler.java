@@ -29,35 +29,38 @@ package com.thelocalmarketplace.software;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Formatter.BigDecimalLayoutForm;
+import java.util.stream.Collectors;
 
 import com.jjjwelectronics.EmptyDevice;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.printer.ReceiptPrinterBronze;
 import com.jjjwelectronics.scanner.BarcodedItem;
-import com.jjjwelectronics.printer.*;
 import com.tdc.CashOverloadException;
-import com.tdc.ComponentFailure;
 import com.tdc.DisabledException;
 import com.tdc.NoCashAvailableException;
+import com.tdc.banknote.Banknote;
 import com.tdc.coin.Coin;
-import com.thelocalmarketplace.hardware.*;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.PLUCodedItem;
+import com.thelocalmarketplace.hardware.PLUCodedProduct;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
-
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
-import ca.ucalgary.seng300.simulation.SimulationException;
-
 
 /**
  * Manages the payment process with coins for a self-checkout system.
  * Handles coin insertion, validation, and change dispensing.
  */
 public class PaymentHandler {
-
 
 	public BigDecimal amountSpent;
 	public BigDecimal changeRemaining = BigDecimal.ZERO;
@@ -66,8 +69,6 @@ public class PaymentHandler {
 	private ArrayList<Item> allItemOrders;
 	private ReceiptPrinterBronze printerBronze;
 	private ArrayList<Coin> coinsList;
-
-
 
 	public PaymentHandler(SelfCheckoutStationBronze station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
@@ -104,8 +105,6 @@ public class PaymentHandler {
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 	}
-
-
 
 	/**
 	 * will be used to help with Signaling to the Customer the updated amount
@@ -149,17 +148,13 @@ public class PaymentHandler {
 			value = value.add(coin.getValue());
 		}
 
-
 		this.amountSpent = value;
 		this.changeRemaining = value.subtract(this.totalCost);
-
 
 		if (value.compareTo(this.totalCost) < 0)
 			return false; // Return false if the total value of valid coins is less than the total cost.
 
-
 		this.amountSpent = this.totalCost;
-
 
 		// Return true if accurate change is dispensed.
 		if (value.compareTo(this.totalCost) > 0) {
@@ -196,25 +191,55 @@ public class PaymentHandler {
 		List<BigDecimal> coinDenominations = this.checkoutSystem.coinDenominations;
 		Collections.sort(coinDenominations);
 		Collections.reverse(coinDenominations);
+		List<BigDecimal> bankNoteDenominations = Arrays.stream(this.checkoutSystem.banknoteDenominations)
+                .collect(Collectors.toList());
+		Collections.sort(bankNoteDenominations);
+		Collections.reverse(bankNoteDenominations);
 
+		// This approach aims to find the optimal combination of denominations to minimize the 
+		// number of banknotes and coins used while considering the limited availability of 
+		// each denomination.
+		while (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+            boolean dispensed = false;
 
-		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-			for (int i = 0; i < coinDenominations.size(); i++) {
-				BigDecimal val = coinDenominations.get(i);
-				System.out.println(val);
-				while (remainingAmount.compareTo(val) >= 0 && checkoutSystem.coinDispensers.get(val).size() > 0) {
-					this.checkoutSystem.coinDispensers.get(val).emit();
-					amountDispensed = amountDispensed.add(val);
-					remainingAmount = remainingAmount.subtract(val);
-				}
-			}
-			BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
-			if (remainingAmount.compareTo(lowestCoin) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
-				this.checkoutSystem.coinDispensers.get(lowestCoin).emit();
-				amountDispensed = changeValue;
-				remainingAmount = BigDecimal.ZERO;
-			}
-		}
+            // Try using banknotes first
+            for (BigDecimal bankNote : bankNoteDenominations) {
+                if (remainingAmount.compareTo(bankNote) >= 0 && checkoutSystem.banknoteDispensers.get(bankNote).size() > 0) {
+                    checkoutSystem.banknoteDispensers.get(bankNote).emit();
+                    this.checkoutSystem.banknoteOutput.removeDanglingBanknotes();
+                    amountDispensed = amountDispensed.add(bankNote);
+                    remainingAmount = remainingAmount.subtract(bankNote);
+                    dispensed = true;
+                    break;
+                }
+            }
+
+            // If no banknotes are available or insufficient, try using coins
+            if (!dispensed) {
+                for (BigDecimal coin : coinDenominations) {
+                    if (remainingAmount.compareTo(coin) >= 0 && checkoutSystem.coinDispensers.get(coin).size() > 0) {
+                        checkoutSystem.coinDispensers.get(coin).emit();
+                        amountDispensed = amountDispensed.add(coin);
+                        remainingAmount = remainingAmount.subtract(coin);
+                        dispensed = true;
+                        break;
+                    }
+                }
+            }
+
+            // If neither banknotes nor coins can be used, break the loop
+            if (!dispensed) {
+            	BigDecimal lowestCoin = coinDenominations.get(coinDenominations.size() - 1);
+            	BigDecimal lowestBankNote = bankNoteDenominations.get(bankNoteDenominations.size() - 1);
+            	BigDecimal lowestVal = lowestCoin.min(lowestBankNote);
+    			if (remainingAmount.compareTo(lowestVal) < 0 && remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+    				this.checkoutSystem.coinDispensers.get(lowestVal).emit();
+    				amountDispensed = changeValue;
+    				remainingAmount = BigDecimal.ZERO;
+    			}
+                break;
+            }
+        }
 
 		if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
 			Scanner receiptRequest = new Scanner(System.in);
@@ -235,35 +260,6 @@ public class PaymentHandler {
 
 	}
 
-	
-	/**
-	 * Inserts a machine into the coin slot and adds it to a list of accepted coins.
-	 *
-	 * @param coin The coin to be inserted into the system
-	 * @return true if the coin was accepted into machine and added to coinsList, false otherwise.
-	 * @throws DisabledException If the coin slot is disabled
-	 * @throws CashOverloadException If the coin storage is overloaded
-	 */
-	public boolean insertCoin(Coin coin) throws DisabledException, CashOverloadException {
-		if(coin == null)
-			throw new NullPointerException("coin cannot be null."); // Check for null parameters.
-		boolean successfulInsertion = acceptInsertedCoin(coin);
-		if (successfulInsertion) {
-			coinsList.add(coin);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Get the list of coins that were successfully added to the machine
-	 * @return the list of accepted coins
-	 */
-	public ArrayList<Coin> getAcceptedCoinsList() {
-		return coinsList;
-	}
-
-
 	/**
 	 * Accepts a coin inserted by the customer into the coin slot.
 	 *
@@ -275,8 +271,8 @@ public class PaymentHandler {
 	public boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
 		if (this.checkoutSystem.coinStorage.hasSpace()) {
 			if (this.checkoutSystem.coinSlot.hasSpace()) {
-				this.checkoutSystem.coinSlot.receive(coin);
 				this.checkoutSystem.coinValidator.receive(coin);
+				this.checkoutSystem.coinSlot.receive(coin);
 				return true;
 			} else {
 				this.checkoutSystem.coinTray.receive(coin);
@@ -287,9 +283,6 @@ public class PaymentHandler {
 			return false;
 		}
 	}
-	
-	
-	
 	
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
@@ -332,7 +325,6 @@ public class PaymentHandler {
 
 
 		}
-
 
 		BigDecimal purchaseValue = totalCost;
 		BigDecimal amountPaid = amountSpent;
@@ -395,6 +387,32 @@ public class PaymentHandler {
 				throw new CashOverloadException("Coin Dispenser for coins of value " + v.doubleValue() + " is full.");
 			} catch (NullPointerException e) {
 				throw new NullPointerException("This coin type does not exist.");
+			}
+		}
+	}
+	
+	/**
+	 * Loads banknotes into the banknote dispensers for change.
+	 *
+	 * @param banknotes Banknote to be loaded into the dispensers.
+	 * @throws CashOverloadException If the banknote dispensers are overloaded with
+	 *                               banknotes.
+	 */
+	public void loadBankNoteDispenser(Banknote ...banknotes) throws CashOverloadException {
+		if (banknotes == null) {
+			throw new NullPointerSimulationException("coins instance cannot be null.");
+		}
+		for (Banknote b : banknotes) {
+			if (b == null) {
+				throw new NullPointerSimulationException("coin instance cannot be null.");
+			}
+			BigDecimal v = ((Banknote) b).getDenomination();
+			try {
+				this.checkoutSystem.banknoteDispensers.get(v).load(b);
+			} catch (CashOverloadException e) {
+				throw new CashOverloadException("BankNote Dispenser for banknote of value " + v.doubleValue() + " is full.");
+			} catch (NullPointerException e) {
+				throw new NullPointerException("This banknote type does not exist.");
 			}
 		}
 	}
