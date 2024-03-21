@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScale;
-import com.jjjwelectronics.scale.IElectronicScale;
+import com.jjjwelectronics.scale.AbstractElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
@@ -44,13 +43,13 @@ public class Order {
 	private long totalPrice;
 	private BarcodedItem barcodedItem;
 	private Mass mass;
-	private ElectronicScale scale;
+	private AbstractElectronicScale scale;
 
 	/**
 	 * Constructs an empty order.
 	 * @throws OverloadedDevice 
 	 */
-	public Order(ElectronicScale scale) throws OverloadedDevice {
+	public Order(AbstractElectronicScale scale) throws OverloadedDevice {
 		this.order = new ArrayList<Item>();
 		this.totalWeight = 0; 
 		this.totalPrice = 0;
