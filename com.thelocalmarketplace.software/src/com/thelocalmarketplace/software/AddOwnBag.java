@@ -1,5 +1,8 @@
 package com.thelocalmarketplace.software;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Item;
@@ -26,7 +29,7 @@ public class AddOwnBag {
 	
 
 	
-	public AddOwnBag() {
+	public AddOwnBag(Order order, AbstractElectronicScale scale1) {
 		electronicScaleListener = new ElectronicScaleListener () {
 
 			@Override
@@ -57,6 +60,9 @@ public class AddOwnBag {
 			public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
 				// TODO Auto-generated method stub
 				
+				double bag_grams = getBagWeight(order, scale1);
+				addbagweight(order, scale1, bag_grams);
+				
 			}
 
 			@Override
@@ -74,21 +80,51 @@ public class AddOwnBag {
 		};	
 	}
 	
-	// now that customer has signaled they want to add thier own bags, pass in the weight of thier own bags
-	public void ownbagweight(AbstractElectronicScale scale, Item weight_of_bag) throws OverloadedDevice {
-		Mass prev_mass= scale.getCurrentMassOnTheScale();
-		 
-		scale.addAnItem(weight_of_bag);
-		Mass after_mass = scale.getCurrentMassOnTheScale();	
-		
-		int result = after_mass.compareTo(prev_mass);
-		
-		
-		if(result == 1) { // there is a weight descripancy
-			
-			SelfCheckoutStationSoftware.setStationBlock(false); // change to unblock and continue 
-		
+	public double getBagWeight(Order order, AbstractElectronicScale scale) {
+		double order_weight = order.getTotalWeightInGrams();
+		double bag_weight = 0;
+		//get order weight
+		BigDecimal order_weight_double = new BigDecimal(Double.toString(order_weight));
+		BigDecimal scale_weight;
+		try {
+			//scale - order = bag weight
+			scale_weight = scale.getCurrentMassOnTheScale().inGrams();
+			BigDecimal bag_weight_grams = scale_weight.subtract(order_weight_double);
+			bag_weight = bag_weight_grams.doubleValue(); //convert to double 
+		} catch (OverloadedDevice e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		return bag_weight;
+	}
+	
+	// now that customer has signaled they want to add their own bags, pass in the weight of their own bags
+	public void addbagweight(Order order, AbstractElectronicScale scale, double weight_of_bag) {
+		
+		//threshold = scale limit in mcg 
+		BigInteger threshold = scale.getMassLimit().inMicrograms();
+		
+		try {
+			//compare scale mass which bag mass to mass limit 
+			int compare_to_threshold = scale.getCurrentMassOnTheScale().compareTo(new Mass(threshold));
+			if (compare_to_threshold>=0) {
+				WeightDiscrepancy.setStationBlock(true); //block b/c to heavy 
+			//if possible add notification to attendant
+				
+			}
+			else {
+				WeightDiscrepancy.setStationBlock(false);  // change to unblock and continue 
+				order.addTotalWeightInGrams(weight_of_bag);
+				System.out.println("You may now continue");
+			}
+
+		} catch (OverloadedDevice e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
 	}
 		
 		
