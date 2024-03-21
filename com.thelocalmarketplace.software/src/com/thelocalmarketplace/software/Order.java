@@ -156,18 +156,25 @@ public class Order {
 		Scanner scanner = new Scanner(System.in);
 		String itemToRemove = scanner.nextLine();
 
+		// check if there is an active session
+		if (SelfCheckoutStationSoftware.getStationActive()) {
+			// check if the station is not blocked
+			if (!SelfCheckoutStationSoftware.getStationBlock()) {
+				// blocks station from further  customer actions
+				SelfCheckoutStationSoftware.setStationBlock(true);
 
-		// remove the item from the order to be implemented late
-		// removeItemFromOrder(order.get(Integer.parseInt(itemToRemove) - 1));
+				// remove the item from the order to be implemented late
+				// removeItemFromOrder(order.get(Integer.parseInt(itemToRemove) - 1));
 
-		Barcode barcode = ((BarcodedItem) order.get(Integer.parseInt(itemToRemove) - 1)).getBarcode();
-		BarcodedProduct productRemoved = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+				Barcode barcode = ((BarcodedItem) order.get(Integer.parseInt(itemToRemove) - 1)).getBarcode();
+				BarcodedProduct productRemoved = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 
-		// Signals to the customer that the item has been removed from the order
-		System.out.println("Item " + productRemoved.getDescription() + " has been removed from the order.");
+				// Signals to the customer that the item has been removed from the order
+				System.out.println("Item " + productRemoved.getDescription() + " has been removed from the order.");
 
-		displayOrder(); // Displays the order to the customer after removal
-
+				displayOrder(); // Displays the order to the customer after removal
+			}
+		}
 	}
 
 	public void displayOrder(){
@@ -180,6 +187,6 @@ public class Order {
 		}
 		System.out.println("Total price: " + getTotalPrice() + " Total weight: " + getTotalWeightInGrams());
 	}
-	
-	
+
+
 }
