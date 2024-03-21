@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScale;
+import com.jjjwelectronics.scale.ElectronicScaleBronze;
 import com.thelocalmarketplace.software.Order;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.WeightDiscrepancy;
@@ -25,20 +25,36 @@ import powerutility.PowerGrid;
 
 
 public class handleBulkyItemTest {
-
-	private WeightDiscrepancy weightDiscrepancy;
-	private Order order;
-	private ElectronicScale scale;
+	
+	private Order orderB;
+	private Order orderG;
+	private Order orderS;
+	private ElectronicScaleBronze scaleBronze;
+	private ElectronicScaleGold scaleGold;
+	private ElectronicScaleSilver scaleSilver;
+	
 	
 	@Before
 	public void setUp() throws OverloadedDevice {
-		scale = new ElectronicScale();
+		scaleBronze = new ElectronicScaleBronze();
+		scaleGold = new ElectronicScaleGold();
+		scaleSilver = new ElectronicScaleSilver();
         PowerGrid grid = PowerGrid.instance();
-        scale.plugIn(grid);
-        scale.turnOn();
-        scale.enable();
-        order = new Order(scale);
-        weightDiscrepancy = new WeightDiscrepancy(order, scale);             
+        scaleBronze.plugIn(grid);
+        scaleBronze.turnOn();
+        scaleBronze.enable();
+        scaleGold = new ElectronicScaleGold();
+        scaleGold.plugIn(grid);
+        scaleGold.turnOn();
+        scaleGold.enable();
+        scaleSilver = new ElectronicScaleSilver();
+        scaleSilver.plugIn(grid);
+        scaleSilver.turnOn();
+        scaleSilver.enable();
+        orderB = new Order(scaleBronze);
+        orderG = new Order(scaleGold);
+        orderS = new Order(scaleSilver);
+        
 	}
 
     class MockItem extends Item {
@@ -57,23 +73,59 @@ public class handleBulkyItemTest {
      *  
      */
     @Test
-  	public void testHandleBulkyItem_finalWeight () throws OverloadedDevice {
+  	public void testHandleBulkyItem_finalWeightB() throws OverloadedDevice {
         MockItem item1 = new MockItem(new Mass(10));
         MockItem item2 = new MockItem(new Mass(60));
 		
-        order.addItemToOrder(item1); 
-        scale.addAnItem(item1); // irrelevant?
-        order.addTotalWeightInGrams(10);
-        order.addItemToOrder(item2); 
-        order.addTotalWeightInGrams(60);
+        orderB.addItemToOrder(item1); 
+        scaleBronze.addAnItem(item1); // irrelevant?
+        orderB.addTotalWeightInGrams(10);
+        orderB.addItemToOrder(item2); 
+        orderB.addTotalWeightInGrams(60);
        
              
-        weightDiscrepancy.handleBulkyItem(order, 60);
+        WeightDiscrepancy.handleBulkyItem(orderB, 60);
                
         
         double expectedTotalWeight = 10;
-        assertEquals(expectedTotalWeight, order.getTotalWeightInGrams(), 0);
+        assertEquals(expectedTotalWeight, orderB.getTotalWeightInGrams(), 0);
+  	}
+    
+    @Test
+  	public void testHandleBulkyItem_finalWeightG () throws OverloadedDevice {
+        MockItem item1 = new MockItem(new Mass(10));
+        MockItem item2 = new MockItem(new Mass(60));
+		
+        orderG.addItemToOrder(item1); 
+        scaleGold.addAnItem(item1); // irrelevant?
+        orderG.addTotalWeightInGrams(10);
+        orderG.addItemToOrder(item2); 
+        orderG.addTotalWeightInGrams(60);
+       
+             
+        WeightDiscrepancy.handleBulkyItem(orderG, 60);
+               
         
-
+        double expectedTotalWeight = 10;
+        assertEquals(expectedTotalWeight, orderG.getTotalWeightInGrams(), 0);
+  	}
+    
+    @Test
+  	public void testHandleBulkyItem_finalWeightS () throws OverloadedDevice {
+        MockItem item1 = new MockItem(new Mass(10));
+        MockItem item2 = new MockItem(new Mass(60));
+		
+        orderS.addItemToOrder(item1); 
+        scaleSilver.addAnItem(item1); // irrelevant?
+        orderS.addTotalWeightInGrams(10);
+        orderS.addItemToOrder(item2); 
+        orderS.addTotalWeightInGrams(60);
+       
+             
+        WeightDiscrepancy.handleBulkyItem(orderS, 60);
+               
+        
+        double expectedTotalWeight = 10;
+        assertEquals(expectedTotalWeight, orderS.getTotalWeightInGrams(), 0);
   	}
 }
