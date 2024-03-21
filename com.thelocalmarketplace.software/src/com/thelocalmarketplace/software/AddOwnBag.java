@@ -15,6 +15,12 @@ import com.jjjwelectronics.scale.IElectronicScale;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 //import com.thelocalmarketplace.software.test.WeightDiscrepancyTest.MockItem;
 
+//HOW IT WORKS:
+//customer click add own bag, that triggers constructor initialization of this class
+//when customer adds bag to scale, listener is activated and calls function that calculated bag weight based on the diff in the weights btwn order and scale 
+//then bag weight is passed to next function which confirms that the total scale weight including the bags isn't to heavy i.e. exeeds the threshold 
+// if it doesn't exceed limit, the bag weight is added to order so that there is no discrepancy btwn order and scale 
+//if it is too heavy station is blocked
 public class AddOwnBag {
 
 	// allow customer to add thier own bags to bagging area without causing a weight discrepancy
