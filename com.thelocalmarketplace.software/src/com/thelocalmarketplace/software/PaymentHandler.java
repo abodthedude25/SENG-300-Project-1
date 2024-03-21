@@ -26,6 +26,7 @@
 package com.thelocalmarketplace.software;
 
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -38,6 +39,12 @@ import java.util.stream.Collectors;
 import com.jjjwelectronics.EmptyDevice;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.card.AbstractCardReader;
+import com.jjjwelectronics.card.Card;
+import com.jjjwelectronics.card.Card.CardData;
+import com.jjjwelectronics.card.CardReaderBronze;
+import com.jjjwelectronics.card.CardReaderGold;
+import com.jjjwelectronics.card.CardReaderSilver;
 import com.jjjwelectronics.printer.ReceiptPrinterBronze;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
@@ -52,6 +59,7 @@ import com.thelocalmarketplace.hardware.PLUCodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
+import com.thelocalmarketplace.hardware.external.CardIssuer;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
@@ -307,8 +315,8 @@ public class PaymentHandler {
 	public boolean acceptInsertedBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
 		if (this.checkoutSystem.banknoteStorage.hasSpace()) {
 			if(this.checkoutSystem.banknoteInput.hasSpace()) {
-				this.checkoutSystem.banknoteInput.receive(banknote);
 				this.checkoutSystem.banknoteValidator.receive(banknote);
+				this.checkoutSystem.banknoteInput.receive(banknote);
 				return true;
 			}
 		}
@@ -450,7 +458,7 @@ public class PaymentHandler {
 		}
 	}
 
-	public void payWithCreditViaSwipe(Card card, BigDecimal amountCharged, CardIssuer cardIssuer) {
+	public void payWithCreditViaSwipe(Card card, double amountCharged, CardIssuer cardIssuer) throws IOException, OutOfPaperException, OutOfInkException, EmptyDevice, OverloadedDevice {
 		AbstractCardReader cardReader;
 		if (checkoutSystem instanceof SelfCheckoutStationBronze) {
 			cardReader = new CardReaderBronze();
@@ -478,7 +486,7 @@ public class PaymentHandler {
 			// TRANSACTION FAILED
 			return;
 		}
-		totalCost = 0; // Update the total amount due to the customer
+		totalCost = BigDecimal.ZERO; // Update the total amount due to the customer
 		printReceiptForCustomer(order); // Print the reciept.
 
 
