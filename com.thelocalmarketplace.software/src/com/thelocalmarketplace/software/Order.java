@@ -24,16 +24,16 @@
 
 package com.thelocalmarketplace.software;
 
-import java.util.ArrayList;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.AbstractElectronicScale;
-import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -157,8 +157,8 @@ public class Order {
 		String itemToRemove = scanner.nextLine();
 
 
-		// remove the item from the order
-		removeItemFromOrder(order.get(Integer.parseInt(itemToRemove) - 1));
+		// remove the item from the order to be implemented late
+		// removeItemFromOrder(order.get(Integer.parseInt(itemToRemove) - 1));
 
 		Barcode barcode = ((BarcodedItem) order.get(Integer.parseInt(itemToRemove) - 1)).getBarcode();
 		BarcodedProduct productRemoved = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
