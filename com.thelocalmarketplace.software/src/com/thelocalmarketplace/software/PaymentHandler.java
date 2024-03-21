@@ -450,6 +450,26 @@ public class PaymentHandler {
 		}
 	}
 
+	public void payWithCreditViaSwipe(Card card, BigDecimal amountCharged) {
+		AbstractCardReader cardReader;
+		if (checkoutSystem instanceof SelfCheckoutStationBronze) {
+			cardReader = new CardReaderBronze();
+		}
+		else if (checkoutSystem instanceof SelfCheckoutStationSilver) {
+			cardReader = new CardReaderSilver();
+		}
+		else if (checkoutSystem instanceof SelfCheckoutStationGold) {
+			cardReader = new CardReaderGold();
+		} else {
+			// WRITE AN ERROR FIGURE IT OUT LATER
+			return;
+		}
+		CardData data = cardReader.swipe(card);
+		Scanner input = new Scanner(System.in);
+		System.out.println("Please Enter Signature:");
+		String signature = input.nextLine();
+	}
+
 
 }
 
