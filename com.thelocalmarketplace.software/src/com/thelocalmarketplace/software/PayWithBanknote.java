@@ -9,8 +9,10 @@ import com.tdc.NoCashAvailableException;
 import com.tdc.banknote.Banknote;
 import com.tdc.banknote.BanknoteInsertionSlot;
 import com.tdc.banknote.BanknoteValidator;
-
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 //figure out how to use gold?
 
@@ -29,36 +31,89 @@ public class PayWithBanknote {
 	//public BigDecimal amountInserted;
 	public BigDecimal changeRemaining;
 	// to get the total cost of all banknotes that are inserted
-	private BigDecimal valueOfAllBanknotes = new BigDecimal("0");
-	public BigDecimal totalCost;
+	private BigDecimal valueOfAllAcceptedBanknotes = new BigDecimal("0");
+	public BigDecimal totalCostRemaining;
 	//not sure
-	private SelfCheckoutStationBronze checkoutSystem = null;
+	//private SelfCheckoutStationBronze checkoutSystem = null;
 	//the type of bills that are accepted
 	private BigDecimal[] denominations = { new BigDecimal(500), new BigDecimal(200), new BigDecimal(100),
 			new BigDecimal(50), new BigDecimal(20), new BigDecimal(10), new BigDecimal(5) };
 	
 	private ReceiptPrinterGold gold;
+	
+	private AbstractSelfCheckoutStation checkoutStation;
+	private ArrayList<Banknote> banknoteList;
+	
 
-	//remove this once part of the paymentHandler class
-	public PayWithBanknote(BigDecimal totalAmount) {
+	//this is the pay with bank note constuctor for the bronze station
+	public PayWithBanknote(BigDecimal totalAmount,SelfCheckoutStationBronze checkoutStation) {
 
-		this.totalCost = totalAmount;
+		this.totalCostRemaining = totalAmount;
 		// create a new instance of insertionSlot
 		insertionSlot = new BanknoteInsertionSlot();
 		currency = Currency.getInstance("CAD");
 		// set up the validator so that it's cad and the bills are from 5 to 500
 		// The issue is how do we check if it's valid!!
+		
+		if(checkoutStation == null) throw new NullPointerException("No argument may be null.");
+		this.checkoutStation = checkoutStation;
+		this.banknoteList = new ArrayList<Banknote>(); 
+		
 		banknoteValidator = new BanknoteValidator(currency, denominations);
 		
 	}
+	
+	
+	
+	
+	//this is the pay with bank note constructor for the gold station
+	public PayWithBanknote(BigDecimal totalAmount,SelfCheckoutStationGold checkoutStation) {
+
+		this.totalCostRemaining = totalAmount;
+		// create a new instance of insertionSlot
+		insertionSlot = new BanknoteInsertionSlot();
+		currency = Currency.getInstance("CAD");
+		// set up the validator so that it's cad and the bills are from 5 to 500
+		// The issue is how do we check if it's valid!!
+		
+		if(checkoutStation == null) throw new NullPointerException("No argument may be null.");
+		this.checkoutStation = checkoutStation;
+		this.banknoteList = new ArrayList<Banknote>(); 
+		
+		banknoteValidator = new BanknoteValidator(currency, denominations);
+		
+	}
+	
+	
+	
+	public PayWithBanknote(BigDecimal totalAmount,SelfCheckoutStationSilver checkoutStation) {
+
+		this.totalCostRemaining = totalAmount;
+		// create a new instance of insertionSlot
+		insertionSlot = new BanknoteInsertionSlot();
+		currency = Currency.getInstance("CAD");
+		// set up the validator so that it's cad and the bills are from 5 to 500
+		// The issue is how do we check if it's valid!!
+		
+		if(checkoutStation == null) throw new NullPointerException("No argument may be null.");
+		this.checkoutStation = checkoutStation;
+		this.banknoteList = new ArrayList<Banknote>();  
+		
+		banknoteValidator = new BanknoteValidator(currency, denominations);
+		
+	}
+	
+	
+	
+	
 	/**
-	 * Update the totalCost if not enough money is giving
+	 * Update the totalCostRemaining if not enough money is giving
 	 * as in constructor we only create instance of PayWithBanknote once 
 	 * If adding to paymentHandler can remove later
 	 * @param totalAmount
 	 */
 	public void setTotalCost(BigDecimal totalAmount) {
-		this.totalCost = totalAmount;
+		this.totalCostRemaining = totalAmount;
 	}
 
 	/**
@@ -68,7 +123,7 @@ public class PayWithBanknote {
 	 * @return money left to pay
 	 */
 	public BigDecimal getCostRemaining() {
-		return this.changeRemaining;
+		return this.changeRemaining;  
 	}
 
 	/**
@@ -85,41 +140,43 @@ public class PayWithBanknote {
 	 * @throws OverloadedDevice
 	 * @throws EmptyDevice
 	 */
-	public boolean processPaymentWithBanknotes(ArrayList<Banknote> BanknotesList)
+	public boolean processPaymentWithBanknotes(ArrayList<Banknote> Banknotes)
 			throws DisabledException, CashOverloadException, NoCashAvailableException, EmptyDevice, OverloadedDevice {
 		
 		// first check if parameter is null or not
-		if (BanknotesList == null) {
+		if (Banknotes == null) {
 			throw new NullPointerException("Banknotes cannot be null.");
 		}
 		//moved instances of BanknoteValidator and BanknoteInsertion
 		
 		
-		for (Banknote banknote : BanknotesList) { // Calculate the total value of coins inserted.
-			/*
-			 * banknote is passed to the sink and a "banknoteInserted" event is announced;
-			 * otherwise, a "banknoteEjected" event is announced
-			 */
-				
-			insertionSlot.receive(banknote);
+		for (Banknote banknote : Banknotes) { // Calculate the total value of coins inserted.
 			
-			// have to check if banknote is valid now using Validator:
-			banknoteValidator.receive(banknote);
+			insertBanknote(banknote);
+
 			
-			//After checking if valid have to get total cost
-			//getDenomination() returns the value of the note
-			valueOfAllBanknotes = valueOfAllBanknotes.add(banknote.getDenomination());
 		}
 		
-		//checks if the amount inserted is less then cost
-		if(valueOfAllBanknotes.compareTo(totalCost)< 0 ) {
-			return false;
+		for (Banknote banknote : banknoteList) { // Calculate the total value of coins inserted.
+			
+			valueOfAllAcceptedBanknotes = valueOfAllAcceptedBanknotes.add(banknote.getDenomination());
+			//totalCostRemaining = totalCostRemaining.subtract(banknote.getDenomination());
+			
+
+			
 		}
+		
+		//checks if the amount that was accepted is enough to make total cost go to 0 meaning that there was enough money to be 
+		//paid if not then return false ,s they will need to pay again 
+		if(valueOfAllAcceptedBanknotes.compareTo(this.totalCostRemaining) < 0){
+			return false;
+		}// i need to return chanfge
+		
 		//if value is equal or greater then cost
 		// have to calculate the change value
-		this.changeRemaining = valueOfAllBanknotes.subtract(this.totalCost);
+		this.changeRemaining = valueOfAllAcceptedBanknotes.subtract(this.totalCostRemaining);
 		if(changeRemaining.compareTo(new BigDecimal(0)) > 0) {
-			return dispenseAccurateChange(changeRemaining);
+			return dispenseAccurateChange(changeRemaining);// needs to be made so it can also dispense banknotes
 		}
 		
 		return true;
@@ -127,10 +184,60 @@ public class PayWithBanknote {
 
 	//Are we using the old one for this?
 	//do we need to change the old one slightly
-	private boolean dispenseAccurateChange(BigDecimal changeRemaining) {
+	private boolean dispenseAccurateChange(BigDecimal changeRemaining) { // being done by abdulerahman 
 		
 		return false;
 	}
+	
+	
+	/**
+	 * The function check if it is possible to accept a banknote
+	 * 
+	 * @param banknote 
+	 * @return true if the banknote was accpeted 
+	 * @throws DisabledException
+	 * @throws CashOverloadException
+	 */
+	public boolean acceptInsertedBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
+		if (this.checkoutStation.banknoteStorage.hasSpace()) {
+			if(this.checkoutStation.banknoteInput.hasSpace()) {
+				this.checkoutStation.banknoteInput.receive(banknote);
+				this.checkoutStation.banknoteValidator.receive(banknote);
+				return true;
+			}
+		}
+		this.checkoutStation.banknoteOutput.receive(banknote); // splits the banknote back out 
+		return false;
+		
+		
+	}
+	
+	
+	/**
+	 * This functions actually adds the bank note to accepted list so then we can keep track of all 
+	 * the bank notes that were accepted 
+	 * 
+	 * @param banknote
+	 * @return
+	 * @throws DisabledException
+	 * @throws CashOverloadException
+	 */
+	public boolean insertBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
+		if(banknote == null)
+			throw new NullPointerException("banknote cannot be null."); // Check for null parameters.
+		boolean successfulInsertion = acceptInsertedBanknote(banknote);
+		if (successfulInsertion) {
+			banknoteList.add(banknote);
+			return true;
+		}
+		return false;
+	}
+	
+	public ArrayList<Banknote> getAcceptedBanknotesList() {
+		return banknoteList;
+	}
+	
+	
 
 }
 
