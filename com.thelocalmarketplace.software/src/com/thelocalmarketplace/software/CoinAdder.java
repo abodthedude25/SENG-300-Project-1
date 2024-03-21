@@ -33,7 +33,6 @@ import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
@@ -41,7 +40,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 public class CoinAdder {
 
-	private AbstractSelfCheckoutStation cStation;
+	private AbstractSelfCheckoutStation checkoutSystem;
 	private ArrayList<Coin> coinsList;
 
 	/*
@@ -50,7 +49,7 @@ public class CoinAdder {
 	 */
 	public CoinAdder(SelfCheckoutStationBronze cStation) {
 		if(cStation == null) throw new NullPointerException("No argument may be null.");
-		this.cStation = cStation;
+		this.checkoutSystem = cStation;
 		this.coinsList = new ArrayList<Coin>();
 
 	}
@@ -61,7 +60,7 @@ public class CoinAdder {
 	 */
 	public CoinAdder(SelfCheckoutStationSilver cStation) {
 		if(cStation == null) throw new NullPointerException("No argument may be null.");
-		this.cStation = cStation;
+		this.checkoutSystem = cStation;
 		this.coinsList = new ArrayList<Coin>();
 
 	}
@@ -72,7 +71,7 @@ public class CoinAdder {
 	 */
 	public CoinAdder(SelfCheckoutStationGold cStation) {
 		if(cStation == null) throw new NullPointerException("No argument may be null.");
-		this.cStation = cStation;
+		this.checkoutSystem = cStation;
 		this.coinsList = new ArrayList<Coin>();
 
 	}
@@ -118,14 +117,14 @@ public class CoinAdder {
 	 * @throws CashOverloadException If the cash storage is overloaded.
 	 */
 	public boolean acceptInsertedCoin(Coin coin) throws DisabledException, CashOverloadException {
-		if (this.cStation.coinStorage.hasSpace()) {
-			if (this.cStation.coinSlot.hasSpace()) {
-				this.cStation.coinSlot.receive(coin);
-				this.cStation.coinValidator.receive(coin);
+		if (this.checkoutSystem.coinStorage.hasSpace()) {
+			if (this.checkoutSystem.coinSlot.hasSpace()) {
+				this.checkoutSystem.coinSlot.receive(coin);
+				this.checkoutSystem.coinValidator.receive(coin);
 				return true;
 			}
 		}
-		this.cStation.coinTray.receive(coin);
+		this.checkoutSystem.coinTray.receive(coin);
 		return false;
 	}
 }

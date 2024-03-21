@@ -69,6 +69,10 @@ public class PaymentHandler {
 	private ArrayList<Item> allItemOrders;
 	private ReceiptPrinterBronze printerBronze;
 	private ArrayList<Coin> coinsList;
+	private ArrayList<Banknote> banknotesList;
+
+	private Order order; // Represents the customer order
+						 // Consider adapting the other methods to reflect this global variable.
 
 	public PaymentHandler(SelfCheckoutStationBronze station, Order order) throws EmptyDevice, OverloadedDevice {
 		if (station == null)
@@ -80,6 +84,9 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 	
 	public PaymentHandler(SelfCheckoutStationSilver station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -92,6 +99,9 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 
 	public PaymentHandler(SelfCheckoutStationGold station, Order order) throws EmptyDevice, OverloadedDevice {
@@ -104,6 +114,9 @@ public class PaymentHandler {
 		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
 		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
+		this.banknotesList = new ArrayList<Banknote>();
+
+		this.order = order;
 	}
 
 	/**
@@ -283,6 +296,26 @@ public class PaymentHandler {
 			return false;
 		}
 	}
+
+	/**
+	 * Accepts a banknote inserted by the customer into the banknote slot
+	 * @param banknote to be validated and accepted
+	 * @return true if the banknote is successfully accepted, false otherwise
+	 * @throws DisabledException if the banknote slot is disabled.
+	 * @throws CashOverloadException if the banknote storage is overloaded
+	 */
+	public boolean acceptInsertedBanknote(Banknote banknote) throws DisabledException, CashOverloadException {
+		if (this.checkoutSystem.banknoteStorage.hasSpace()) {
+			if(this.checkoutSystem.banknoteInput.hasSpace()) {
+				this.checkoutSystem.banknoteInput.receive(banknote);
+				this.checkoutSystem.banknoteValidator.receive(banknote);
+				return true;
+			}
+		}
+		//check this, as for coin it's coinTray
+		this.checkoutSystem.banknoteOutput.receive(banknote);;
+		return false;
+	}
 	
 	/**
 	 * Prints a receipt for the customer, with all the products' info, price, the
@@ -415,6 +448,40 @@ public class PaymentHandler {
 				throw new NullPointerException("This banknote type does not exist.");
 			}
 		}
+	}
+
+	public void payWithCreditViaSwipe(Card card, BigDecimal amountCharged, CardIssuer cardIssuer) {
+		AbstractCardReader cardReader;
+		if (checkoutSystem instanceof SelfCheckoutStationBronze) {
+			cardReader = new CardReaderBronze();
+		}
+		else if (checkoutSystem instanceof SelfCheckoutStationSilver) {
+			cardReader = new CardReaderSilver();
+		}
+		else if (checkoutSystem instanceof SelfCheckoutStationGold) {
+			cardReader = new CardReaderGold();
+		} else {
+			// WRITE AN ERROR FIGURE IT OUT LATER
+			return;
+		}
+		CardData data = cardReader.swipe(card);
+		Scanner input = new Scanner(System.in);
+		System.out.println("Please Enter Signature:");
+		String signature = input.nextLine();
+		long holdNumber = cardIssuer.authorizeHold(data.getNumber(), amountCharged);
+		if (holdNumber == -1) {
+			// HOLD FAILED
+			return;
+		} 
+		boolean transaction = cardIssuer.postTransaction(data.getNumber(), holdNumber, amountCharged);
+		if (!transaction) {
+			// TRANSACTION FAILED
+			return;
+		}
+		totalCost = 0; // Update the total amount due to the customer
+		printReceiptForCustomer(order); // Print the reciept.
+
+
 	}
 
 
