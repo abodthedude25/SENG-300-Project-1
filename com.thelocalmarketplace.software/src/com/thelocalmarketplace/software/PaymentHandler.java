@@ -64,7 +64,7 @@ public class PaymentHandler {
 	public BigDecimal totalCost = new BigDecimal(0);
 	private AbstractSelfCheckoutStation checkoutSystem = null;
 	private ArrayList<Item> allItemOrders;
-	private ReceiptPrinterGold gold;
+	private ReceiptPrinterBronze printerBronze;
 	private ArrayList<Coin> coinsList;
 
 
@@ -75,9 +75,9 @@ public class PaymentHandler {
 		this.checkoutSystem = station;
 		this.allItemOrders = order.getOrder();
 		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
-		this.gold = new ReceiptPrinterGold();
-		this.gold.addInk(this.gold.MAXIMUM_INK);
-		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.printerBronze = new ReceiptPrinterBronze();
+		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
+		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 	}
 	
@@ -87,9 +87,9 @@ public class PaymentHandler {
 		this.checkoutSystem = station;
 		this.allItemOrders = order.getOrder();
 		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
-		this.gold = new ReceiptPrinterGold();
-		this.gold.addInk(this.gold.MAXIMUM_INK);
-		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.printerBronze = new ReceiptPrinterBronze();
+		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
+		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 	}
 
@@ -99,9 +99,9 @@ public class PaymentHandler {
 		this.checkoutSystem = station;
 		this.allItemOrders = order.getOrder();
 		this.totalCost = BigDecimal.valueOf(order.getTotalPrice());
-		this.gold = new ReceiptPrinterGold();
-		this.gold.addInk(this.gold.MAXIMUM_INK);
-		this.gold.addPaper(this.gold.MAXIMUM_PAPER);
+		this.printerBronze = new ReceiptPrinterBronze();
+		this.printerBronze.addInk(this.printerBronze.MAXIMUM_INK);
+		this.printerBronze.addPaper(this.printerBronze.MAXIMUM_PAPER);
 		this.coinsList = new ArrayList<Coin>();
 	}
 
@@ -345,22 +345,22 @@ public class PaymentHandler {
 
 
 		for (int i = 0; i < receiptItems.size(); i++) {
-			this.gold.print('\n');
+			this.printerBronze.print('\n');
 
-			if (this.gold.paperRemaining() == 0) {
+			if (this.printerBronze.paperRemaining() == 0) {
 				this.checkoutSystem = null;
 				throw new OutOfPaperException("This station is out of paper and needs maintenance.");
 			}
 
 			for (int j = 0; j < receiptItems.get(i).length(); j++) {
-				this.gold.print(receiptItems.get(i).charAt(j));
+				this.printerBronze.print(receiptItems.get(i).charAt(j));
 
-				if (this.gold.paperRemaining() == 0) {
+				if (this.printerBronze.paperRemaining() == 0) {
 					this.checkoutSystem = null;
 					throw new OutOfPaperException("This station is out of paper and needs maintenance.");
 				}
 
-				if (this.gold.inkRemaining() == 0) {
+				if (this.printerBronze.inkRemaining() == 0) {
 					this.checkoutSystem = null;
 					throw new OutOfPaperException("This station is out of ink and needs maintenance.");
 				}
@@ -368,8 +368,8 @@ public class PaymentHandler {
 
 		}
 
-		this.gold.cutPaper();
-		return this.gold.removeReceipt();
+		this.printerBronze.cutPaper();
+		return this.printerBronze.removeReceipt();
 	}
 
 
