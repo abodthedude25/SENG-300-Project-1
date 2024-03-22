@@ -61,6 +61,7 @@ import com.tdc.coin.ICoinDispenser;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.CoinTray;
 
+
 /**
  * There seems to be an issue with the hardware of the self-checkout stations
  * In all three tiers, they use the super constructor of AbstractSelfCheckoutStation
@@ -145,9 +146,39 @@ public class CheckoutStub extends AbstractSelfCheckoutStationStub {
 	/**
 	 * Constructor utilizing the current, static configuration.
 	 */
+//	public CheckoutStub() {
+//		super(new ElectronicScaleGold(), new ElectronicScaleSilver(), new ReceiptPrinterBronze(),
+//			new CardReaderGold(), new BarcodeScannerGold(), new BarcodeScannerSilver(), new BanknoteInsertionSlot(),
+//			new BanknoteDispensationSlot(),
+//			new BanknoteValidator(Currency.getInstance(Locale.CANADA), setBDenominations()),
+//			new BanknoteStorageUnit(1000), setBDenominations(),
+//			new HashMap<>(), new CoinSlot(), new CoinValidator(Currency.getInstance(Locale.CANADA), setCDenominations()),
+//			new CoinStorageUnit(1000), setCDenominations(), new HashMap<>(),
+//			new CoinTray(25));
+//
+//		for(int i = 0; i < coinDenominations.size(); i++)
+//			coinDispensers.put(coinDenominations.get(i), new CoinDispenserGold(100));
+//
+//		// Hook up everything.
+//		interconnect(banknoteInput, banknoteValidator);
+//		interconnect(banknoteValidator, banknoteStorage);
+//
+//		for(int i = 0; i < banknoteDenominations.length; i++)
+//			banknoteDispensers.put(banknoteDenominations[i], new BanknoteDispenserGold());
+//
+//		for(IBanknoteDispenser dispenser : banknoteDispensers.values())
+//			interconnect(dispenser, banknoteOutput);
+//
+//		interconnect(coinSlot, coinValidator);
+//		interconnect(coinValidator, coinTray, coinDispensers, coinStorage);
+//
+//		for(ICoinDispenser coinDispenser : coinDispensers.values())
+//			interconnect(coinDispenser, coinTray);
+//	}
+	
 	public CheckoutStub() {
-		super(new ElectronicScaleGold(), new ElectronicScaleSilver(), new ReceiptPrinterBronze(),
-			new CardReaderGold(), new BarcodeScannerGold(), new BarcodeScannerSilver(), new BanknoteInsertionSlot(),
+		super(new ElectronicScaleBronze(), new ElectronicScaleBronze(), new ReceiptPrinterBronze(),
+			new CardReaderBronze(), new BarcodeScannerBronze(), new BarcodeScannerBronze(), new BanknoteInsertionSlot(),
 			new BanknoteDispensationSlot(),
 			new BanknoteValidator(Currency.getInstance(Locale.CANADA), setBDenominations()),
 			new BanknoteStorageUnit(1000), setBDenominations(),
@@ -155,15 +186,15 @@ public class CheckoutStub extends AbstractSelfCheckoutStationStub {
 			new CoinStorageUnit(1000), setCDenominations(), new HashMap<>(),
 			new CoinTray(25));
 
+		for(int i = 0; i < banknoteDenominations.length; i++)
+			banknoteDispensers.put(banknoteDenominations[i], new BanknoteDispenserBronze());
+
 		for(int i = 0; i < coinDenominations.size(); i++)
-			coinDispensers.put(coinDenominations.get(i), new CoinDispenserGold(100));
+			coinDispensers.put(coinDenominations.get(i), new CoinDispenserBronze(100));
 
 		// Hook up everything.
 		interconnect(banknoteInput, banknoteValidator);
 		interconnect(banknoteValidator, banknoteStorage);
-
-		for(int i = 0; i < banknoteDenominations.length; i++)
-			banknoteDispensers.put(banknoteDenominations[i], new BanknoteDispenserGold());
 
 		for(IBanknoteDispenser dispenser : banknoteDispensers.values())
 			interconnect(dispenser, banknoteOutput);
@@ -189,17 +220,17 @@ public class CheckoutStub extends AbstractSelfCheckoutStationStub {
 	
 	private void interconnect(CoinValidator validator, CoinTray tray, Map<BigDecimal, ICoinDispenser> dispensers, CoinStorageUnit storage) {
 		OneWayChannelStub<Coin> rejectChannel = new OneWayChannelStub<Coin>(tray);
-		Map<BigDecimal, Sink<Coin>> dispenserChannels = new HashMap<BigDecimal, Sink<Coin>>();
+		Map<BigDecimal, Sink<Coin>> storageChannels = new HashMap<BigDecimal, Sink<Coin>>();
+		OneWayChannelStub<Coin> storageChannel = new OneWayChannelStub<>(storage);
 
 		for(BigDecimal denomination : dispensers.keySet()) {
-			ICoinDispenser dispenser = dispensers.get(denomination);
-			dispenserChannels.put(denomination, new OneWayChannelStub<Coin>(dispenser));
+			storageChannels.put(denomination, storageChannel);
 		}
 
 		OneWayChannelStub<Coin> overflowChannel = new OneWayChannelStub<Coin>(storage);
 
 		validator.rejectionSink = rejectChannel;
-		validator.standardSinks.putAll(dispenserChannels);
+		validator.standardSinks.putAll(storageChannels);
 		validator.overflowSink = overflowChannel;
 	}
 }
