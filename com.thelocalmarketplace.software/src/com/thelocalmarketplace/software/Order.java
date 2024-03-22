@@ -68,6 +68,33 @@ public class Order {
 	}
 
 	/**
+	 * Removes an item from the order.
+	 *
+	 * @param item The item to remove from order.
+	 * @return true if the item was successfully removed, false otherwise
+	 */
+	public boolean removeItemFromOrder(BarcodedItem item) {
+		if (this.order.contains(item)) {
+			this.order.remove(item);
+			
+			Barcode barcode = item.getBarcode();
+			BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+			if (product != null) {
+				double productWeight = product.getExpectedWeight();
+				long productPrice = product.getPrice();
+				
+				removeTotalWeightInGrams(productWeight);
+				removeTotalPrice(productPrice);
+			}
+			return true;
+		}
+		else {
+			System.out.println("Item not found in the order.");
+			return false;
+		}
+	}
+
+	/**
 	 * Gets the order.
 	 *
 	 * @return The order.
@@ -100,12 +127,18 @@ public class Order {
 	public void addTotalWeightInGrams(double weight) {
 		this.totalWeight += weight;
 	}
+	public void removeTotalWeightInGrams(double weight) {
+		this.totalWeight -= weight;
+	}
 
 	/**
 	 * Updates the total price of the order
 	 */
 	public void addTotalPrice(long price) {
 		this.totalPrice += price;
+	}
+	public void removeTotalPrice(long price) {
+		this.totalPrice -= price;
 	}
 
 	/**
