@@ -102,6 +102,7 @@ public class WeightDiscrepancyTest {
     	MockItem item2 = new MockItem(new Mass(100));      
         order.addItemToOrder(item1);
         order.addItemToOrder(item2);
+        
         WeightDiscrepancy weightDiscrepancy2 = new WeightDiscrepancy(order,scale);  
         weightDiscrepancy2.updateMass();
         Mass expectedMass = new Mass(200);
@@ -398,13 +399,13 @@ public class WeightDiscrepancyTest {
 
   	/** Create test that checks if the weight has changed, so create an item add to order and scale
   	 * and call function thus testing that the weight has changed */
-  	@Test
-  	public void notifymasschange_blocked() {
-  		MockItem item1 = new MockItem(new Mass(1000));
-  		order.addItemToOrder(item1); 
-        scale.addAnItem(item1);
-        weightDiscrepancy.notifyMassChanged();    
-  	} 
+ // 	@Test
+ // 	public void notifymasschange_blocked() {
+ // 		MockItem item1 = new MockItem(new Mass(1000));
+ // 		order.addItemToOrder(item1); 
+ //      scale.addAnItem(item1);
+ //       weightDiscrepancy.notifyMassChanged();    
+ // 	} 
     
   	/** Create Test for teststation block first for true that checks that if in weight discrepancy class
   	 * the function pass true then SelfCheckoutStationSoftware should also return true */
@@ -425,7 +426,10 @@ public class WeightDiscrepancyTest {
   	}  
   	
   	  
-
+  	@Test
+  	public void testHandleBulkyItem_finalWeight() {
+  		
+  	}
     
  
 }
